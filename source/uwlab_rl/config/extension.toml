@@ -1,0 +1,26 @@
+[package]
+
+# Note: Semantic Versioning is used: https://semver.org/
+version = "0.1.0"
+
+# Description
+title = "UW Lab RL"
+description="Extension containing reinforcement learning related utilities."
+readme  = "docs/README.md"
+repository = "https://github.com/UW-Lab/UWLab"
+category = "robotics"
+keywords = ["robotics", "rl", "wrappers", "learning"]
+
+[dependencies]
+"isaaclab" = {}
+"isaaclab_assets" = {}
+"isaaclab_tasks" = {}
+"uwlab" = {}
+"uwlab_assets" = {}
+"uwlab_tasks" = {}
+
+[core]
+reloadable = false
+
+[[python.module]]
+name = "uwlab_rl"
