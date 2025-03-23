@@ -1,0 +1,25 @@
+[package]
+
+# Semantic Versioning is used: https://semver.org/
+version = "0.13.0"
+
+# Description
+title = "UW Lab Tasks"
+readme  = "docs/README.md"
+description="Extension for Isaac Lab"
+repository = "https://github.com/UW-Lab/UWLab"
+category = "robotics"
+keywords = ["robotics", "rl", "il", "learning"]
+
+[dependencies]
+"isaaclab" = {}
+"isaaclab_assets" = {}
+"uwlab" = {}
+"uwlab_assets" = {}
+# NOTE: Add additional dependencies here
+
+[core]
+reloadable = false
+
+[[python.module]]
+name = "uwlab_tasks"
