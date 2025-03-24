@@ -1,5 +1,6 @@
-![Isaac Lab](docs/source/_static/uwlab.png)
-
+<p align="center">
+  <img src="docs/source/_static/uwlab.png" alt="Isaac Lab">
+</p>
 ---
 
 # UW Lab
@@ -27,10 +28,10 @@ In addition to what IsaacLab provides, UW Lab brings:
 
 ## Getting Started
 
-Our [documentation page](https://isaac-sim.github.io/IsaacLab) provides everything you need to get started, including detailed tutorials and step-by-step guides. Follow these links to learn more about:
+Our [documentation page](https://uw-lab.github.io/UWLab) provides everything you need to get started, including detailed tutorials and step-by-step guides. Follow these links to learn more about:
 
-- [Installation steps](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html#local-installation)
-- [Available environments](https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html)
+- [Installation steps](https://uw-lab.github.io/UWLab/main/source/setup/installation/local_installation.html)
+- [Available environments](https://uw-lab.github.io/UWLab/main/source/overview/uw_environments.html)
 
 
 ## Contributing to UW Lab
@@ -60,10 +61,10 @@ UW Lab is released under [BSD-3 License](LICENSE). The Isaac Lab framework is re
 If you found UW Lab useful, we appreciate if you cite it in academic publications:
 ```
 @software{zhang2025uwlab,
-  author       = {Zhang, Zhengyu and Yu, Feng and Castro, Mateo and Yin, Patrick and Peng, Quanquan and Scalise, Rosario},
-  title        = {{UWLab}: A Simulation Platform for Robot Learning Environment},
-  year         = {2025},
-  url          = {https://github.com/UW-Lab/UWLab}
+  author={Zhang, Zhengyu and Yu, Feng and Castro, Mateo and Yin, Patrick and Peng, Quanquan and Scalise, Rosario},
+  title={{UWLab}: A Simulation Platform for Robot Learning Environment},
+  year={2025},
+  url={https://github.com/UW-Lab/UWLab}
 }
 ```
 UW Lab development initialed from the Isaac Lab, and closely track the development of Isaac Lab. As gratitude we also appreciate if you cite Isaac Lab in academic publications:
