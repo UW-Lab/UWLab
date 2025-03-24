@@ -1,0 +1,902 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>uwlab.devices &#8212; UW Lab Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'source/api/lab/uwlab.devices';</script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.0" />
+    <meta name="docbuild:last-update" content="Mar 24, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/UW-logo-black.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/UW-logo-white.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">UW Lab Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+<nav class="bd-links bd-docs-nav">
+    <div class="bd-toc-item navbar-nav">
+      <ul class="nav bd-sidenav">
+        <li class="toctree-l1 has-children" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+          <div  style ="text-align:center;">
+            <label for="version-select" style="font-weight: bold; display: block;">Version</label>
+          </div>
+          <select id="version-select" class="version-dropdown" style="margin: 0 auto; display: block;" onchange="location = this.value;">
+            <option value="../../../../main/source/api/lab/uwlab.devices.html" >main</option>
+            <option value="uwlab.devices.html" selected>v1.0.0</option>
+          </select>
+        </li>
+      </ul>
+    </div>
+</nav>
+</div>
+        <div class="sidebar-primary-item"><ul class="navbar-icon-links"
+    aria-label="Quick Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/UW-Lab/UWLab" title="UWLab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github-alt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">UWLab</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/isaac-sim/IsaacLab" title="IsaacLab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">IsaacLab</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
+        </li>
+</ul></div>
+        <div class="sidebar-primary-item">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/installation/local_installation.html">Installing UW Lab</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Publications</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../publications/pg1.html">Parental Guidance(PG1)</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../overview/isaac_environments.html">Available Isaac Environments</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../overview/uw_environments.html">Available UW Environments</a></li>
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../refs/license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Project Links</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/UW-Lab/UWLab">UW Lab</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/isaac-sim/IsaacLab">Isaac Lab</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.omniverse.nvidia.com/isaacsim/latest/index.html">NVIDIA Isaac Sim</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia-omniverse.github.io/PhysX/physx/5.4.1/index.html">NVIDIA PhysX</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/UW-Lab/UWLab" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/UW-Lab/UWLab/edit/main/source/api/lab/uwlab.devices.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/UW-Lab/UWLab/issues/new?title=Issue%20on%20page%20%2Fsource/api/lab/uwlab.devices.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/source/api/lab/uwlab.devices.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>uwlab.devices</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#keyboard">Keyboard</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard.__init__"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard.advance"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard.advance()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard.__new__"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard.__new__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-sense">Real Sense</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265"><code class="docutils literal notranslate"><span class="pre">RealsenseT265</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265.__init__"><code class="docutils literal notranslate"><span class="pre">RealsenseT265.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265.advance"><code class="docutils literal notranslate"><span class="pre">RealsenseT265.advance()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265.__new__"><code class="docutils literal notranslate"><span class="pre">RealsenseT265.__new__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rokoko-gloves">Rokoko Gloves</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove"><code class="docutils literal notranslate"><span class="pre">RokokoGlove</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.__init__"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.reset"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.reset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.advance"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.advance()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.debug_advance_all_joint_data"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.debug_advance_all_joint_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.__new__"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.__new__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-uwlab.devices">
+<span id="uwlab-devices"></span><h1>uwlab.devices<a class="headerlink" href="#module-uwlab.devices" title="Permalink to this heading">#</a></h1>
+<p>Sub-package providing interfaces to different teleoperation devices.</p>
+<p>Currently, the following categories of devices are supported:</p>
+<ul class="simple">
+<li><p><strong>Se3Keyboard</strong>: Standard keyboard with WASD and arrow keys.</p></li>
+<li><p><strong>RealsenseT265</strong>: Realsense cameras 6 degrees of freedom.</p></li>
+<li><p><strong>RokokoGlove</strong>: Rokoko gloves that track position and quaternion of the hand.</p></li>
+</ul>
+<p>All device interfaces inherit from the <code class="xref py py-class docutils literal notranslate"><span class="pre">isaaclab.devices.DeviceBase</span></code> class, which provides a
+common interface for all devices. The device interface reads the input data when
+the <code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceBase.advance()</span></code> method is called. It also provides the function <code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceBase.add_callback()</span></code>
+to add user-defined callback functions to be called when a particular input is pressed from
+the peripheral device.</p>
+<p class="rubric">Classes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.Se3Keyboard" title="uwlab.devices.Se3Keyboard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Se3Keyboard</span></code></a></p></td>
+<td><p>A keyboard controller for sending SE(3) commands as absolute poses and binary command (open/close).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#uwlab.devices.RealsenseT265" title="uwlab.devices.RealsenseT265"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RealsenseT265</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.RokokoGlove" title="uwlab.devices.RokokoGlove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RokokoGlove</span></code></a></p></td>
+<td><p>A Rokoko_Glove controller for sending SE(3) commands as absolute poses of hands individual part This class is designed to track hands and fingers's pose from rokoko gloves.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="keyboard">
+<h2>Keyboard<a class="headerlink" href="#keyboard" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uwlab.devices.Se3Keyboard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uwlab.devices.</span></span><span class="sig-name descname"><span class="pre">Se3Keyboard</span></span><a class="reference internal" href="../../../_modules/uwlab/devices/se3_keyboard.html#Se3Keyboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.Se3Keyboard" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Se3Keyboard</span></code></p>
+<p>A keyboard controller for sending SE(3) commands as absolute poses and binary command (open/close).</p>
+<p>This class is designed to provide a keyboard controller for a robotic arm with a gripper.
+It uses the Omniverse keyboard interface to listen to keyboard events and map them to robot’s
+task-space commands. Different from Isaac Lab Se3Keyboard that adds delta command to current robot pose,
+this implementation controls a target pose which robot actively tracks. this error corrective property is
+advantageous to use when robot is prone to drift or under actuated</p>
+<p>The command comprises of two parts:</p>
+<ul class="simple">
+<li><p>absolute pose: a 6D vector of (x, y, z, roll, pitch, yaw) in meters and radians.</p></li>
+<li><p>gripper: a binary command to open or close the gripper.</p></li>
+</ul>
+<dl>
+<dt>Key bindings:</dt><dd><div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Description</p></th>
+<th class="head"><p>Key (+ve axis)</p></th>
+<th class="head"><p>Key (-ve axis)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Toggle gripper (open/close)</p></td>
+<td><p>K</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Move along x-axis</p></td>
+<td><p>W</p></td>
+<td><p>S</p></td>
+</tr>
+<tr class="row-even"><td><p>Move along y-axis</p></td>
+<td><p>A</p></td>
+<td><p>D</p></td>
+</tr>
+<tr class="row-odd"><td><p>Move along z-axis</p></td>
+<td><p>Q</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>Rotate along x-axis</p></td>
+<td><p>Z</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-odd"><td><p>Rotate along y-axis</p></td>
+<td><p>T</p></td>
+<td><p>G</p></td>
+</tr>
+<tr class="row-even"><td><p>Rotate along z-axis</p></td>
+<td><p>C</p></td>
+<td><p>V</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>The official documentation for the keyboard interface: <a class="reference external" href="https://docs.omniverse.nvidia.com/dev-guide/latest/programmer_ref/input-devices/keyboard.html">Carb Keyboard Interface</a>.</p>
+</div>
+<p><strong>Methods:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.Se3Keyboard.__init__" title="uwlab.devices.Se3Keyboard.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(cfg[, device])</p></td>
+<td><p>Initialize the keyboard layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#uwlab.devices.Se3Keyboard.advance" title="uwlab.devices.Se3Keyboard.advance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advance</span></code></a>()</p></td>
+<td><p>Provides the result from internal target command modified by keyboard event.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.Se3Keyboard.__new__" title="uwlab.devices.Se3Keyboard.__new__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__new__</span></code></a>(cls, *args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.Se3Keyboard.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">KeyboardCfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda:0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/se3_keyboard.html#Se3Keyboard.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.Se3Keyboard.__init__" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize the keyboard layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos_sensitivity</strong> – Magnitude of input position command scaling. Defaults to 0.05.</p></li>
+<li><p><strong>rot_sensitivity</strong> – Magnitude of scale input rotation commands scaling. Defaults to 0.5.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.Se3Keyboard.advance">
+<span class="sig-name descname"><span class="pre">advance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/se3_keyboard.html#Se3Keyboard.advance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.Se3Keyboard.advance" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides the result from internal target command modified by keyboard event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple containing the absolute pose command and gripper commands.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.Se3Keyboard.__new__">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></span><a class="headerlink" href="#uwlab.devices.Se3Keyboard.__new__" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="real-sense">
+<h2>Real Sense<a class="headerlink" href="#real-sense" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uwlab.devices.RealsenseT265">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uwlab.devices.</span></span><span class="sig-name descname"><span class="pre">RealsenseT265</span></span><a class="reference internal" href="../../../_modules/uwlab/devices/realsense_t265.html#RealsenseT265"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RealsenseT265" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceBase</span></code></p>
+<p><strong>Methods:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.RealsenseT265.__init__" title="uwlab.devices.RealsenseT265.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(cfg[, device])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#uwlab.devices.RealsenseT265.advance" title="uwlab.devices.RealsenseT265.advance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advance</span></code></a>()</p></td>
+<td><p>Advance the device state, read the device translational and rotational data, then transform them xyz rpy that makes intuitive sense in Isaac Sim world coordinates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.RealsenseT265.__new__" title="uwlab.devices.RealsenseT265.__new__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__new__</span></code></a>(cls, *args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RealsenseT265.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RealsenseT265Cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda:0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/realsense_t265.html#RealsenseT265.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RealsenseT265.__init__" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RealsenseT265.advance">
+<span class="sig-name descname"><span class="pre">advance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/realsense_t265.html#RealsenseT265.advance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RealsenseT265.advance" title="Permalink to this definition">#</a></dt>
+<dd><p>Advance the device state, read the device translational and rotational data,
+then transform them xyz rpy that makes intuitive sense in Isaac Sim world coordinates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RealsenseT265.__new__">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></span><a class="headerlink" href="#uwlab.devices.RealsenseT265.__new__" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="rokoko-gloves">
+<h2>Rokoko Gloves<a class="headerlink" href="#rokoko-gloves" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uwlab.devices.RokokoGlove">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uwlab.devices.</span></span><span class="sig-name descname"><span class="pre">RokokoGlove</span></span><a class="reference internal" href="../../../_modules/uwlab/devices/rokoko_glove.html#RokokoGlove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RokokoGlove" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceBase</span></code></p>
+<p>A Rokoko_Glove controller for sending SE(3) commands as absolute poses of hands individual part
+This class is designed to track hands and fingers’s pose from rokoko gloves.
+It uses the udp network protocol to listen to Rokoko Live Studio data gathered from Rokoko smart gloves,
+and process the data in form of torch Tensor.
+Addressing the efficiency and ease to understand, the tracking will only be performed with user’s parts
+input, and all Literal of available parts is exhaustively listed in the comment under method __init__.</p>
+<dl class="simple">
+<dt>available tracking literals:</dt><dd><dl class="simple">
+<dt>LEFT_HAND:</dt><dd><p>leftHand, leftThumbProximal, leftThumbMedial, leftThumbDistal, leftThumbTip,
+leftIndexProximal, leftIndexMedial, leftIndexDistal, leftIndexTip,
+leftMiddleProximal, leftMiddleMedial, leftMiddleDistal, leftMiddleTip,
+leftRingProximal, leftRingMedial, leftRingDistal, leftRingTip,
+leftLittleProximal, leftLittleMedial, leftLittleDistal, leftLittleTip</p>
+</dd>
+<dt>RIGHT_HAND:</dt><dd><p>rightHand, rightThumbProximal, rightThumbMedial, rightThumbDistal, rightThumbTip
+rightIndexProximal, rightIndexMedial, rightIndexDistal, rightIndexTip,
+rightMiddleProximal, rightMiddleMedial, rightMiddleDistal, rightMiddleTip
+rightRingProximal, rightRingMedial, rightRingDistal, rightRingTip,
+rightLittleProximal, rightLittleMedial, rightLittleDistal, rightLittleTip</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><strong>Methods:</strong></p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.RokokoGlove.__init__" title="uwlab.devices.RokokoGlove.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(cfg[, device])</p></td>
+<td><p>Initialize the Rokoko_Glove Controller.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#uwlab.devices.RokokoGlove.reset" title="uwlab.devices.RokokoGlove.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></a>()</p></td>
+<td><p>Reset Internal Buffer</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.RokokoGlove.advance" title="uwlab.devices.RokokoGlove.advance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advance</span></code></a>()</p></td>
+<td><p>Provides the properly scaled, ordered, selected tracking results received from Rokoko Studio.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#uwlab.devices.RokokoGlove.debug_advance_all_joint_data" title="uwlab.devices.RokokoGlove.debug_advance_all_joint_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_advance_all_joint_data</span></code></a>()</p></td>
+<td><p>Provides the properly scaled, all tracking results received from Rokoko Studio.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uwlab.devices.RokokoGlove.__new__" title="uwlab.devices.RokokoGlove.__new__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__new__</span></code></a>(cls, *args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RokokoGlove.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RokokoGlovesCfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda:0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/rokoko_glove.html#RokokoGlove.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RokokoGlove.__init__" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize the Rokoko_Glove Controller.
+Be aware that current implementation outputs pose of each hand part in the same order as input list,
+but parts come from left hand always come before parts from right hand.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>UDP_IP</strong> – The IP Address of network to listen to, 0.0.0.0 refers to all available networks</p></li>
+<li><p><strong>UDP_PORT</strong> – The port Rokoko Studio Live sends to</p></li>
+<li><p><strong>left_hand_track</strong> – the tracking point of left hand this class will be tracking.</p></li>
+<li><p><strong>right_hand_track</strong> – the tracking point of right hand this class will be tracking.</p></li>
+<li><p><strong>scale</strong> – the overall scale for the hand.</p></li>
+<li><p><strong>proximal_offset</strong> – the inter proximal offset that shorten or widen the spread of hand.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RokokoGlove.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/rokoko_glove.html#RokokoGlove.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RokokoGlove.reset" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset Internal Buffer</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RokokoGlove.advance">
+<span class="sig-name descname"><span class="pre">advance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/rokoko_glove.html#RokokoGlove.advance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RokokoGlove.advance" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides the properly scaled, ordered, selected tracking results received from Rokoko Studio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple containing the 2D (n,7) pose array ordered by user inputted joint track list, and a dummy truth value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RokokoGlove.debug_advance_all_joint_data">
+<span class="sig-name descname"><span class="pre">debug_advance_all_joint_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/uwlab/devices/rokoko_glove.html#RokokoGlove.debug_advance_all_joint_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uwlab.devices.RokokoGlove.debug_advance_all_joint_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides the properly scaled, all tracking results received from Rokoko Studio.
+It is intended to use a debug and visualization function inspecting all data from Rokoko Glove.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>0-21, right:21-42), and a dummy truth value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the 2D (42,7) pose array(left</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uwlab.devices.RokokoGlove.__new__">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></span><a class="headerlink" href="#uwlab.devices.RokokoGlove.__new__" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#keyboard">Keyboard</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard.__init__"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard.advance"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard.advance()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.Se3Keyboard.__new__"><code class="docutils literal notranslate"><span class="pre">Se3Keyboard.__new__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-sense">Real Sense</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265"><code class="docutils literal notranslate"><span class="pre">RealsenseT265</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265.__init__"><code class="docutils literal notranslate"><span class="pre">RealsenseT265.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265.advance"><code class="docutils literal notranslate"><span class="pre">RealsenseT265.advance()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RealsenseT265.__new__"><code class="docutils literal notranslate"><span class="pre">RealsenseT265.__new__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rokoko-gloves">Rokoko Gloves</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove"><code class="docutils literal notranslate"><span class="pre">RokokoGlove</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.__init__"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.reset"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.reset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.advance"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.advance()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.debug_advance_all_joint_data"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.debug_advance_all_joint_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uwlab.devices.RokokoGlove.__new__"><code class="docutils literal notranslate"><span class="pre">RokokoGlove.__new__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The UW Lab Project Developers.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2025, The UW Lab Project Developers..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Mar 24, 2025.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
