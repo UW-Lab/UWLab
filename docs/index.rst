@@ -32,6 +32,19 @@ Please refer to :ref:`license` for more details.
 
 Acknowledgement
 ===============
+
+If you found UW Lab useful, we appreciate if you cite it in academic publications:
+
+.. code:: bibtex
+
+   @software{zhang2025uwlab,
+      author       = {Zhang, Zhengyu and Yu, Feng and Castro, Mateo and Yin, Patrick and Peng, Quanquan and Scalise, Rosario},
+      title        = {{UWLab}: A Simulation Platform for Robot Learning Environment},
+      year         = {2025},
+      url          = {https://github.com/UW-Lab/UWLab}
+   }
+
+
 UW Lab development initiated from the `Orbit <https://isaac-orbit.github.io/>`_ framework.
 please cite orbit in academic publications as well in honor of the original authors.:
 

@@ -57,8 +57,16 @@ UW Lab is released under [BSD-3 License](LICENSE). The Isaac Lab framework is re
 
 ## Acknowledgement
 
-UW Lab development initialed from the Isaac Lab, and closely track the development of Isaac Lab. As gratitude we appreciate if you cite Isaac Lab in academic publications:
-
+If you found UW Lab useful, we appreciate if you cite it in academic publications:
+```
+@software{zhang2025uwlab,
+  author       = {Zhang, Zhengyu and Yu, Feng and Castro, Mateo and Yin, Patrick and Peng, Quanquan and Scalise, Rosario},
+  title        = {{UWLab}: A Simulation Platform for Robot Learning Environment},
+  year         = {2025},
+  url          = {https://github.com/UW-Lab/UWLab}
+}
+```
+UW Lab development initialed from the Isaac Lab, and closely track the development of Isaac Lab. As gratitude we also appreciate if you cite Isaac Lab in academic publications:
 ```
 @article{mittal2023orbit,
    author={Mittal, Mayank and Yu, Calvin and Yu, Qinxi and Liu, Jingzhou and Rudin, Nikita and Hoeller, David and Yuan, Jia Lin and Singh, Ritvik and Guo, Yunrong and Mazhar, Hammad and Mandlekar, Ajay and Babich, Buck and State, Gavriel and Hutter, Marco and Garg, Animesh},
