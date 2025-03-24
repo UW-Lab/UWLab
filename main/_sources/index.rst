@@ -38,10 +38,10 @@ If you found UW Lab useful, we appreciate if you cite it in academic publication
 .. code:: bibtex
 
    @software{zhang2025uwlab,
-      author       = {Zhang, Zhengyu and Yu, Feng and Castro, Mateo and Yin, Patrick and Peng, Quanquan and Scalise, Rosario},
-      title        = {{UWLab}: A Simulation Platform for Robot Learning Environment},
-      year         = {2025},
-      url          = {https://github.com/UW-Lab/UWLab}
+      author={Zhang, Zhengyu and Yu, Feng and Castro, Mateo and Yin, Patrick and Peng, Quanquan and Scalise, Rosario},
+      title={{UWLab}: A Simulation Platform for Robot Learning Environment},
+      year={2025},
+      url={https://github.com/UW-Lab/UWLab}
    }
 
 
