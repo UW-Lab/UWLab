@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -8,7 +8,7 @@ import atexit
 import logging
 import numpy as np
 import time
-from typing import Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
 
 PROTOCOL_VERSION = 2.0
 
@@ -74,9 +74,9 @@ class DynamixelClient:
         port: str = "/dev/ttyUSB0",
         baudrate: int = 1000000,
         lazy_connect: bool = False,
-        pos_scale: Optional[float] = None,
-        vel_scale: Optional[float] = None,
-        cur_scale: Optional[float] = None,
+        pos_scale: float | None = None,
+        vel_scale: float | None = None,
+        cur_scale: float | None = None,
     ):
         """Initializes a new client.
         Args:
@@ -211,7 +211,7 @@ class DynamixelClient:
             time.sleep(retry_interval)
             retries -= 1
 
-    def read_pos_vel_cur(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def read_pos_vel_cur(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Returns the current positions and velocities."""
         return self._pos_vel_cur_reader.read()
 
@@ -262,7 +262,7 @@ class DynamixelClient:
                 errored_ids.append(motor_id)
         return errored_ids
 
-    def sync_write(self, motor_ids: Sequence[int], values: Sequence[Union[int, float]], address: int, size: int):
+    def sync_write(self, motor_ids: Sequence[int], values: Sequence[int | float], address: int, size: int):
         """Writes values to a group of motors.
         Args:
             motor_ids: The motor IDs to write to.
@@ -302,9 +302,9 @@ class DynamixelClient:
     def handle_packet_result(
         self,
         comm_result: int,
-        dxl_error: Optional[int] = None,
-        dxl_id: Optional[int] = None,
-        context: Optional[str] = None,
+        dxl_error: int | None = None,
+        dxl_id: int | None = None,
+        context: str | None = None,
     ):
         """Handles the result from a communication request."""
         error_message = None

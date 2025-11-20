@@ -1,7 +1,13 @@
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 from __future__ import annotations
 
 from isaaclab.envs.mdp.actions.actions_cfg import JointEffortActionCfg, JointPositionActionCfg
 from isaaclab.utils import configclass
+
 from uwlab.controllers.differential_ik_cfg import MultiConstraintDifferentialIKControllerCfg
 from uwlab.envs.mdp.actions.actions_cfg import MultiConstraintsDifferentialInverseKinematicsActionCfg
 

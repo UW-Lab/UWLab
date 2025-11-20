@@ -4,7 +4,7 @@ Parental Guidance(PG1)
 Links
 -----
 - **Paper on OpenReview:** `Parental Guidance: Efficient Lifelong Learning through Evolutionary Distillation <https://openreview.net/forum?id=mFaPH8JZLC>`_
-- **GitHub Repository:** `UW Lab GitHub <https://github.com/UW-Lab/UWLab>`_
+- **GitHub Repository:** `UW Lab GitHub <https://github.com/uw-lab/UWLab>`_
 
 Authors
 -------

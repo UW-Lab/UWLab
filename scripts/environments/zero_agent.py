@@ -1,9 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,7 +33,10 @@ import gymnasium as gym
 import torch
 
 import isaaclab_tasks  # noqa: F401
+import uwlab_tasks  # noqa: F401
 from isaaclab_tasks.utils import parse_env_cfg
+
+# PLACEHOLDER: Extension template (do not remove this comment)
 
 
 def main():

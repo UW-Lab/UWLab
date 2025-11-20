@@ -1,13 +1,10 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 import numpy as np
 import torch
-from typing import List
-
-from uwlab.terrains.terrain_generator_cfg import MultiOriginTerrainGeneratorCfg
 
 
 # MUTATION FUNCTIONS
@@ -47,7 +44,7 @@ def random_dict(rng: np.random.Generator, val, mutation_rate: float, dict: dict)
     return {key: value}
 
 
-def mutate_terrain_cfg(rng: np.random.Generator, val, mutation_rate, cfg: MultiOriginTerrainGeneratorCfg):
+def mutate_terrain_cfg(rng: np.random.Generator, val, mutation_rate, cfg):
     key = random_selection(rng, val, mutation_rate, list(cfg.sub_terrains.keys()))
     value = cfg.sub_terrains[key]
     sub_terrain = {key: value}
@@ -58,7 +55,7 @@ def mutate_terrain_cfg(rng: np.random.Generator, val, mutation_rate, cfg: MultiO
 # BREEDING FUNCTIONS
 
 
-def breed_terrain_cfg(this_val: MultiOriginTerrainGeneratorCfg, other_val: MultiOriginTerrainGeneratorCfg):
+def breed_terrain_cfg(this_val, other_val):
     num_sub_terrains = len(this_val.sub_terrains) + len(other_val.sub_terrains)
     width = np.ceil(np.sqrt(num_sub_terrains))
     this_val.num_cols = width
@@ -67,11 +64,11 @@ def breed_terrain_cfg(this_val: MultiOriginTerrainGeneratorCfg, other_val: Multi
 
 
 def value_distribution(
-    values: List[float],
+    values: list[float],
     distribute_to_n_values: int,
     value_to_distribute: float | None = None,
     equal_distribution: bool = False,
-) -> List[float]:
+) -> list[float]:
     """Redistributes the total sum of values to the top n values based on their initial proportion."""
     if distribute_to_n_values <= 0 or distribute_to_n_values > len(values):
         raise ValueError("distribute_to_n_values must be greater than 0 and less than or equal to the length of values")
@@ -94,7 +91,7 @@ def value_distribution(
     return output.tolist()
 
 
-def probability_distribution(vals: List[float], distribute_to_n_values: int) -> List[float]:
+def probability_distribution(vals: list[float], distribute_to_n_values: int) -> list[float]:
     """Converts redistributed values into a valid probability distribution using softmax and returns it as a list of floats."""
     # First, redistribute the values
     redistributed_vals = value_distribution(vals, distribute_to_n_values)

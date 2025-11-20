@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -19,8 +19,8 @@ def get_dof_stress_von_mises_optimized(
     c: float,
 ) -> torch.Tensor:
     # Transform forces and torques to body frame
-    forces_b = math_utils.quat_rotate_inverse(bodies_quat, forces_w)
-    torques_b = math_utils.quat_rotate_inverse(bodies_quat, torques_w)
+    forces_b = math_utils.quat_apply_inverse(bodies_quat, forces_w)
+    torques_b = math_utils.quat_apply_inverse(bodies_quat, torques_w)
 
     # Extract force and torque components
     F = forces_b  # Shape: (..., 3)

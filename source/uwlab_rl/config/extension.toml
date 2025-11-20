@@ -1,13 +1,13 @@
 [package]
 
 # Note: Semantic Versioning is used: https://semver.org/
-version = "0.1.2"
+version = "0.1.3"
 
 # Description
 title = "UW Lab RL"
 description="Extension containing reinforcement learning related utilities."
 readme  = "docs/README.md"
-repository = "https://github.com/UW-Lab/UWLab"
+repository = "https://github.com/uw-lab/UWLab"
 category = "robotics"
 keywords = ["robotics", "rl", "wrappers", "learning"]
 

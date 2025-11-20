@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -7,6 +7,7 @@ import math
 from dataclasses import MISSING
 
 import isaaclab.sim as sim_utils
+import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
 from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import CurriculumTermCfg as CurrTerm
@@ -16,14 +17,12 @@ from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sensors import ContactSensorCfg, RayCasterCfg, patterns
+from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
-from uwlab.scene import InteractiveSceneCfg
-from uwlab.terrains import TerrainImporterCfg
-
-import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 
 from uwlab.terrains.config.rough import ROUGH_TERRAINS_CFG  # isort: skip
 
@@ -58,7 +57,7 @@ class MySceneCfg(InteractiveSceneCfg):
     height_scanner = RayCasterCfg(
         prim_path="{ENV_REGEX_NS}/Robot/base",
         offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
-        attach_yaw_only=True,
+        ray_alignment="yaw",
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=(1.6, 1.0)),
         debug_vis=False,
         mesh_prim_paths=["/World/ground"],

@@ -1,9 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -13,9 +8,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import isaacsim.core.utils.prims as prim_utils
-from pxr import PhysxSchema, Usd, UsdPhysics, UsdShade
-
 from isaaclab.sim.utils import clone, safe_set_attribute_on_usd_schema
+from pxr import PhysxSchema, Usd, UsdPhysics, UsdShade
 
 if TYPE_CHECKING:
     from . import physics_materials_cfg

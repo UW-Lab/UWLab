@@ -1,12 +1,10 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 from isaaclab.utils import configclass
-
-from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg
-from uwlab_rl.rsl_rl import RslRlFancyPpoAlgorithmCfg, SymmetryCfg
+from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg, RslRlSymmetryCfg
 
 from ..augment import aug_func
 
@@ -25,7 +23,7 @@ class AdvanceSkillsSpotPPORunnerCfg(RslRlOnPolicyRunnerCfg):
         critic_hidden_dims=[512, 256, 128],
         activation="elu",
     )
-    algorithm = RslRlFancyPpoAlgorithmCfg(
+    algorithm = RslRlPpoAlgorithmCfg(
         value_loss_coef=1.0,
         use_clipped_value_loss=True,
         clip_param=0.2,
@@ -38,5 +36,7 @@ class AdvanceSkillsSpotPPORunnerCfg(RslRlOnPolicyRunnerCfg):
         lam=0.95,
         desired_kl=0.01,
         max_grad_norm=1.0,
-        symmetry_cfg=SymmetryCfg(use_data_augmentation=True, use_mirror_loss=False, data_augmentation_func=aug_func),
+        symmetry_cfg=RslRlSymmetryCfg(
+            use_data_augmentation=True, use_mirror_loss=False, data_augmentation_func=aug_func
+        ),
     )

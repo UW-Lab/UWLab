@@ -1,9 +1,7 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
-
-from typing import List
 
 from uwlab.sim.converters import MeshConverterCfg
 from uwlab.sim.converters.common_material_property_cfg import PVCCfg, SteelCfg
@@ -35,4 +33,4 @@ SHELF = SteelCfg(
     visual_material_props=common_materials.SteelVisualMaterialCfg(diffuse_color=(0.1, 0.1, 0.4)),
 )
 
-WORKBENCH_CONVERSION_CFG: List[MeshConverterCfg] = [BLOCK, BOX, SHELF]
+WORKBENCH_CONVERSION_CFG: list[MeshConverterCfg] = [BLOCK, BOX, SHELF]

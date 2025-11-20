@@ -1,9 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -71,6 +66,7 @@ def process_run(args):
 
 def download_experiment_tensorboard_logs(uri: str, experiment_name: str, download_dir: str) -> None:
     """Download MLflow experiment logs and convert to TensorBoard format."""
+    # import logger
     logger = logging.getLogger(__name__)
 
     try:

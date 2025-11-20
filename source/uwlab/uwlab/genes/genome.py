@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -10,9 +10,9 @@ import re
 from typing import TYPE_CHECKING
 
 from isaaclab.envs import ManagerBasedRLEnvCfg
-from uwlab.genes.gene import GeneOperatorBase, GeneOperatorBaseCfg, TupleGeneBaseCfg
-
 from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg
+
+from uwlab.genes.gene import GeneOperatorBase, GeneOperatorBaseCfg, TupleGeneBaseCfg
 
 if TYPE_CHECKING:
     from .genome_cfg import GenomeCfg

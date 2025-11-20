@@ -1,8 +1,10 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
+import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab.envs import ViewerCfg
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
@@ -11,11 +13,9 @@ from isaaclab.managers import RewardTermCfg, SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
-from uwlab.envs.mdp import DefaultJointPositionStaticActionCfg
-
-import isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
-import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab_tasks.manager_based.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg
+
+from uwlab.envs.mdp import DefaultJointPositionStaticActionCfg
 
 ##
 # Pre-defined configs

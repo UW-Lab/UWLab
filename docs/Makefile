@@ -15,4 +15,10 @@ multi-docs:
 
 .PHONY: current-docs
 current-docs:
-	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)/current" $(SPHINXOPTS)
+	@rm -rf "$(BUILDDIR)/current"
+	@$(SPHINXBUILD) -W --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/current" $(SPHINXOPTS)
+
+.PHONY: serve-current
+serve-current: current-docs
+	@echo "Serving docs at http://127.0.0.1:8000 (Ctrl+C to stop)"
+	@python -m http.server 8000 --bind 127.0.0.1

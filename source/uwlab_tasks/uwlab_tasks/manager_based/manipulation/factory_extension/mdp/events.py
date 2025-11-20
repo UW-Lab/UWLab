@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -13,6 +13,7 @@ from isaaclab.controllers import DifferentialIKControllerCfg
 from isaaclab.envs.mdp.actions.task_space_actions import DifferentialInverseKinematicsAction
 from isaaclab.managers import EventTermCfg, ManagerTermBase, SceneEntityCfg
 from isaaclab.utils import math as math_utils
+
 from uwlab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 
 from ..assembly_keypoints import KEYPOINTS_NISTBOARD

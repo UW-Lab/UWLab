@@ -1,9 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -18,14 +13,13 @@ from collections.abc import Sequence
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING
 
-import isaacsim.core.utils.stage as stage_utils
-import omni.log
-from pxr import PhysxSchema, UsdPhysics
-
 import isaaclab.utils.math as math_utils
 import isaaclab.utils.string as string_utils
+import isaacsim.core.utils.stage as stage_utils
+import omni.log
 from isaaclab.actuators import ActuatorBase, ActuatorBaseCfg, ImplicitActuator
 from isaaclab.utils.types import ArticulationActions
+from pxr import PhysxSchema, UsdPhysics
 
 from ..asset_base import AssetBase
 from .articulation_data import ArticulationData
@@ -1489,19 +1483,17 @@ class UniversalArticulation(AssetBase):
         table.align["Name"] = "l"
         # add info on each term
         for index, name in enumerate(self.joint_names):
-            table.add_row(
-                [
-                    index,
-                    name,
-                    stiffnesses[index],
-                    dampings[index],
-                    armatures[index],
-                    frictions[index],
-                    position_limits[index],
-                    velocity_limits[index],
-                    effort_limits[index],
-                ]
-            )
+            table.add_row([
+                index,
+                name,
+                stiffnesses[index],
+                dampings[index],
+                armatures[index],
+                frictions[index],
+                position_limits[index],
+                velocity_limits[index],
+                effort_limits[index],
+            ])
 
         # read out all tendon parameters from simulation
         if self.num_fixed_tendons > 0:
@@ -1527,14 +1519,12 @@ class UniversalArticulation(AssetBase):
             ]
             # add info on each term
             for index in range(self.num_fixed_tendons):
-                tendon_table.add_row(
-                    [
-                        index,
-                        ft_stiffnesses[index],
-                        ft_dampings[index],
-                        ft_limit_stiffnesses[index],
-                        ft_limits[index],
-                        ft_rest_lengths[index],
-                        ft_offsets[index],
-                    ]
-                )
+                tendon_table.add_row([
+                    index,
+                    ft_stiffnesses[index],
+                    ft_dampings[index],
+                    ft_limit_stiffnesses[index],
+                    ft_limits[index],
+                    ft_rest_lengths[index],
+                    ft_offsets[index],
+                ])

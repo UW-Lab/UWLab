@@ -1,0 +1,49 @@
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Codeowners are designated by their GitHub username. They are
+# the people who are responsible for reviewing and approving PRs
+# that modify the files that match the pattern.
+#
+# Codeowners are not the same as contributors. They are not
+# automatically added to the PR, but they will be requested to
+# review the PR when it is created.
+#
+# As a general rule, the codeowners are the people who are
+# most familiar with the code that the PR is modifying. If you
+# are not sure who to add, ask in the issue or in the PR itself.
+#
+# The format of the file is as follows:
+# <file pattern> <codeowners>
+
+# Core Framework
+/source/uwlab @zoctipus
+
+# RL Environment
+/source/uwlab_tasks @zoctipus
+
+# Assets
+/source/uwlab_assets @zoctipus
+
+# RL
+/source/uwlab_rl @zoctipus @patrickhaoy
+
+# Application
+/source/uwlab_apps @zoctipus @patrickhaoy
+
+# Standalone Scripts
+/scripts @zoctipus
+/scripts_v2 @zoctipus
+
+# Github Actions
+/.github/ @zoctipus
+
+# Visual Studio Code
+/.vscode/ @zoctipus
+
+# Infrastructure (Docker, Docs, Tools)
+/docker/ @zoctipus
+/docs/ @zoctipus
+/tools/ @zoctipus

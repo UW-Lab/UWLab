@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,6 +42,5 @@ def delta_action_l2(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    asset: Articulation = env.scene[asset_cfg.name]
-    delta_action = env.action_manager.action - asset.data.joint_pos
+    delta_action = env.action_manager.action - env.action_manager.prev_action
     return torch.sum(torch.square(delta_action), dim=1)

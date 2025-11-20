@@ -1,11 +1,9 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 from dataclasses import MISSING
-
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 import isaaclab.sim as sim_utils
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
@@ -19,6 +17,8 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils import configclass
+
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 from . import mdp
 

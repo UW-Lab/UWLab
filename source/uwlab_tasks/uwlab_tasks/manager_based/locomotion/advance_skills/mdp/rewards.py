@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -9,14 +9,12 @@
 import torch
 
 from isaaclab.assets import Articulation
+from isaaclab.envs import ManagerBasedRLEnv
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import ContactSensor
-from uwlab.envs import DataManagerBasedRLEnv
 
 
-def task_reward(
-    env: DataManagerBasedRLEnv, reward_window: float = 1.0  # Represents Tr, the length of the reward window
-):
+def task_reward(env: ManagerBasedRLEnv, reward_window: float = 1.0):  # Represents Tr, the length of the reward window
     #
     # See section II.B (page 3) Exploration Reward for details.
     # Calculate the time step at which the reward window starts
@@ -39,7 +37,7 @@ def task_reward(
     return residue_task_reward
 
 
-def heading_tracking(env: DataManagerBasedRLEnv, distance_threshold: float = 2.0, reward_window: float = 2.0):
+def heading_tracking(env: ManagerBasedRLEnv, distance_threshold: float = 2.0, reward_window: float = 2.0):
     desired_heading = env.command_manager.get_command("goal_point")[:, 3]
     reward_start_step = env.max_episode_length * (1 - reward_window / env.max_episode_length_s)
     current_dist = env.command_manager.get_command("goal_point")[:, :2].norm(2, -1)
@@ -53,7 +51,7 @@ def heading_tracking(env: DataManagerBasedRLEnv, distance_threshold: float = 2.0
     return r_heading_tracking
 
 
-def exploration_reward(env: DataManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
+def exploration_reward(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
     # Retrieve the robot and target data
     robot: Articulation = env.scene[robot_cfg.name]
     base_velocity = robot.data.root_lin_vel_b  # Robot's current base velocity vector
@@ -75,7 +73,7 @@ def exploration_reward(env: DataManagerBasedRLEnv, robot_cfg: SceneEntityCfg = S
 
 
 def stall_penalty(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     base_vel_threshold: float = 0.1,
     distance_threshold: float = 0.5,
@@ -86,7 +84,7 @@ def stall_penalty(
     return (base_vel < base_vel_threshold) & (distance_to_goal > distance_threshold)
 
 
-def illegal_contact_penalty(env: DataManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg):
+def illegal_contact_penalty(env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg):
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]  # type: ignore
     net_contact_forces = contact_sensor.data.net_forces_w_history
     # check if any contact force exceeds the threshold
@@ -96,20 +94,20 @@ def illegal_contact_penalty(env: DataManagerBasedRLEnv, threshold: float, sensor
     ).float()
 
 
-def feet_lin_acc_l2(env: DataManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
+def feet_lin_acc_l2(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
     robot: Articulation = env.scene[robot_cfg.name]
     feet_acc = torch.sum(torch.square(robot.data.body_lin_acc_w[..., robot_cfg.body_ids, :]), dim=(1, 2))
     return feet_acc
 
 
-def feet_rot_acc_l2(env: DataManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
+def feet_rot_acc_l2(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
     robot: Articulation = env.scene[robot_cfg.name]
     feet_acc = torch.sum(torch.square(robot.data.body_ang_acc_w[..., robot_cfg.body_ids, :]), dim=(1, 2))
     return feet_acc
 
 
 def stand_penalty(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     height_threshold: float,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:

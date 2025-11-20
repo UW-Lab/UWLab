@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -12,12 +12,11 @@ from isaaclab.assets import Articulation
 from isaaclab.managers import SceneEntityCfg
 
 if TYPE_CHECKING:
-    from isaaclab.envs import ManagerBasedEnv
-    from uwlab.envs import DataManagerBasedRLEnv
+    from isaaclab.envs import ManagerBasedEnv, ManagerBasedRLEnv
 
 
 def reset_robot_to_default(
-    env: DataManagerBasedRLEnv, env_ids: torch.Tensor, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+    env: ManagerBasedRLEnv, env_ids: torch.Tensor, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ):
     """Reset the scene to the default state specified in the scene configuration."""
     robot: Articulation = env.scene[robot_cfg.name]

@@ -1,9 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -50,7 +45,7 @@ def main():
     index = 0
     # acquire all Isaac environments names
     for task_spec in gym.registry.values():
-        if "Isaac" in task_spec.id or "UW" in task_spec.id or "UW" in task_spec.id:
+        if "Isaac" in task_spec.id:
             # add details to table
             table.add_row([index + 1, task_spec.id, task_spec.entry_point, task_spec.kwargs["env_cfg_entry_point"]])
             # increment count

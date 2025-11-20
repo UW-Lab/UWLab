@@ -1,27 +1,19 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 import asyncio
 import os
-from typing import List
 
 import isaacsim.core.utils.prims as prim_utils
 import omni
 import omni.kit.commands
-import omni.usd
-from isaacsim.coreutils.extensions import enable_extension
-from pxr import Sdf, Usd, UsdGeom, UsdPhysics, UsdShade, UsdUtils
-
 from isaaclab.sim.converters.asset_converter_base import AssetConverterBase
 from isaaclab.sim.schemas import schemas
 from isaaclab.sim.utils import clone, export_prim_to_file, get_all_matching_child_prims, safe_set_attribute_on_usd_prim
+from isaacsim.coreutils.extensions import enable_extension
+from pxr import Sdf, Usd, UsdGeom, UsdPhysics, UsdShade, UsdUtils
 
 from .mesh_converter_cfg import MeshConverterCfg
 
@@ -64,7 +56,7 @@ def apply_collision_properties(stage: Usd.Stage, prim_path: str, cfg: MeshConver
         visibility_attr.Set("invisible", time=Usd.TimeCode.Default())
 
 
-def remove_all_other_prims(stage: Usd.Stage, keep_prefix_paths: List[str]) -> None:
+def remove_all_other_prims(stage: Usd.Stage, keep_prefix_paths: list[str]) -> None:
     """Removes all prims except /World and /World/<keep_prefix_paths>.
 
     Args:

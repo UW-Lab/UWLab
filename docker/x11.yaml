@@ -1,0 +1,41 @@
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+services:
+  uw-lab-base:
+    environment:
+      - DISPLAY
+      - TERM
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=${__UWLAB_TMP_XAUTH}
+    volumes:
+    - type: bind
+      source: ${__UWLAB_TMP_DIR}
+      target: ${__UWLAB_TMP_DIR}
+    - type: bind
+      source: /tmp/.X11-unix
+      target: /tmp/.X11-unix
+    - type: bind
+      source: /etc/localtime
+      target: /etc/localtime
+      read_only: true
+
+  uw-lab-ros2:
+    environment:
+      - DISPLAY
+      - TERM
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=${__UWLAB_TMP_XAUTH}
+    volumes:
+    - type: bind
+      source: ${__UWLAB_TMP_DIR}
+      target: ${__UWLAB_TMP_DIR}
+    - type: bind
+      source: /tmp/.X11-unix
+      target: /tmp/.X11-unix
+    - type: bind
+      source: /etc/localtime
+      target: /etc/localtime
+      read_only: true

@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -8,10 +8,10 @@ from __future__ import annotations
 import math
 import numpy as np
 import torch
-from typing import TYPE_CHECKING, Any, ClassVar, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import isaacsim.core.utils.torch as torch_utils
-
 from isaaclab.envs import ManagerBasedRLEnv
 from isaaclab.envs.common import VecEnvObs, VecEnvStepReturn
 from isaaclab.managers import (

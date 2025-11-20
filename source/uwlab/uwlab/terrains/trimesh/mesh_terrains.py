@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -19,12 +19,11 @@ from scipy.spatial.transform import Rotation as R
 from typing import TYPE_CHECKING
 
 import requests
-
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
-
 from isaaclab.terrains.trimesh.mesh_terrains import inverted_pyramid_stairs_terrain, pyramid_stairs_terrain
 from isaaclab.terrains.trimesh.mesh_terrains_cfg import MeshInvertedPyramidStairsTerrainCfg, MeshPyramidStairsTerrainCfg
 from isaaclab.terrains.trimesh.utils import make_border, make_plane
+
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 if TYPE_CHECKING:
     from . import mesh_terrains_cfg

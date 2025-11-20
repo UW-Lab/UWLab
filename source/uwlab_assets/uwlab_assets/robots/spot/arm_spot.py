@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -10,11 +10,11 @@ The following configuration parameters are available:
 * :obj:`SPOT_CFG`: The Spot robot with delay PD and remote PD actuators.
 """
 
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
-
 import isaaclab.sim as sim_utils
 from isaaclab.actuators import DelayedPDActuatorCfg, ImplicitActuatorCfg, RemotizedPDActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
+
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 # Note: This data was collected by the Boston Dynamics AI Institute.
 joint_parameter_lookup = [

@@ -1,18 +1,19 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
-
-import uwlab_assets.robots.leap as leap
-import uwlab_assets.robots.leap.mdp as leap_mdp
-import uwlab_assets.robots.xarm_leap as xarm_leap
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils import configclass
+
+import uwlab_assets.robots.leap as leap
+import uwlab_assets.robots.leap.mdp as leap_mdp
+import uwlab_assets.robots.xarm_leap as xarm_leap
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
+
 from uwlab.envs.mdp.actions import VisualizableJointTargetPositionCfg
 
 import uwlab_tasks.manager_based.manipulation.track_goal.mdp as mdp

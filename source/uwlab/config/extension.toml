@@ -1,13 +1,13 @@
 [package]
 
 # Semantic Versioning is used: https://semver.org/
-version = "0.8.5"
+version = "0.8.6"
 
 # Description
 title = "UW Lab framework for Robot Learning"
 description="Extension providing main framework interfaces and abstractions for robot learning."
 readme  = "docs/README.md"
-repository = "https://github.com/UW-Lab/UWLab"
+repository = "https://github.com/uw-lab/UWLab"
 category = "robotics"
 keywords = ["kit", "robotics", "learning", "ai"]
 
@@ -25,7 +25,6 @@ requirements = [
     "prettytable==3.3.0",
     "toml",
     "hidapi",
-    "gymnasium==0.29.0",
     "trimesh"
 ]
 

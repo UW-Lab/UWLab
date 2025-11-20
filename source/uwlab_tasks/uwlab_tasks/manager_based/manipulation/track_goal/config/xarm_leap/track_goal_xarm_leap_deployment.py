@@ -1,12 +1,9 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 import torch
-
-from uwlab_assets.robots.leap.articulation_drive.dynamixel_driver_cfg import DynamixelDriverCfg
-from uwlab_assets.robots.xarm.articulation_drive.xarm_driver_cfg import XarmDriverCfg
 
 from isaaclab.actuators import ImplicitActuatorCfg
 from isaaclab.envs.mdp.actions.actions_cfg import JointPositionActionCfg
@@ -16,6 +13,10 @@ from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
+
+from uwlab_assets.robots.leap.articulation_drive.dynamixel_driver_cfg import DynamixelDriverCfg
+from uwlab_assets.robots.xarm.articulation_drive.xarm_driver_cfg import XarmDriverCfg
+
 from uwlab.assets import ArticulationCfg
 from uwlab.assets.articulation import BulletArticulationViewCfg
 from uwlab.envs import RealRLEnvCfg
