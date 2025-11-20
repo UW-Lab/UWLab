@@ -13,9 +13,8 @@ The license files for all its dependencies and included assets are available in 
 The Isaac Lab framework is open-sourced under the
 `BSD-3-Clause license <https://opensource.org/licenses/BSD-3-Clause>`_.
 
-
 The UW Lab framework is open-sourced under the
-`BSD-3-Clause license <https://opensource.org/licenses/BSD-3-Clause>`_.
+`BSD-3-Clause license <https://opensource.org/licenses/BSD-3-Clause>`_, with some dependencies licensed under other terms.
 
 
 .. code-block:: text
@@ -49,3 +48,4 @@ The UW Lab framework is open-sourced under the
    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    © [2025] [UWLab]. All Rights Reserved.

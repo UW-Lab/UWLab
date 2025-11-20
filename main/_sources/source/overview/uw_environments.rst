@@ -1,4 +1,4 @@
-.. _environments:
+.. _uw_environments:
 
 Available UW Environments
 ===========================
@@ -51,6 +51,12 @@ Environments based on fixed-arm manipulation tasks.
     +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
     | |ext-peg-insert-franka|        | |ext-peg-insert-franka-link|                   | Inserting peg rod into hole on nist board                                    |
     +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
+    | |omnireset-ur5e-drawer|        | |omnireset-ur5e-drawer-link|                   | Assemble drawer into the bottom of cabinet                                   |
+    +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
+    | |omnireset-ur5e-fbleg|         | |omnireset-ur5e-fbleg-link|                    | Insert and twist leg into a furniture bench table top                        |
+    +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
+    | |omnireset-ur5e-peg-insert|    | |omnireset-ur5e-peg-insert-link|               | Insert a square peg into the square peg hole                                 |
+    +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
 
 .. |track-goal-ur5| image:: ../_static/tasks/manipulation/ur5_track_goal.jpg
 .. |track-goal-tycho| image:: ../_static/tasks/manipulation/tycho_track_goal.jpg
@@ -58,13 +64,20 @@ Environments based on fixed-arm manipulation tasks.
 .. |ext-nut-thread-franka| image:: ../_static/tasks/manipulation/factory_ext/nut_thread_ext.jpg
 .. |ext-gear-mesh-franka| image:: ../_static/tasks/manipulation/factory_ext/gear_mesh_ext.jpg
 .. |ext-peg-insert-franka| image:: ../_static/tasks/manipulation/factory_ext/peg_insert_ext.jpg
+.. |omnireset-ur5e-drawer| image:: ../_static/tasks/manipulation/omnireset_drawer_assemble.jpg
+.. |omnireset-ur5e-fbleg| image:: ../_static/tasks/manipulation/omnireset_fbleg_screw.jpg
+.. |omnireset-ur5e-peg-insert| image:: ../_static/tasks/manipulation/omnireset_peg_insert.jpg
 
-.. |track-goal-ur5-link| replace:: `UW-Track-Goal-Ur5-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/ur5/track_goal_ur5_env_cfg.py>`__
-.. |track-goal-tycho-link| replace:: `UW-Track-Goal-Tycho-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/tycho/tycho_track_goal.py>`__
-.. |track-goal-xarm-leap-link| replace:: `UW-Track-Goal-Xarm-Leap-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/xarm_leap/track_goal_xarm_leap.py>`__
-.. |ext-nut-thread-franka-link| replace:: `UW-Nut-Thread-Franka-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/nutthread_env_cfg.py>`__
-.. |ext-gear-mesh-franka-link| replace:: `UW-Gear-Mesh-Franka-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/gearmesh_env_cfg.py>`__
-.. |ext-peg-insert-franka-link| replace:: `UW-Peg-Insert-Franka-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/peginsert_env_cfg.py>`__
+.. |track-goal-ur5-link| replace:: `UW-Track-Goal-Ur5-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/ur5/track_goal_ur5_env_cfg.py>`__
+.. |track-goal-tycho-link| replace:: `UW-Track-Goal-Tycho-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/tycho/tycho_track_goal.py>`__
+.. |track-goal-xarm-leap-link| replace:: `UW-Track-Goal-Xarm-Leap-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/xarm_leap/track_goal_xarm_leap.py>`__
+.. |ext-nut-thread-franka-link| replace:: `UW-Nut-Thread-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/nutthread_env_cfg.py>`__
+.. |ext-gear-mesh-franka-link| replace:: `UW-Gear-Mesh-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/gearmesh_env_cfg.py>`__
+.. |ext-peg-insert-franka-link| replace:: `UW-Peg-Insert-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/peginsert_env_cfg.py>`__
+.. |omnireset-ur5e-drawer-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py>`__
+.. |omnireset-ur5e-fbleg-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py>`__
+.. |omnireset-ur5e-peg-insert-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py>`__
+
 
 Locomotion
 ~~~~~~~~~~
@@ -88,11 +101,11 @@ Environments based on legged locomotion tasks.
     | |position-obstacle-spot|       | |position-obstacle-spot-link|                | Track a position command on obstacle terrain with the Spot robot             |
     +--------------------------------+----------------------------------------------+------------------------------------------------------------------------------+
 
-.. |position-gap-spot-link| replace:: `UW-Position-Gap-Spot-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
-.. |position-pit-spot-link| replace:: `UW-Position-Pit-Spot-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
-.. |position-stepping-stone-spot-link| replace:: `UW-Position-Stepping-Stone-Spot-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/risky_terrains/config/spot/spot_env_cfg.py>`__
-.. |position-obstacle-spot-link| replace:: `UW-Position-Obstacle-Spot-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
-.. |position-inv-slope-spot-link| replace:: `UW-Position-Inv-Slope-Spot-v0 <https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
+.. |position-gap-spot-link| replace:: `UW-Position-Gap-Spot-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
+.. |position-pit-spot-link| replace:: `UW-Position-Pit-Spot-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
+.. |position-stepping-stone-spot-link| replace:: `UW-Position-Stepping-Stone-Spot-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/risky_terrains/config/spot/spot_env_cfg.py>`__
+.. |position-obstacle-spot-link| replace:: `UW-Position-Obstacle-Spot-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
+.. |position-inv-slope-spot-link| replace:: `UW-Position-Inv-Slope-Spot-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py>`__
 
 .. |position-gap-spot| image:: ../_static/tasks/locomotion/spot_gap.jpg
 .. |position-pit-spot| image:: ../_static/tasks/locomotion/spot_pit.jpg
@@ -161,6 +174,14 @@ Comprehensive List of Environments
       - Manager Based
       - **rsl_rl** (PPO)
     * - UW-Position-Inv-Slope-Spot-v0
+      -
+      - Manager Based
+      - **rsl_rl** (PPO)
+    * - OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0
+      -
+      - Manager Based
+      - **rsl_rl** (PPO)
+    * - OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0
       -
       - Manager Based
       - **rsl_rl** (PPO)

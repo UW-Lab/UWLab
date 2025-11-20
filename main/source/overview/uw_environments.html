@@ -33,7 +33,8 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/twemoji.css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.14/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
@@ -47,7 +48,9 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
+    <script src="../../_static/twemoji.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.11.14/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
@@ -57,11 +60,11 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="License" href="../refs/license.html" />
-    <link rel="prev" title="Available Isaac Environments" href="isaac_environments.html" />
+    <link rel="prev" title="Available Environments" href="isaac_environments.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Mar 31, 2025"/>
+    <meta name="docbuild:last-update" content="Nov 20, 2025"/>
   </head>
   
   
@@ -140,8 +143,8 @@
       
     
     
-    <img src="../../_static/UW-logo-black.png" class="logo__image only-light" alt=""/>
-    <img src="../../_static/UW-logo-white.png" class="logo__image only-dark pst-js-only" alt=""/>
+    <img src="../../_static/UW-logo-white.png" class="logo__image only-light" alt=""/>
+    <img src="../../_static/UW-logo-black.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
     <p class="title logo__title">UW Lab Documentation</p>
@@ -175,8 +178,8 @@
           
           
           
-          <a href="https://github.com/UW-Lab/UWLab" title="UWLab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github-alt fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">UWLab</span></a>
+          <a href="https://github.com/uw-lab/UWLab" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -187,8 +190,7 @@
           
           
           
-          <a href="https://github.com/isaac-sim/IsaacLab" title="IsaacLab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">IsaacLab</span></a>
+          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
         </li>
         <li class="nav-item">
           
@@ -199,7 +201,7 @@
           
           
           
-          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
+          <a href="https://img.shields.io/github/stars/uw-lab/UWLab?color=fedcba" title="Stars" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/github/stars/uw-lab/UWLab?color=fedcba" class="icon-link-image" alt="Stars"/></a>
         </li>
 </ul></div>
         <div class="sidebar-primary-item">
@@ -222,15 +224,41 @@
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../setup/installation/local_installation.html">Installing UW Lab</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../setup/installation/index.html">Local Installation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../setup/installation/pip_installation.html">Installation using Isaac Sim Pip Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../setup/installation/binaries_installation.html">Installation using Isaac Sim Pre-built Binaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../setup/installation/source_installation.html">Installation using Isaac Sim Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../setup/installation/asset_caching.html">Asset Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../deployment/index.html">Container Deployment</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../deployment/docker.html">Docker Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deployment/run_docker_example.html">Running an example with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deployment/cluster.html">Cluster Guide</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="developer-guide/index.html">Developer’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer-guide/vs_code.html">Setting up Visual Studio Code</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="developer-guide/repo_structure.html">Repository organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer-guide/development.html">Extension Development</a></li>
+</ul>
+</details></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Publications</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../publications/pg1.html">Parental Guidance(PG1)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../publications/omnireset/index.html">OmniReset</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../publications/omnireset/instruction.html">Instructions</a></li>
+</ul>
+</details></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="isaac_environments.html">Available Isaac Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isaac_environments.html">Available Environments</a></li>
 
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Available UW Environments</a></li>
 
@@ -304,7 +332,7 @@
       
       
       
-      <li><a href="https://github.com/UW-Lab/UWLab" target="_blank"
+      <li><a href="https://github.com/uw-lab/UWLab" target="_blank"
    class="btn btn-sm btn-source-repository-button dropdown-item"
    title="Source repository"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -321,7 +349,7 @@
       
       
       
-      <li><a href="https://github.com/UW-Lab/UWLab/edit/main/source/overview/uw_environments.rst" target="_blank"
+      <li><a href="https://github.com/uw-lab/UWLab/edit/main/docs/source/overview/uw_environments.rst" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -338,7 +366,7 @@
       
       
       
-      <li><a href="https://github.com/UW-Lab/UWLab/issues/new?title=Issue%20on%20page%20%2Fsource/overview/uw_environments.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/uw-lab/UWLab/issues/new?title=Issue%20on%20page%20%2Fsource/overview/uw_environments.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -476,7 +504,7 @@
                 <article class="bd-article">
                   
   <section id="available-uw-environments">
-<span id="environments"></span><h1>Available UW Environments<a class="headerlink" href="#available-uw-environments" title="Permalink to this heading">#</a></h1>
+<span id="uw-environments"></span><h1>Available UW Environments<a class="headerlink" href="#available-uw-environments" title="Permalink to this heading">#</a></h1>
 <p>The following lists comprises of all the RL tasks implementations that are available in UW Lab.
 While we try to keep this list up-to-date, you can always get the latest list of environments by
 running the following command:</p>
@@ -515,28 +543,40 @@ running the following command:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><img alt="track-goal-ur5" src="../../_images/ur5_track_goal.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/ur5/track_goal_ur5_env_cfg.py">UW-Track-Goal-Ur5-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/ur5/track_goal_ur5_env_cfg.py">UW-Track-Goal-Ur5-v0</a></p></td>
 <td><p>Goal tracking with Ur5 robot with Robotiq gripper</p></td>
 </tr>
 <tr class="row-odd"><td><p><img alt="track-goal-tycho" src="../../_images/tycho_track_goal.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/tycho/tycho_track_goal.py">UW-Track-Goal-Tycho-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/tycho/tycho_track_goal.py">UW-Track-Goal-Tycho-v0</a></p></td>
 <td><p>Goal tracking with Tycho robot</p></td>
 </tr>
 <tr class="row-even"><td><p><img alt="track-goal-xarm-leap" src="../../_images/xarm_leap_track_goal.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/xarm_leap/track_goal_xarm_leap.py">UW-Track-Goal-Xarm-Leap-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/xarm_leap/track_goal_xarm_leap.py">UW-Track-Goal-Xarm-Leap-v0</a></p></td>
 <td><p>Goal tracking with Xarm with Leap Hand robot</p></td>
 </tr>
 <tr class="row-odd"><td><p><img alt="ext-nut-thread-franka" src="../../_images/nut_thread_ext.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/nutthread_env_cfg.py">UW-Nut-Thread-Franka-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/nutthread_env_cfg.py">UW-Nut-Thread-Franka-v0</a></p></td>
 <td><p>Threading nut on to bolt on nist board</p></td>
 </tr>
 <tr class="row-even"><td><p><img alt="ext-gear-mesh-franka" src="../../_images/gear_mesh_ext.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/gearmesh_env_cfg.py">UW-Gear-Mesh-Franka-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/gearmesh_env_cfg.py">UW-Gear-Mesh-Franka-v0</a></p></td>
 <td><p>Inserting gear on to gear base on nist board</p></td>
 </tr>
 <tr class="row-odd"><td><p><img alt="ext-peg-insert-franka" src="../../_images/peg_insert_ext.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/peginsert_env_cfg.py">UW-Peg-Insert-Franka-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/peginsert_env_cfg.py">UW-Peg-Insert-Franka-v0</a></p></td>
 <td><p>Inserting peg rod into hole on nist board</p></td>
+</tr>
+<tr class="row-even"><td><p><img alt="omnireset-ur5e-drawer" src="../../_images/omnireset_drawer_assemble.jpg" /></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py">OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0</a></p></td>
+<td><p>Assemble drawer into the bottom of cabinet</p></td>
+</tr>
+<tr class="row-odd"><td><p><img alt="omnireset-ur5e-fbleg" src="../../_images/omnireset_fbleg_screw.jpg" /></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py">OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0</a></p></td>
+<td><p>Insert and twist leg into a furniture bench table top</p></td>
+</tr>
+<tr class="row-even"><td><p><img alt="omnireset-ur5e-peg-insert" src="../../_images/omnireset_peg_insert.jpg" /></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py">OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0</a></p></td>
+<td><p>Insert a square peg into the square peg hole</p></td>
 </tr>
 </tbody>
 </table>
@@ -559,23 +599,23 @@ running the following command:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><img alt="position-gap-spot" src="../../_images/spot_gap.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Gap-Spot-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Gap-Spot-v0</a></p></td>
 <td><p>Track a position command on gap terrain with the Spot robot</p></td>
 </tr>
 <tr class="row-odd"><td><p><img alt="position-pit-spot" src="../../_images/spot_pit.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Pit-Spot-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Pit-Spot-v0</a></p></td>
 <td><p>Track a position command on pit terrain with the Spot robot</p></td>
 </tr>
 <tr class="row-even"><td><p><img alt="position-stepping-stone-spot" src="../../_images/spot_stepping_stone.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/risky_terrains/config/spot/spot_env_cfg.py">UW-Position-Stepping-Stone-Spot-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/risky_terrains/config/spot/spot_env_cfg.py">UW-Position-Stepping-Stone-Spot-v0</a></p></td>
 <td><p>Track a position command on stepping stone terrain with the Spot robot</p></td>
 </tr>
 <tr class="row-odd"><td><p><img alt="position-inv-slope-spot" src="../../_images/spot_slope.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Inv-Slope-Spot-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Inv-Slope-Spot-v0</a></p></td>
 <td><p>Track a position command on inverse slope terrain with the Spot robot</p></td>
 </tr>
 <tr class="row-even"><td><p><img alt="position-obstacle-spot" src="../../_images/spot_obstacle.jpg" /></p></td>
-<td><p><a class="reference external" href="https://github.com/UW-Lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Obstacle-Spot-v0</a></p></td>
+<td><p><a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/locomotion/advance_skills/config/spot/spot_env_cfg.py">UW-Position-Obstacle-Spot-v0</a></p></td>
 <td><p>Track a position command on obstacle terrain with the Spot robot</p></td>
 </tr>
 </tbody>
@@ -656,6 +696,16 @@ running the following command:</p>
 <td><p>Manager Based</p></td>
 <td><p><strong>rsl_rl</strong> (PPO)</p></td>
 </tr>
+<tr class="row-odd"><td><p>OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0</p></td>
+<td></td>
+<td><p>Manager Based</p></td>
+<td><p><strong>rsl_rl</strong> (PPO)</p></td>
+</tr>
+<tr class="row-even"><td><p>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0</p></td>
+<td></td>
+<td><p>Manager Based</p></td>
+<td><p><strong>rsl_rl</strong> (PPO)</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -678,7 +728,7 @@ running the following command:</p>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Available Isaac Environments</p>
+        <p class="prev-next-title">Available Environments</p>
       </div>
     </a>
     <a class="right-next"
@@ -750,7 +800,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2025.
+  Last updated on Nov 20, 2025.
   <br/>
 </p>
   </div>

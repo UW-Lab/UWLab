@@ -33,7 +33,8 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/twemoji.css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.14/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
@@ -47,7 +48,9 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
+    <script src="../../_static/twemoji.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.11.14/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
@@ -59,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.9.0" />
-    <meta name="docbuild:last-update" content="Mar 31, 2025"/>
+    <meta name="docbuild:last-update" content="Nov 20, 2025"/>
   </head>
   
   
@@ -140,8 +143,8 @@
       
     
     
-    <img src="../../_static/UW-logo-black.png" class="logo__image only-light" alt=""/>
-    <img src="../../_static/UW-logo-white.png" class="logo__image only-dark pst-js-only" alt=""/>
+    <img src="../../_static/UW-logo-white.png" class="logo__image only-light" alt=""/>
+    <img src="../../_static/UW-logo-black.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
     <p class="title logo__title">UW Lab Documentation</p>
@@ -156,7 +159,7 @@
             <label for="version-select" style="font-weight: bold; display: block;">Version</label>
           </div>
           <select id="version-select" class="version-dropdown" style="margin: 0 auto; display: block;" onchange="location = this.value;">
-            <option value="../../../main/source/api/index.html" >main</option>
+            <option value="../../../main/index.html" >main</option>
             <option value="index.html" selected>v1.0.0</option>
           </select>
         </li>
@@ -175,8 +178,8 @@
           
           
           
-          <a href="https://github.com/UW-Lab/UWLab" title="UWLab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github-alt fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">UWLab</span></a>
+          <a href="https://github.com/uw-lab/UWLab" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -187,8 +190,7 @@
           
           
           
-          <a href="https://github.com/isaac-sim/IsaacLab" title="IsaacLab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">IsaacLab</span></a>
+          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
         </li>
         <li class="nav-item">
           
@@ -199,7 +201,7 @@
           
           
           
-          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
+          <a href="https://img.shields.io/github/stars/uw-lab/UWLab?color=fedcba" title="Stars" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/github/stars/uw-lab/UWLab?color=fedcba" class="icon-link-image" alt="Stars"/></a>
         </li>
 </ul></div>
         <div class="sidebar-primary-item">
@@ -304,7 +306,7 @@
       
       
       
-      <li><a href="https://github.com/UW-Lab/UWLab" target="_blank"
+      <li><a href="https://github.com/uw-lab/UWLab" target="_blank"
    class="btn btn-sm btn-source-repository-button dropdown-item"
    title="Source repository"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -321,7 +323,7 @@
       
       
       
-      <li><a href="https://github.com/UW-Lab/UWLab/edit/main/source/api/index.rst" target="_blank"
+      <li><a href="https://github.com/uw-lab/UWLab/edit/main/docs/source/api/index.rst" target="_blank"
    class="btn btn-sm btn-source-edit-button dropdown-item"
    title="Suggest edit"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -338,7 +340,7 @@
       
       
       
-      <li><a href="https://github.com/UW-Lab/UWLab/issues/new?title=Issue%20on%20page%20%2Fsource/api/index.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/uw-lab/UWLab/issues/new?title=Issue%20on%20page%20%2Fsource/api/index.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -474,12 +476,6 @@
 <p>The following modules are available in the <code class="docutils literal notranslate"><span class="pre">uwlab</span></code> extension:</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="lab/uwlab.controllers.html#module-uwlab.controllers" title="uwlab.controllers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">controllers</span></code></a></p></td>
-<td><p>Sub-package for different controllers and motion-generators.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="lab/uwlab.devices.html#module-uwlab.devices" title="uwlab.devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">devices</span></code></a></p></td>
-<td><p>Sub-package providing interfaces to different teleoperation devices.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -548,7 +544,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2025.
+  Last updated on Nov 20, 2025.
   <br/>
 </p>
   </div>

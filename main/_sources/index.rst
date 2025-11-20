@@ -1,12 +1,16 @@
-Overview
-========
+Welcome to UW Lab!
+=====================
 
-.. figure:: source/_static/cover.png
+.. figure:: source/_static/uwlab.jpg
    :width: 100%
-   :alt: Cover
+   :alt: UW LAB Robots
+
+.. note::
+   *We gratefully acknowledge that this documentation builds upon the NVIDIA Isaac Lab documentation with minimal namespace updates*
+
 
 Preamble
-==================
+========
 
 **UW Lab** build upon the solid foundation laid by ``Isaac Lab`` / ``NVIDIA Isaac Sim``,
 expanding its framework to embrace a broader spectrum of algorithms, robots, and environments. While adhering to the
@@ -23,7 +27,7 @@ committed to crafting a value where the process is as significant as the outcome
 deeply with our vision.
 
 
-License
+LICENSE
 =======
 
 The UW Lab framework is open-sourced under the BSD-3-Clause license.
@@ -32,21 +36,8 @@ Please refer to :ref:`license` for more details.
 
 Acknowledgement
 ===============
-
-If you found UW Lab useful, we appreciate if you cite it in academic publications:
-
-.. code:: bibtex
-
-   @software{zhang2025uwlab,
-      author={Zhang, Zhengyu and Yu, Feng and Castro, Mateo and Yin, Patrick and Peng, Quanquan and Scalise, Rosario},
-      title={{UWLab}: A Simulation Platform for Robot Learning Environment},
-      year={2025},
-      url={https://github.com/UW-Lab/UWLab}
-   }
-
-
 UW Lab development initiated from the `Orbit <https://isaac-orbit.github.io/>`_ framework.
-please cite orbit in academic publications as well in honor of the original authors.:
+We would appreciate if you would cite it in academic publications as well:
 
 .. code:: bibtex
 
@@ -69,7 +60,15 @@ Table of Contents
    :maxdepth: 2
    :caption: Getting Started
 
-   source/setup/installation/local_installation
+   source/setup/installation/index
+   source/deployment/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Getting Started
+   :titlesonly:
+
+   source/overview/developer-guide/index
 
 .. toctree::
    :maxdepth: 1
@@ -77,6 +76,7 @@ Table of Contents
    :titlesonly:
 
    source/publications/pg1
+   source/publications/omnireset/index
 
 .. toctree::
    :maxdepth: 3
@@ -108,4 +108,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _NVIDIA Isaac Sim: https://docs.omniverse.nvidia.com/isaacsim/latest/index.html
+.. _NVIDIA Isaac Sim: https://docs.isaacsim.omniverse.nvidia.com/latest/index.html
