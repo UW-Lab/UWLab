@@ -2,26 +2,6 @@
  * For reference: https://pydata-sphinx-theme.readthedocs.io/en/v0.9.0/user_guide/customizing.html
  * For colors: https://clrs.cc/
  */
- @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap');
-
- body {
-     font-family: 'Josefin Sans', sans-serif;
- }
-
- /* Apply the font to headings */
- h1, h2, h3, h4, h5, h6 {
-     font-family: 'Josefin Sans', sans-serif;
-     font-weight: 100; /* Adjust weight for headings if desired */
- }
-
-/* Style footnotes or smaller text if needed */
-.note {
-    font-size: 0.80em;     /* Smaller font size */
-    padding: 8px;          /* Less padding around the note */
-    margin-top: 10px;
-    border: 1px solid #ddd; /* Lighter border for subtlety */
-    background-color: #f9f9f9; /* Softer background color */
-}
 
 /* anything related to the light theme */
 html[data-theme="light"] {
@@ -101,4 +81,32 @@ a {
 .navbar-icon-links {
     padding-top: 0.0rem !important;
     padding-bottom: 0.0rem !important;
+}
+
+/* showcase task tables */
+
+.showcase-table {
+    min-width: 75%;
+}
+
+.showcase-table td {
+    border-color: gray;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.showcase-table p {
+    margin: 0;
+    padding: 0;
+}
+
+.showcase-table .rot90 {
+    transform: rotate(-90deg);
+    margin: 0;
+    padding: 0;
+}
+
+.showcase-table .center {
+    text-align: center;
+    vertical-align: middle;
 }

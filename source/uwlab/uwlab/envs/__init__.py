@@ -1,5 +1,5 @@
-# Copyright (c) 2022-2025, The UW Lab Project Developers.
-# All rights reserved.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -27,7 +27,5 @@ UW Lab provide Data-Manager-based and Real-Rl environment workflows:
 Based on these workflows, there are the following environment classes for single and multi-agent RL:
 """
 
-from .data_manager_based_rl import DataManagerBasedRLEnv
-from .data_manager_based_rl_cfg import DataManagerBasedRLEnvCfg
 from .real_rl_env import RealRLEnv
 from .real_rl_env_cfg import RealRLEnvCfg

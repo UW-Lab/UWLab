@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -25,7 +25,5 @@ actions to the scene. All these are handled by different "managers" in the frame
 :mod:`isaaclab.managers` sub-package for more details.
 """
 
-from .interactive_scene import InteractiveScene
-from .interactive_scene_cfg import InteractiveSceneCfg
 from .scene_context import SceneContext
 from .scene_context_cfg import SceneContextCfg

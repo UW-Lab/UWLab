@@ -1,7 +1,8 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -19,10 +20,16 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../source/uwlab"))
 sys.path.insert(0, os.path.abspath("../source/uwlab/uwlab"))
-sys.path.insert(0, os.path.abspath("../source/uwlab_tasks"))
-sys.path.insert(0, os.path.abspath("../source/uwlab_tasks/uwlab_tasks"))
 sys.path.insert(0, os.path.abspath("../source/uwlab_apps"))
 sys.path.insert(0, os.path.abspath("../source/uwlab_apps/uwlab_apps"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_tasks"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_tasks/uwlab_tasks"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_rl"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_rl/uwlab_rl"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_mimic"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_mimic/uwlab_mimic"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_assets"))
+sys.path.insert(0, os.path.abspath("../source/uwlab_assets/uwlab_assets"))
 
 # -- Project information -----------------------------------------------------
 
@@ -82,6 +89,17 @@ source_suffix = {
 # TODO: Enable this by default once we have fixed all the warnings
 # nitpicky = True
 
+nitpick_ignore = [
+    ("py:obj", "slice(None)"),
+]
+
+nitpick_ignore_regex = [
+    (r"py:.*", r"pxr.*"),  # we don't have intersphinx mapping for pxr
+    (r"py:.*", r"trimesh.*"),  # we don't have intersphinx mapping for trimesh
+]
+
+# emoji style
+sphinxemoji_style = "twemoji"  # options: "twemoji" or "unicode"
 # put type hints inside the signature instead of the description (easier to maintain)
 autodoc_typehints = "signature"
 # autodoc_typehints_format = "fully-qualified"
@@ -107,10 +125,12 @@ autodoc_default_options = {
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "trimesh": ("https://trimesh.org/", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
-    "isaac": ("https://docs.omniverse.nvidia.com/py/isaacsim", None),
+    "isaacsim": ("https://docs.isaacsim.omniverse.nvidia.com/5.1.0/py/", None),
     "gymnasium": ("https://gymnasium.farama.org/", None),
     "warp": ("https://nvidia.github.io/warp/", None),
+    "dev-guide": ("https://docs.omniverse.nvidia.com/dev-guide/latest", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -124,6 +144,7 @@ exclude_patterns = ["_build", "_redirect", "_templates", "Thumbs.db", ".DS_Store
 # Mock out modules that are not available on RTD
 autodoc_mock_imports = [
     "torch",
+    "torchvision",
     "numpy",
     "matplotlib",
     "scipy",
@@ -132,9 +153,6 @@ autodoc_mock_imports = [
     "pxr",
     "isaacsim",
     "omni",
-    "pyrealsense2",
-    "cv2",
-    "lz4",
     "omni.kit",
     "omni.log",
     "omni.usd",
@@ -144,17 +162,11 @@ autodoc_mock_imports = [
     "pxr.PhysxSchema",
     "pxr.PhysicsSchemaTools",
     "omni.replicator",
-    "omni.isaac.core",
-    "omni.isaac.kit",
-    "omni.isaac.cloner",
-    "omni.isaac.urdf",
-    "omni.isaac.version",
-    "omni.isaac.motion_generation",
-    "omni.isaac.ui",
     "isaacsim",
     "isaacsim.core.api",
     "isaacsim.core.cloner",
     "isaacsim.core.version",
+    "isaacsim.core.utils",
     "isaacsim.robot_motion.motion_generation",
     "isaacsim.gui.components",
     "isaacsim.asset.importer.urdf",
@@ -175,10 +187,13 @@ autodoc_mock_imports = [
     "tensordict",
     "trimesh",
     "toml",
-    "isaaclab",
-    "isaaclab_assets",
-    "isaaclab_tasks",
-    "isaaclab_rl",
+    "pink",
+    "pinocchio",
+    "nvidia.srl",
+    "flatdict",
+    "IPython",
+    "ipywidgets",
+    "mpl_toolkits",
 ]
 
 # List of zero or more Sphinx-specific warning categories to be squelched (i.e.,
@@ -226,8 +241,9 @@ html_static_path = ["source/_static/css"]
 html_css_files = ["custom.css"]
 
 html_theme_options = {
+    "path_to_docs": "docs/",
     "collapse_navigation": True,
-    "repository_url": "https://github.com/UW-Lab/UWLab",
+    "repository_url": "https://github.com/uw-lab/UWLab",
     "use_repository_button": True,
     "use_issues_button": True,
     "use_edit_page_button": True,
@@ -235,26 +251,26 @@ html_theme_options = {
     "use_sidenotes": True,
     "logo": {
         "text": "UW Lab Documentation",
-        "image_light": "source/_static/UW-logo-black.png",
-        "image_dark": "source/_static/UW-logo-white.png",
+        "image_light": "source/_static/UW-logo-white.png",
+        "image_dark": "source/_static/UW-logo-black.png",
     },
     "icon_links": [
         {
-            "name": "UWLab",
-            "url": "https://github.com/UW-Lab/UWLab",
-            "icon": "fa-brands fa-github-alt",
-            "type": "fontawesome",
-        },
-        {
-            "name": "IsaacLab",
-            "url": "https://github.com/isaac-sim/IsaacLab",
+            "name": "GitHub",
+            "url": "https://github.com/uw-lab/UWLab",
             "icon": "fa-brands fa-square-github",
             "type": "fontawesome",
         },
         {
             "name": "Isaac Sim",
             "url": "https://developer.nvidia.com/isaac-sim",
-            "icon": "https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg",
+            "icon": "https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg",
+            "type": "url",
+        },
+        {
+            "name": "Stars",
+            "url": "https://img.shields.io/github/stars/uw-lab/UWLab?color=fedcba",
+            "icon": "https://img.shields.io/github/stars/uw-lab/UWLab?color=fedcba",
             "type": "url",
         },
     ],
@@ -268,7 +284,7 @@ templates_path = [
 # Whitelist pattern for remotes
 smv_remote_whitelist = r"^.*$"
 # Whitelist pattern for branches (set to None to ignore all branches)
-smv_branch_whitelist = os.getenv("SMV_BRANCH_WHITELIST", r"^(main|devel)$")
+smv_branch_whitelist = os.getenv("SMV_BRANCH_WHITELIST", r"^(main|devel|release/.*)$")
 # Whitelist pattern for tags (set to None to ignore all tags)
 smv_tag_whitelist = os.getenv("SMV_TAG_WHITELIST", r"^v[1-9]\d*\.\d+\.\d+$")
 html_sidebars = {

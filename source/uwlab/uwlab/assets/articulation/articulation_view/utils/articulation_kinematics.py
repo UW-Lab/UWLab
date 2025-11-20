@@ -1,13 +1,11 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 import torch
-from typing import List, Union
 
 import pybullet as p
-
 from isaaclab.utils import math as math_utils
 
 
@@ -141,7 +139,7 @@ class BulletArticulationKinematics:
 
     def get_link_transforms(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.link_transforms[:, body_indices]
@@ -149,7 +147,7 @@ class BulletArticulationKinematics:
 
     def get_link_velocities(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.link_velocities[:, body_indices]
@@ -157,7 +155,7 @@ class BulletArticulationKinematics:
 
     def get_link_coms(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         """in body local frames"""
@@ -166,7 +164,7 @@ class BulletArticulationKinematics:
 
     def get_link_masses(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.link_mass[:, body_indices]
@@ -174,7 +172,7 @@ class BulletArticulationKinematics:
 
     def get_link_inertias(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.link_inertia[:, body_indices]
@@ -182,7 +180,7 @@ class BulletArticulationKinematics:
 
     def get_dof_limits(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_limits[:, :, body_indices]
@@ -190,7 +188,7 @@ class BulletArticulationKinematics:
 
     def get_dof_positions(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_positions[:, body_indices]
@@ -198,7 +196,7 @@ class BulletArticulationKinematics:
 
     def get_dof_position_targets(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_position_target[:, body_indices]
@@ -206,7 +204,7 @@ class BulletArticulationKinematics:
 
     def get_dof_velocities(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_velocities[:, body_indices]
@@ -214,7 +212,7 @@ class BulletArticulationKinematics:
 
     def get_dof_velocity_targets(
         self,
-        body_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        body_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_velocity_target[:, body_indices]
@@ -222,7 +220,7 @@ class BulletArticulationKinematics:
 
     def get_dof_max_velocities(
         self,
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_max_velocity[:, joint_indices]
@@ -230,7 +228,7 @@ class BulletArticulationKinematics:
 
     def get_dof_torques(
         self,
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_torques[:, joint_indices]
@@ -238,7 +236,7 @@ class BulletArticulationKinematics:
 
     def get_dof_max_forces(
         self,
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_max_forces[:, joint_indices]
@@ -246,7 +244,7 @@ class BulletArticulationKinematics:
 
     def get_dof_stiffnesses(
         self,
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ):
         data = self.articulation_view_data.dof_stiffness[:, joint_indices]
@@ -254,7 +252,7 @@ class BulletArticulationKinematics:
 
     def get_dof_dampings(
         self,
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ) -> torch.Tensor:
         data = self.articulation_view_data.dof_damping[:, joint_indices]
@@ -262,7 +260,7 @@ class BulletArticulationKinematics:
 
     def get_dof_frictions(
         self,
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ):
         data = self.articulation_view_data.dof_frictions[:, joint_indices]
@@ -270,7 +268,7 @@ class BulletArticulationKinematics:
 
     def get_dof_armatures(
         self,
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
         clone: bool = True,
     ):
         data = self.articulation_view_data.dof_armatures[:, joint_indices]
@@ -327,8 +325,8 @@ class BulletArticulationKinematics:
     def set_masses(
         self,
         masses: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        link_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        link_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         """
         Set the mass of each link in PyBullet at runtime using p.changeDynamics.
@@ -356,23 +354,23 @@ class BulletArticulationKinematics:
     def set_root_velocities(
         self,
         root_velocities: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         pass
 
     def set_dof_limits(
         self,
         limits: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_limits[indices, joint_indices] = limits.to(self.device)
 
     def set_dof_positions(
         self,
         positions: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         with torch.inference_mode(mode=True):
             # Also store internally
@@ -398,16 +396,16 @@ class BulletArticulationKinematics:
     def set_dof_position_targets(
         self,
         positions: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_position_target[indices, joint_indices] = positions.to(self.device)
 
     def set_dof_velocities(
         self,
         velocities: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_velocities[indices, joint_indices] = velocities.to(self.device)
 
@@ -432,16 +430,16 @@ class BulletArticulationKinematics:
     def set_dof_velocity_targets(
         self,
         velocities: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_velocity_target[indices, joint_indices] = velocities.to(self.device)
 
     def set_dof_torques(
         self,
         torques: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_torques[indices, joint_indices] = torques.to(self.device)
 
@@ -450,8 +448,8 @@ class BulletArticulationKinematics:
         positions: torch.Tensor,
         velocities: torch.Tensor,
         efforts: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.set_dof_positions(positions, indices, joint_indices)
         self.set_dof_velocities(velocities, indices, joint_indices)
@@ -460,32 +458,32 @@ class BulletArticulationKinematics:
     def set_dof_stiffnesses(
         self,
         stiffness: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_stiffness[indices, joint_indices] = stiffness.to(self.device)
 
     def set_dof_dampings(
         self,
         damping: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_damping[indices, joint_indices] = damping.to(self.device)
 
     def set_dof_armatures(
         self,
         armatures: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_armatures[indices, joint_indices] = armatures.to(self.device)
 
     def set_dof_frictions(
         self,
         frictions: torch.Tensor,
-        indices: Union[List[int], torch.Tensor, slice] = slice(None),
-        joint_indices: Union[List[int], torch.Tensor, slice] = slice(None),
+        indices: list[int] | torch.Tensor | slice = slice(None),
+        joint_indices: list[int] | torch.Tensor | slice = slice(None),
     ):
         self.articulation_view_data.dof_frictions[indices, joint_indices] = frictions.to(self.device)
 

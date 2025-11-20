@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.1.3 (2025-11-09)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Point rsl_rl installation to UWLab custom link that implements gsde.
+
+
+
 0.1.2 (2025-03-23)
 ~~~~~~~~~~~~~~~~~~
 

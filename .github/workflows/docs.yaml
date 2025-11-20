@@ -1,9 +1,16 @@
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 name: Build & deploy docs
 
 on:
   push:
     branches:
       - main
+      - devel
+      - 'release/**'
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -20,9 +27,8 @@ jobs:
     steps:
     - id: trigger-deploy
       env:
-        REPO_NAME: "UW-Lab/UWLab"
-        BRANCH_REF: "refs/heads/main"
-      if: "${{ github.repository == env.REPO_NAME && github.ref == env.BRANCH_REF }}"
+        REPO_NAME: ${{ secrets.REPO_NAME }}
+      if: "${{ github.repository == env.REPO_NAME && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/devel' || startsWith(github.ref, 'refs/heads/release/')) }}"
       run: echo "defined=true" >> "$GITHUB_OUTPUT"
 
   build-docs:
@@ -33,11 +39,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        lfs: true
 
     - name: Setup python
       uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: "3.11"
         architecture: x64
 
     - name: Install dev requirements

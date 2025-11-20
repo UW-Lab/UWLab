@@ -1,0 +1,108 @@
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Base image
+ARG ISAACSIM_BASE_IMAGE_ARG
+ARG ISAACSIM_VERSION_ARG
+FROM ${ISAACSIM_BASE_IMAGE_ARG}:${ISAACSIM_VERSION_ARG} AS base
+ENV ISAACSIM_VERSION=${ISAACSIM_VERSION_ARG}
+
+# Set default RUN shell to bash
+SHELL ["/bin/bash", "-c"]
+
+# Adds labels to the Dockerfile
+LABEL version="2.1.1"
+LABEL description="Dockerfile for building and running the UW Lab framework inside Isaac Sim container image."
+
+# Arguments
+# Path to Isaac Sim root folder
+ARG ISAACSIM_ROOT_PATH_ARG
+ENV ISAACSIM_ROOT_PATH=${ISAACSIM_ROOT_PATH_ARG}
+# Path to the UW Lab directory
+ARG UWLAB_PATH_ARG
+ENV UWLAB_PATH=${UWLAB_PATH_ARG}
+# Home dir of docker user, typically '/root'
+ARG DOCKER_USER_HOME_ARG
+ENV DOCKER_USER_HOME=${DOCKER_USER_HOME_ARG}
+
+# Set environment variables
+ENV LANG=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
+
+# Install dependencies and remove cache
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    libglib2.0-0 \
+    ncurses-term \
+    wget && \
+    apt -y autoremove && apt clean autoclean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy the UW Lab directory (files to exclude are defined in .dockerignore)
+COPY ../ ${UWLAB_PATH}
+
+# Ensure uwlab.sh has execute permissions
+RUN chmod +x ${UWLAB_PATH}/uwlab.sh
+
+# Set up a symbolic link between the installed Isaac Sim root folder and _isaac_sim in the UW Lab directory
+RUN ln -sf ${ISAACSIM_ROOT_PATH} ${UWLAB_PATH}/_isaac_sim
+
+# Install toml dependency
+RUN ${UWLAB_PATH}/uwlab.sh -p -m pip install toml
+
+# Install apt dependencies for extensions that declare them in their extension.toml
+RUN --mount=type=cache,target=/var/cache/apt \
+    ${UWLAB_PATH}/uwlab.sh -p ${UWLAB_PATH}/tools/install_deps.py apt ${UWLAB_PATH}/source && \
+    apt -y autoremove && apt clean autoclean && \
+    rm -rf /var/lib/apt/lists/*
+
+# for singularity usage, have to create the directories that will binded
+RUN mkdir -p ${ISAACSIM_ROOT_PATH}/kit/cache && \
+    mkdir -p ${DOCKER_USER_HOME}/.cache/ov && \
+    mkdir -p ${DOCKER_USER_HOME}/.cache/pip && \
+    mkdir -p ${DOCKER_USER_HOME}/.cache/nvidia/GLCache &&  \
+    mkdir -p ${DOCKER_USER_HOME}/.nv/ComputeCache && \
+    mkdir -p ${DOCKER_USER_HOME}/.nvidia-omniverse/logs && \
+    mkdir -p ${DOCKER_USER_HOME}/.local/share/ov/data && \
+    mkdir -p ${DOCKER_USER_HOME}/Documents
+
+# for singularity usage, create NVIDIA binary placeholders
+RUN touch /bin/nvidia-smi && \
+    touch /bin/nvidia-debugdump && \
+    touch /bin/nvidia-persistenced && \
+    touch /bin/nvidia-cuda-mps-control && \
+    touch /bin/nvidia-cuda-mps-server && \
+    touch /etc/localtime && \
+    mkdir -p /var/run/nvidia-persistenced && \
+    touch /var/run/nvidia-persistenced/socket
+
+# installing UW Lab dependencies
+# use pip caching to avoid reinstalling large packages
+RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+    ${UWLAB_PATH}/uwlab.sh --install
+
+# HACK: Remove install of quadprog dependency
+RUN ${UWLAB_PATH}/uwlab.sh -p -m pip uninstall -y quadprog
+
+# aliasing uwlab.sh and python for convenience
+RUN echo "export UWLAB_PATH=${UWLAB_PATH}" >> ${HOME}/.bashrc && \
+    echo "alias uwlab=${UWLAB_PATH}/uwlab.sh" >> ${HOME}/.bashrc && \
+    echo "alias python=${UWLAB_PATH}/_isaac_sim/python.sh" >> ${HOME}/.bashrc && \
+    echo "alias python3=${UWLAB_PATH}/_isaac_sim/python.sh" >> ${HOME}/.bashrc && \
+    echo "alias pip='${UWLAB_PATH}/_isaac_sim/python.sh -m pip'" >> ${HOME}/.bashrc && \
+    echo "alias pip3='${UWLAB_PATH}/_isaac_sim/python.sh -m pip'" >> ${HOME}/.bashrc && \
+    echo "alias tensorboard='${UWLAB_PATH}/_isaac_sim/python.sh ${UWLAB_PATH}/_isaac_sim/tensorboard'" >> ${HOME}/.bashrc && \
+    echo "export TZ=$(date +%Z)" >> ${HOME}/.bashrc && \
+    echo "shopt -s histappend" >> /root/.bashrc && \
+    echo "PROMPT_COMMAND='history -a'" >> /root/.bashrc
+
+# make working directory as the UW Lab directory
+# this is the default directory when the container is run
+WORKDIR ${UWLAB_PATH}

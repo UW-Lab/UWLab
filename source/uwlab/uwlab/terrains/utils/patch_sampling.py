@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -10,7 +10,6 @@ import torch
 from typing import TYPE_CHECKING
 
 import warp as wp  # Warp (https://github.com/NVIDIA/warp)
-
 from isaaclab.utils.warp import raycast_mesh
 
 if TYPE_CHECKING:
@@ -97,40 +96,40 @@ def find_piecewise_range_flat_patches(
     mesh_xmin, mesh_xmax = mesh_pts[:, 0].min(), mesh_pts[:, 0].max()
     mesh_ymin, mesh_ymax = mesh_pts[:, 1].min(), mesh_pts[:, 1].max()
 
-    x_range = [cfg.x_ranges] if isinstance(cfg.x_ranges, tuple) else cfg.x_ranges
-    y_range = [cfg.y_ranges] if isinstance(cfg.y_ranges, tuple) else cfg.y_ranges
-    z_range = [cfg.z_ranges] if isinstance(cfg.z_ranges, tuple) else cfg.z_ranges
+    x_range = [cfg.x_range] if isinstance(cfg.x_range, tuple) else cfg.x_range
+    y_range = [cfg.y_range] if isinstance(cfg.y_range, tuple) else cfg.y_range
+    z_range = [cfg.z_range] if isinstance(cfg.z_range, tuple) else cfg.z_range
 
     # For x-ranges
-    x_ranges_clipped = []
+    x_range_clipped = []
     for low, high in x_range:
         new_low = max(low + origin[0].item(), mesh_xmin)
         new_high = min(high + origin[0].item(), mesh_xmax)
         if new_low < new_high:
-            x_ranges_clipped.append((new_low, new_high))
+            x_range_clipped.append((new_low, new_high))
 
     # For y-ranges
-    y_ranges_clipped = []
+    y_range_clipped = []
     for low, high in y_range:
         new_low = max(low + origin[1].item(), mesh_ymin)
         new_high = min(high + origin[1].item(), mesh_ymax)
         if new_low < new_high:
-            y_ranges_clipped.append((new_low, new_high))
+            y_range_clipped.append((new_low, new_high))
 
     # For z-ranges, we won't clip by mesh bounding box (optional),
     # but we shift them by the origin's Z:
-    z_ranges_shifted = []
+    z_range_shifted = []
     for low, high in z_range:
         new_low = low + origin[2].item()
         new_high = high + origin[2].item()
-        z_ranges_shifted.append((new_low, new_high))
+        z_range_shifted.append((new_low, new_high))
 
-    if not x_ranges_clipped:
+    if not x_range_clipped:
         raise ValueError("No valid x-ranges remain after clipping to bounding box.")
-    if not y_ranges_clipped:
+    if not y_range_clipped:
         raise ValueError("No valid y-ranges remain after clipping to bounding box.")
-    if not z_ranges_shifted:
-        raise ValueError("z_ranges cannot be empty.")
+    if not z_range_shifted:
+        raise ValueError("z_range cannot be empty.")
 
     # --- 2) Create a ring of points around (0, 0) in the XY plane to query patch validity
     angle = torch.linspace(0, 2 * np.pi, 10, device=device)
@@ -152,8 +151,8 @@ def find_piecewise_range_flat_patches(
     iter_count = 0
     while len(points_ids) > 0 and iter_count < cfg.max_iterations:
         # (A) Sample X and Y from the multiple intervals
-        pos_x = uniform_sample_multiple_ranges(x_ranges_clipped, len(points_ids), device)
-        pos_y = uniform_sample_multiple_ranges(y_ranges_clipped, len(points_ids), device)
+        pos_x = uniform_sample_multiple_ranges(x_range_clipped, len(points_ids), device)
+        pos_y = uniform_sample_multiple_ranges(y_range_clipped, len(points_ids), device)
 
         # Store the new (x, y)
         flat_patches[points_ids, 0] = pos_x
@@ -181,10 +180,10 @@ def find_piecewise_range_flat_patches(
 
         # (C) Check validity:
         #  1) The patch ring must lie entirely within at least one z-range interval
-        #     We'll check each ring point's Z to see if it's within ANY of the z_ranges.
+        #     We'll check each ring point's Z to see if it's within ANY of the z_range.
         #     If the ring fails in all intervals, it's invalid.
         z_ok_mask = torch.zeros(len(points_ids), dtype=torch.bool, device=device)
-        for zlow, zhigh in z_ranges_shifted:
+        for zlow, zhigh in z_range_shifted:
             in_this_range = (heights >= zlow) & (heights <= zhigh)
             # We only say "ok" if *all* ring points are within the range
             # for that interval:

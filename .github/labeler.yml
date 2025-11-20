@@ -1,0 +1,59 @@
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Documentation-related changes
+documentation:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file:
+        - 'docs/**'
+        - '**/README.md'
+      - all-globs-to-all-files:
+        - '!docs/licenses/**'
+
+# Infrastructure changes
+infrastructure:
+  - changed-files:
+    - any-glob-to-any-file:
+      - .github/**
+      - docker/**
+      - .dockerignore
+      - tools/**
+      - .vscode/**
+      - environment.yml
+      - setup.py
+      - pyproject.toml
+      - .pre-commit-config.yaml
+      - .flake8
+      - uwlab.sh
+      - uwlab.bat
+      - docs/licenses/**
+
+# Assets (USD, glTF, etc.) related changes.
+asset:
+  - changed-files:
+    - any-glob-to-any-file:
+      - source/uwlab_assets/**
+
+# Core related changes.
+core:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file:
+        - source/**
+        - scripts/**
+        - scripts_v2/**
+      - all-globs-to-all-files:
+        - '!source/uwlab_assets/**'
+
+# Add 'enhancement' label to any PR where the head branch name
+# starts with `feature` or has a `feature` section in the name
+enhancement:
+  - head-branch: ['^feature', 'feature']
+
+# Add 'bug' label to any PR where the head branch name
+# starts with `fix`/`bug` or has a `fix`/`bug` section in the name
+bug:
+  - head-branch: ['^fix', 'fix', '^bug', 'bug']

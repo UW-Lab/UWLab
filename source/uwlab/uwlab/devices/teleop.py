@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -6,14 +6,16 @@
 from __future__ import annotations
 
 import torch
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable, Literal
+from typing import TYPE_CHECKING, Literal
 
 import isaaclab.utils.math as math_utils
 from isaaclab.devices import DeviceBase
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.markers import VisualizationMarkers
 from isaaclab.markers.config import CUBOID_MARKER_CFG, FRAME_MARKER_CFG
+
 from uwlab.utils.math import create_axis_remap_function
 
 if TYPE_CHECKING:

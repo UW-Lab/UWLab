@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -6,12 +6,12 @@
 from __future__ import annotations
 
 import torch
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from isaaclab.envs import ManagerBasedRLEnv
     from skrl.agents.torch.base import Agent
-
-    from uwlab.envs import DataManagerBasedRLEnv
 """
 loss extension functions return a loss value given a batch of samples.
 they can be used to add additional loss terms to the agent's loss function.
@@ -19,7 +19,7 @@ they can be used to add additional loss terms to the agent's loss function.
 
 
 def expert_distillation_loss_f(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     agent: Agent,
     context: dict[str, Any],
     criterion: torch.nn.Module,

@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -6,10 +6,10 @@
 from dataclasses import MISSING
 from typing import Literal
 
-import uwlab.terrains.trimesh.mesh_terrains as mesh_terrains
+from isaaclab.terrains.terrain_generator_cfg import SubTerrainBaseCfg
 from isaaclab.utils import configclass
 
-from ..terrain_generator_cfg import SubTerrainBaseCfg
+import uwlab.terrains.trimesh.mesh_terrains as mesh_terrains
 
 """
 Different trimesh terrain configurations.

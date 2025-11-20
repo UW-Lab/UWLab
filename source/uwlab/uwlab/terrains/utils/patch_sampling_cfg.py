@@ -1,12 +1,12 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import MISSING
-from typing import Callable
 
 from isaaclab.utils import configclass
 
@@ -22,6 +22,17 @@ class PatchSamplingCfg:
 
     num_patches: int = MISSING
     """Number of patches to sample."""
+
+    patch_radius: float | list[float] = MISSING
+    """Radius of the patches."""
+
+    patched = False
+
+    def __post_init__(self):
+        if not self.patched:
+            cfg = self.to_dict()
+            cfg["cfg"] = self.__class__
+            setattr(self, "patch_radius", cfg)
 
 
 @configclass
@@ -69,13 +80,13 @@ class PieceWiseRangeFlatPatchSamplingCfg(PatchSamplingCfg):
     cases where the terrain may have holes or obstacles in some areas.
     """
 
-    x_ranges: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
+    x_range: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
     """The list of (min, max) intervals for X sampling (in mesh frame)."""
 
-    y_ranges: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
+    y_range: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
     """The list of (min, max) intervals for Y sampling (in mesh frame)."""
 
-    z_ranges: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
+    z_range: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
     """The list of (min, max) intervals for Z filtering (in mesh frame)."""
 
     max_height_diff: float = MISSING
@@ -92,7 +103,14 @@ class FlatPatchSamplingByRadiusCfg(PatchSamplingCfg):
 
     radius_range: tuple[float, float] = MISSING
 
+    x_range: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
+    """The list of (min, max) intervals for X sampling (in mesh frame)."""
+
+    y_range: list[tuple[float, float]] | tuple[float, float] = (-1e6, 1e6)
+    """The list of (min, max) intervals for Y sampling (in mesh frame)."""
+
     z_range: tuple[float, float] = (-1e6, 1e6)
+    """The list of (min, max) intervals for Z filtering (in mesh frame)."""
 
     max_height_diff: float = MISSING
 

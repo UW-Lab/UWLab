@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -6,18 +6,17 @@
 import torch
 import types
 from contextlib import contextmanager
-from typing import Any, Dict, List
+from typing import Any
 
+from isaaclab.envs import ManagerBasedRLEnv
 from skrl.agents.torch.base import Agent
-
-from uwlab.envs import DataManagerBasedRLEnv
 
 from .ext_cfg import ContextInitializerCfg, SupplementaryTrainingCfg
 
 
 class AgentPatcher:
     def __init__(
-        self, locs: Dict[str, Any], env: DataManagerBasedRLEnv, agent: Agent, suppl_train_cfg: SupplementaryTrainingCfg
+        self, locs: dict[str, Any], env: ManagerBasedRLEnv, agent: Agent, suppl_train_cfg: SupplementaryTrainingCfg
     ):
         self.env = env
         self.agent = agent
@@ -30,10 +29,10 @@ class AgentPatcher:
 
     def context_init(
         self,
-        locs: Dict[str, Any],
-        env: DataManagerBasedRLEnv,
+        locs: dict[str, Any],
+        env: ManagerBasedRLEnv,
         agent: Agent,
-        context_initializers: List[ContextInitializerCfg],
+        context_initializers: list[ContextInitializerCfg],
     ):
         context = {}
         for context_initializer in context_initializers:

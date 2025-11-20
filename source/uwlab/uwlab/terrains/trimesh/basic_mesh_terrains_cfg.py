@@ -1,9 +1,4 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -12,9 +7,9 @@ from dataclasses import MISSING
 from typing import Literal
 
 import isaaclab.terrains.trimesh.utils as mesh_utils_terrains
+from isaaclab.terrains import SubTerrainBaseCfg
 from isaaclab.utils import configclass
 
-from ..terrain_generator_cfg import SubTerrainBaseCfg
 from . import basic_mesh_terrains as mesh_terrains
 
 """

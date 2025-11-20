@@ -1,0 +1,127 @@
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+name: Check Python Dependency Licenses
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  license-check:
+    runs-on: [self-hosted]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # - name: Install jq
+    #   run: sudo apt-get update && sudo apt-get install -y jq
+
+    - name: Clean up disk space
+      run: |
+        rm -rf /opt/hostedtoolcache
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'  # Adjust as needed
+
+    - name: Install dependencies using ./uwlab.sh -i
+      run: |
+        # first install isaac sim
+        pip install --upgrade pip
+        pip install 'isaacsim[all,extscache]==${{ vars.ISAACSIM_BASE_VERSION || '5.0.0' }}' --extra-index-url https://pypi.nvidia.com
+        chmod +x ./uwlab.sh  # Make sure the script is executable
+        # install all lab dependencies
+        ./uwlab.sh -i
+
+    - name: Install pip-licenses
+      run: |
+        pip install pip-licenses
+        pip install -r tools/template/requirements.txt
+        pip install -r docs/requirements.txt
+
+    # Optional: Print the license report for visibility
+    - name: Print License Report
+      run: pip-licenses --from=mixed --format=markdown
+
+    # Print pipdeptree
+    - name: Print pipdeptree
+      run: |
+        pip install pipdeptree
+        pipdeptree
+
+    - name: Check licenses against whitelist and exceptions
+      run: |
+        # Generate licenses report and validate using concise Python
+        pip-licenses --from=mixed --format=json > licenses.json
+        python - <<'PY'
+        import json, sys
+
+        # Substring-based allowlist (case-insensitive)
+        ALLOWED = ("mit", "apache", "bsd", "isc", "zlib", "psfl", "bsl", "boost", "mpl")
+
+        def _norm(s: str) -> str:
+            return (s or "").strip().lower()
+
+        def _is_allowed(license_str: str) -> bool:
+            ln = _norm(license_str)
+            return any(tok in ln for tok in ALLOWED)
+
+        EXCEPTIONS_FILE = ".github/workflows/license-exceptions.json"
+
+        # Load report (defensive)
+        try:
+            with open("licenses.json", encoding="utf-8") as f:
+                packages = json.load(f)
+        except Exception as e:
+            print(f"ERROR: Failed to parse licenses.json: {e}")
+            sys.exit(1)
+
+        # Load exceptions (optional)
+        try:
+            with open(EXCEPTIONS_FILE, encoding="utf-8") as f:
+                exc_entries = json.load(f)
+        except FileNotFoundError:
+            exc_entries = []
+        exc_map = { (e.get("package") or ""): e.get("license") for e in exc_entries if e.get("package") }
+
+        failed = 0
+        for rec in packages:
+            name = (rec.get("Name") or "").strip()
+            lic = (rec.get("License") or "").strip()
+            if not name or name.startswith("uwlab"):
+                continue
+            if _is_allowed(lic):
+                continue
+            if name in exc_map:
+                exc_lic = exc_map[name]
+                exc_norm = _norm(exc_lic)
+                lic_norm = _norm(lic)
+                # NEW: if detected license is unknown/blank, accept when an exception exists
+                if lic_norm in ("", "unknown"):
+                    continue
+                # Treat blank/unknown exception license as wildcard (accept any)
+                if exc_norm in ("", "null", "unknown", "unspecified", "n/a", "na", "none"):
+                    continue
+                # Flexible match to avoid churn on formatting differences
+                if exc_norm in lic_norm or lic_norm in exc_norm:
+                    continue
+                print(f"ERROR: {name} has license: {lic}")
+                failed += 1
+                continue
+            print(f"ERROR: {name} has license: {lic}")
+            failed += 1
+
+        if failed:
+            print(f"ERROR: {failed} packages were flagged.")
+            sys.exit(1)
+        print("All packages were checked.")
+        PY

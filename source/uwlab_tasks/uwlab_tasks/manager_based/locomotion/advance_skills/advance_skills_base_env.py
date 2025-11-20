@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -7,7 +7,7 @@ from dataclasses import MISSING
 
 import isaaclab.sim as sim_utils
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
-from isaaclab.envs import ViewerCfg
+from isaaclab.envs import ManagerBasedRLEnvCfg, ViewerCfg
 from isaaclab.managers import CurriculumTermCfg as CurrTerm
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
@@ -15,15 +15,16 @@ from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sensors import ContactSensorCfg, RayCasterCfg, patterns
+from isaaclab.terrains import TerrainGeneratorCfg, TerrainImporterCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
-from uwlab.envs.data_manager_based_rl import DataManagerBasedRLEnvCfg
-from uwlab.scene import InteractiveSceneCfg
-from uwlab.terrains import TerrainGeneratorCfg, TerrainImporterCfg
 
 import uwlab_tasks.manager_based.locomotion.advance_skills.mdp as mdp
+
+from .terrains import EXTREME_STAIR, GAP, IRREGULAR_PILLAR_OBSTACLE, PIT, SLOPE_INV, SQUARE_PILLAR_OBSTACLE
 
 
 @configclass
@@ -77,7 +78,7 @@ class SceneCfg(InteractiveSceneCfg):
     height_scanner = RayCasterCfg(
         prim_path="{ENV_REGEX_NS}/Robot/base",
         offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
-        attach_yaw_only=True,
+        ray_alignment="yaw",
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=(1.6, 1.0)),
         debug_vis=False,
         mesh_prim_paths=["/World/ground"],
@@ -97,6 +98,7 @@ class ActionsCfg:
 @configclass
 class CommandsCfg:
     "Command specifications for the MDP."
+
     goal_point = mdp.TerrainBasedPose2dCommandCfg(
         asset_name="robot",
         resampling_time_range=(10.0, 10.0),
@@ -274,8 +276,60 @@ class CurriculumCfg:
     terrain_levels = CurrTerm(func=mdp.terrain_levels_vel)  # type: ignore
 
 
+def make_terrain(terrain_dict):
+
+    return TerrainImporterCfg(
+        prim_path="/World/ground",
+        terrain_type="generator",
+        terrain_generator=TerrainGeneratorCfg(
+            size=(10.0, 10.0),
+            border_width=20.0,
+            num_rows=10,
+            num_cols=20,
+            horizontal_scale=0.1,
+            vertical_scale=0.005,
+            slope_threshold=0.75,
+            use_cache=False,
+            sub_terrains=terrain_dict,
+        ),
+        max_init_terrain_level=5,
+        collision_group=-1,
+        physics_material=sim_utils.RigidBodyMaterialCfg(
+            friction_combine_mode="multiply",
+            restitution_combine_mode="multiply",
+            static_friction=1.0,
+            dynamic_friction=1.0,
+        ),
+        visual_material=sim_utils.MdlFileCfg(
+            mdl_path=f"{ISAACLAB_NUCLEUS_DIR}/Materials/TilesMarbleSpiderWhiteBrickBondHoned/TilesMarbleSpiderWhiteBrickBondHoned.mdl",
+            project_uvw=True,
+            texture_scale=(0.25, 0.25),
+        ),
+        debug_vis=False,
+    )
+
+
+variants = {
+    "scene.terrain": {
+        "all": make_terrain({
+            "gap": GAP,
+            "pit": PIT,
+            "extreme_stair": EXTREME_STAIR,
+            "slope_inv": SLOPE_INV,
+            "square_pillar_obstacle": SQUARE_PILLAR_OBSTACLE,
+            "irregular_pillar_obstacle": IRREGULAR_PILLAR_OBSTACLE,
+        }),
+        "gap": make_terrain({"gap": GAP}),
+        "pit": make_terrain({"pit": PIT}),
+        "extreme_stair": make_terrain({"extreme_stair": EXTREME_STAIR}),
+        "slope_inv": make_terrain({"slope_inv": SLOPE_INV}),
+        "square_pillar_obstacle": make_terrain({"square_pillar_obstacle": SQUARE_PILLAR_OBSTACLE}),
+    }
+}
+
+
 @configclass
-class AdvanceSkillsBaseEnvCfg(DataManagerBasedRLEnvCfg):
+class AdvanceSkillsBaseEnvCfg(ManagerBasedRLEnvCfg):
     scene: SceneCfg = SceneCfg(num_envs=4096, env_spacing=10)
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
@@ -285,13 +339,13 @@ class AdvanceSkillsBaseEnvCfg(DataManagerBasedRLEnvCfg):
     events: EventsCfg = EventsCfg()
     curriculum: CurriculumCfg = CurriculumCfg()
     viewer: ViewerCfg = ViewerCfg(eye=(1.0, 2.0, 2.0), origin_type="asset_body", asset_name="robot", body_name="base")
+    variants = variants
 
     def __post_init__(self):
         self.decimation = 4
         self.episode_length_s = 6.0
         self.sim.dt = 0.005
         self.sim.render_interval = self.decimation
-        self.sim.disable_contact_processing = True
         self.sim.physics_material = self.scene.terrain.physics_material
         self.sim.physx.gpu_total_aggregate_pairs_capacity = 2**24
         self.sim.physx.gpu_found_lost_pairs_capacity = 2**24

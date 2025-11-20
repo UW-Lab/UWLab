@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.8.6 (2025-10-09)
+~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Removed data_manager and uwlab version of interactive scene so to track IsaacLab implementation
+
+
 0.8.5 (2025-03-23)
 ~~~~~~~~~~~~~~~~~~
 
@@ -65,7 +74,7 @@ Changed
 Removed
 ^^^^^^^
 
-* Deprecating :folder:`uwlab.envs.assets.deformable` related deformable modules
+* Deprecating :mod:`uwlab.envs.assets.deformable` related deformable modules
 
 
 0.7.1 (2024-10-24)
@@ -94,7 +103,7 @@ Fixed
 ^^^^^
 
 * Dropping DeformableInteractiveScene from :file:`uwlab.scene.deformable_interactive_scene_cfg` as
-official deformable has been added to Isaac Lab
+  official deformable has been added to Isaac Lab
 
 
 0.6.0 (2024-10-20)
@@ -121,7 +130,7 @@ Added
 Added
 ^^^^^
 
-* Transferred Experimental Evolution code into lab extension as :dir:`uwlab.evolution_system`
+* Transferred Experimental Evolution code into lab extension as :mod:`uwlab.evolution_system`
 
 0.5.3 (2024-09-02)
 ~~~~~~~~~~~~~~~~~~
@@ -130,7 +139,7 @@ Added
 ^^^^^
 
 * Adding event that reset from demonstration :func:`uwlab.envs.mdp.events.reset_from_demonstration`
-* Adding event that record state of simulation:func:`uwlab.envs.mdp.events.record_state_configuration`
+* Adding event that record state of simulation :func:`uwlab.envs.mdp.events.record_state_configuration`
 
 0.5.2 (2024-09-01)
 ~~~~~~~~~~~~~~~~~~
@@ -157,7 +166,7 @@ Added
 ^^^^^
 
 * Added features that support obj typed sub-terrain, and custom supply of the spawning locations
-  please check :folder:`uwlab.lab.terrains`
+  please check :mod:`uwlab.lab.terrains`
 
 
 0.4.3 (2024-08-06)
@@ -202,8 +211,8 @@ Added
 
 Added
 ^^^^^^^
-Added experiment feature categorical command type for commanding anything that can be represented
-by integer at :folder:`uwlab.envs.mdp.commands`
+* Added experiment feature categorical command type for commanding anything that can be represented
+  by integer at :mod:`uwlab.envs.mdp.commands`
 
 
 0.2.7 (2024-07-28)
@@ -357,7 +366,7 @@ Changed
 * :class:`uwlab.actuators.actuator_pd.py.HebiStrategy3Actuator` reflected the field that scales position_p and effort_p
 * :class:`uwlab.actuators.actuator_pd.py.HebiStrategy4Actuator` reflected the field that scales position_p and effort_p
 * Improved Reuseability :class:`uwlab.devices.rokoko_udp_receiver.Rokoko_Glove` such that the returned joint position respects the
-order user inputs. Added debug visualization. Plan to add scale by knuckle width to match the leap hand knuckle width
+  order user inputs. Added debug visualization. Plan to add scale by knuckle width to match the leap hand knuckle width
 
 0.1.5 (2024-07-04)
 ~~~~~~~~~~~~~~~~~~
@@ -366,8 +375,8 @@ order user inputs. Added debug visualization. Plan to add scale by knuckle width
 Changed
 ^^^^^^^
 * :meth:`uwlab.envs.data_manager_based_rl.step` the actual environment update rate now becomes
-decimation square, as square allows a nice property that tuning decimation creates minimal effect on the learning
-behavior.
+  decimation square, as square allows a nice property that tuning decimation creates minimal effect on the learning
+  behavior.
 
 
 0.1.4 (2024-06-29)

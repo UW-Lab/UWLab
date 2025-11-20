@@ -1,24 +1,22 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
-
 import argparse
 import importlib.util
 import os
+import random
+import subprocess
 import sys
-from time import sleep
+from time import sleep, time
 
 import ray
 import util
 from ray import air, tune
+from ray.tune import Callback
 from ray.tune.search.optuna import OptunaSearch
 from ray.tune.search.repeater import Repeater
+from ray.tune.stopper import CombinedStopper
 
 """
 This script breaks down an aggregate tuning job, as defined by a hyperparameter sweep configuration,
@@ -63,6 +61,9 @@ BASE_DIR = os.path.expanduser("~")
 PYTHON_EXEC = "./isaaclab.sh -p"
 WORKFLOW = "scripts/reinforcement_learning/rl_games/train.py"
 NUM_WORKERS_PER_NODE = 1  # needed for local parallelism
+PROCESS_RESPONSE_TIMEOUT = 200.0  # seconds to wait before killing the process when it stops responding
+MAX_LINES_TO_SEARCH_EXPERIMENT_LOGS = 1000  # maximum number of lines to read from the training process logs
+MAX_LOG_EXTRACTION_ERRORS = 10  # maximum allowed LogExtractionErrors before we abort the whole training
 
 
 class IsaacLabTuneTrainable(tune.Trainable):
@@ -76,12 +77,13 @@ class IsaacLabTuneTrainable(tune.Trainable):
     def setup(self, config: dict) -> None:
         """Get the invocation command, return quick for easy scheduling."""
         self.data = None
+        self.time_since_last_proc_response = 0.0
         self.invoke_cmd = util.get_invocation_command_from_cfg(cfg=config, python_cmd=PYTHON_EXEC, workflow=WORKFLOW)
         print(f"[INFO]: Recovered invocation with {self.invoke_cmd}")
         self.experiment = None
 
     def reset_config(self, new_config: dict):
-        """Allow environments to be re-used by fetching a new invocation command"""
+        """Allow environments to be reused by fetching a new invocation command"""
         self.setup(new_config)
         return True
 
@@ -90,12 +92,21 @@ class IsaacLabTuneTrainable(tune.Trainable):
             # When including this as first step instead of setup, experiments get scheduled faster
             # Don't want to block the scheduler while the experiment spins up
             print(f"[INFO]: Invoking experiment as first step with {self.invoke_cmd}...")
-            experiment = util.execute_job(
-                self.invoke_cmd,
-                identifier_string="",
-                extract_experiment=True,
-                persistent_dir=BASE_DIR,
-            )
+            try:
+                experiment = util.execute_job(
+                    self.invoke_cmd,
+                    identifier_string="",
+                    extract_experiment=True,  # Keep this as True to return a valid dictionary
+                    persistent_dir=BASE_DIR,
+                    max_lines_to_search_logs=MAX_LINES_TO_SEARCH_EXPERIMENT_LOGS,
+                    max_time_to_search_logs=PROCESS_RESPONSE_TIMEOUT,
+                )
+            except util.LogExtractionError:
+                self.data = {
+                    "LOG_EXTRACTION_ERROR_STOPPER_FLAG": True,
+                    "done": True,
+                }
+                return self.data
             self.experiment = experiment
             print(f"[INFO]: Tuner recovered experiment info {experiment}")
             self.proc = experiment["proc"]
@@ -115,11 +126,35 @@ class IsaacLabTuneTrainable(tune.Trainable):
 
             while data is None:
                 data = util.load_tensorboard_logs(self.tensorboard_logdir)
+                proc_status = self.proc.poll()
+                if proc_status is not None:
+                    break
                 sleep(2)  # Lazy report metrics to avoid performance overhead
 
             if self.data is not None:
-                while util._dicts_equal(data, self.data):
+                data_ = {k: v for k, v in data.items() if k != "done"}
+                self_data_ = {k: v for k, v in self.data.items() if k != "done"}
+                unresponsiveness_start_time = time()
+                while util._dicts_equal(data_, self_data_):
+                    self.time_since_last_proc_response = time() - unresponsiveness_start_time
                     data = util.load_tensorboard_logs(self.tensorboard_logdir)
+                    data_ = {k: v for k, v in data.items() if k != "done"}
+                    proc_status = self.proc.poll()
+                    if proc_status is not None:
+                        break
+                    if self.time_since_last_proc_response > PROCESS_RESPONSE_TIMEOUT:
+                        self.time_since_last_proc_response = 0.0
+                        print("[WARNING]: Training workflow process is not responding, terminating...")
+                        self.proc.terminate()
+                        try:
+                            self.proc.wait(timeout=20)
+                        except subprocess.TimeoutExpired:
+                            print("[ERROR]: The process did not terminate within timeout duration.")
+                            self.proc.kill()
+                            self.proc.wait()
+                        self.data = data
+                        self.data["done"] = True
+                        return self.data
                     sleep(2)  # Lazy report metrics to avoid performance overhead
 
             self.data = data
@@ -138,13 +173,71 @@ class IsaacLabTuneTrainable(tune.Trainable):
         )
 
 
-def invoke_tuning_run(cfg: dict, args: argparse.Namespace) -> None:
+class LogExtractionErrorStopper(tune.Stopper):
+    """Stopper that stops all trials if multiple LogExtractionErrors occur.
+
+    Args:
+        max_errors: The maximum number of LogExtractionErrors allowed before terminating the experiment.
+    """
+
+    def __init__(self, max_errors: int):
+        self.max_errors = max_errors
+        self.error_count = 0
+
+    def __call__(self, trial_id, result):
+        """Increments the error count if trial has encountered a LogExtractionError.
+
+        It does not stop the trial based on the metrics, always returning False.
+        """
+        if result.get("LOG_EXTRACTION_ERROR_STOPPER_FLAG", False):
+            self.error_count += 1
+            print(
+                f"[ERROR]: Encountered LogExtractionError {self.error_count} times. "
+                f"Maximum allowed is {self.max_errors}."
+            )
+        return False
+
+    def stop_all(self):
+        """Returns true if number of LogExtractionErrors exceeds the maximum allowed, terminating the experiment."""
+        if self.error_count > self.max_errors:
+            print("[FATAL]: Encountered LogExtractionError more than allowed, aborting entire tuning run... ")
+            return True
+        else:
+            return False
+
+
+class ProcessCleanupCallback(Callback):
+    """Callback to clean up processes when trials are stopped."""
+
+    def on_trial_error(self, iteration, trials, trial, error, **info):
+        """Called when a trial encounters an error."""
+        self._cleanup_trial(trial)
+
+    def on_trial_complete(self, iteration, trials, trial, **info):
+        """Called when a trial completes."""
+        self._cleanup_trial(trial)
+
+    def _cleanup_trial(self, trial):
+        """Clean up processes for a trial using SIGKILL."""
+        try:
+            subprocess.run(["pkill", "-9", "-f", f"rid {trial.config['runner_args']['-rid']}"], check=False)
+            sleep(5)
+        except Exception as e:
+            print(f"[ERROR]: Failed to cleanup trial {trial.trial_id}: {e}")
+
+
+def invoke_tuning_run(
+    cfg: dict,
+    args: argparse.Namespace,
+    stopper: tune.Stopper | None = None,
+) -> None:
     """Invoke an Isaac-Ray tuning run.
 
     Log either to a local directory or to MLFlow.
     Args:
         cfg: Configuration dictionary extracted from job setup
         args: Command-line arguments related to tuning.
+        stopper: Custom stopper, optional.
     """
     # Allow for early exit
     os.environ["TUNE_DISABLE_STRICT_METRIC_CHECKING"] = "1"
@@ -152,16 +245,16 @@ def invoke_tuning_run(cfg: dict, args: argparse.Namespace) -> None:
     print("[WARNING]: Not saving checkpoints, just running experiment...")
     print("[INFO]: Model parameters and metrics will be preserved.")
     print("[WARNING]: For homogeneous cluster resources only...")
+
+    # Initialize Ray
+    util.ray_init(
+        ray_address=args.ray_address,
+        log_to_driver=True,
+    )
+
     # Get available resources
     resources = util.get_gpu_node_resources()
     print(f"[INFO]: Available resources {resources}")
-
-    if not ray.is_initialized():
-        ray.init(
-            address=args.ray_address,
-            log_to_driver=True,
-            num_gpus=len(resources),
-        )
 
     print(f"[INFO]: Using config {cfg}")
 
@@ -172,15 +265,23 @@ def invoke_tuning_run(cfg: dict, args: argparse.Namespace) -> None:
     )
     repeat_search = Repeater(searcher, repeat=args.repeat_run_count)
 
+    # Configure the stoppers
+    stoppers: CombinedStopper = CombinedStopper(*[
+        LogExtractionErrorStopper(max_errors=MAX_LOG_EXTRACTION_ERRORS),
+        *([stopper] if stopper is not None else []),
+    ])
+
     if args.run_mode == "local":  # Standard config, to file
         run_config = air.RunConfig(
             storage_path="/tmp/ray",
             name=f"IsaacRay-{args.cfg_class}-tune",
+            callbacks=[ProcessCleanupCallback()],
             verbose=1,
             checkpoint_config=air.CheckpointConfig(
                 checkpoint_frequency=0,  # Disable periodic checkpointing
                 checkpoint_at_end=False,  # Disable final checkpoint
             ),
+            stop=stoppers,
         )
 
     elif args.run_mode == "remote":  # MLFlow, to MLFlow server
@@ -194,17 +295,21 @@ def invoke_tuning_run(cfg: dict, args: argparse.Namespace) -> None:
         run_config = ray.train.RunConfig(
             name="mlflow",
             storage_path="/tmp/ray",
-            callbacks=[mlflow_callback],
+            callbacks=[ProcessCleanupCallback(), mlflow_callback],
             checkpoint_config=ray.train.CheckpointConfig(checkpoint_frequency=0, checkpoint_at_end=False),
+            stop=stoppers,
         )
     else:
         raise ValueError("Unrecognized run mode.")
-
+    # RID isn't optimized as it is sampled from, but useful for cleanup later
+    cfg["runner_args"]["-rid"] = tune.sample_from(lambda _: str(random.randint(int(1e9), int(1e10) - 1)))
     # Configure the tuning job
     tuner = tune.Tuner(
         IsaacLabTuneTrainable,
         param_space=cfg,
         tune_config=tune.TuneConfig(
+            metric=args.metric,
+            mode=args.mode,
             search_alg=repeat_search,
             num_samples=args.num_samples,
             reuse_actors=True,
@@ -312,8 +417,45 @@ if __name__ == "__main__":
         default=3,
         help="How many times to repeat each hyperparameter config.",
     )
+    parser.add_argument(
+        "--process_response_timeout",
+        type=float,
+        default=PROCESS_RESPONSE_TIMEOUT,
+        help="Training workflow process response timeout.",
+    )
+    parser.add_argument(
+        "--max_lines_to_search_experiment_logs",
+        type=float,
+        default=MAX_LINES_TO_SEARCH_EXPERIMENT_LOGS,
+        help="Max number of lines to search for experiment logs before terminating the training workflow process.",
+    )
+    parser.add_argument(
+        "--max_log_extraction_errors",
+        type=float,
+        default=MAX_LOG_EXTRACTION_ERRORS,
+        help="Max number number of LogExtractionError failures before we abort the whole tuning run.",
+    )
+    parser.add_argument(
+        "--stopper",
+        type=str,
+        default=None,
+        help="A stop criteria in the cfg_file, must be a tune.Stopper instance.",
+    )
 
     args = parser.parse_args()
+    PROCESS_RESPONSE_TIMEOUT = args.process_response_timeout
+    MAX_LINES_TO_SEARCH_EXPERIMENT_LOGS = int(args.max_lines_to_search_experiment_logs)
+    print(
+        "[INFO]: The max number of lines to search for experiment logs before (early) terminating the training "
+        f"workflow process is set to {MAX_LINES_TO_SEARCH_EXPERIMENT_LOGS}.\n"
+        "[INFO]: The process response timeout, used while updating tensorboard scalars and searching for "
+        f"experiment logs, is set to {PROCESS_RESPONSE_TIMEOUT} seconds."
+    )
+    MAX_LOG_EXTRACTION_ERRORS = int(args.max_log_extraction_errors)
+    print(
+        "[INFO]: Max number of LogExtractionError failures before we abort the whole tuning run is "
+        f"set to {MAX_LOG_EXTRACTION_ERRORS}.\n"
+    )
     NUM_WORKERS_PER_NODE = args.num_workers_per_node
     print(f"[INFO]: Using {NUM_WORKERS_PER_NODE} workers per node.")
     if args.run_mode == "remote":
@@ -357,7 +499,16 @@ if __name__ == "__main__":
         print(f"[INFO]: Successfully instantiated class '{class_name}' from {file_path}")
         cfg = instance.cfg
         print(f"[INFO]: Grabbed the following hyperparameter sweep config: \n {cfg}")
-        invoke_tuning_run(cfg, args)
+        # Load optional stopper config
+        stopper = None
+        if args.stopper and hasattr(module, args.stopper):
+            stopper = getattr(module, args.stopper)
+            if isinstance(stopper, type) and issubclass(stopper, tune.Stopper):
+                stopper = stopper()
+            else:
+                raise TypeError(f"[ERROR]: Unsupported stop criteria type: {type(stopper)}")
+            print(f"[INFO]: Loaded custom stop criteria from '{args.stopper}'")
+        invoke_tuning_run(cfg, args, stopper=stopper)
 
     else:
         raise AttributeError(f"[ERROR]:Class '{class_name}' not found in {file_path}")

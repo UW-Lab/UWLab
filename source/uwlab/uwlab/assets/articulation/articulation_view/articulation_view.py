@@ -1,19 +1,19 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 import torch
 from abc import abstractmethod
-from typing import List, TypedDict
+from typing import TypedDict
 
 
 class SharedDataSchema(TypedDict):
     is_running: bool
     close: bool
-    link_names: List[str]
-    dof_names: List[str]
-    dof_types: List[str]
+    link_names: list[str]
+    dof_names: list[str]
+    dof_types: list[str]
     pos: torch.Tensor
     vel: torch.Tensor
     torque: torch.Tensor

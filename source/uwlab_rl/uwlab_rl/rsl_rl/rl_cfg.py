@@ -1,22 +1,13 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 from dataclasses import MISSING
+from typing import Literal
 
 from isaaclab.utils import configclass
-
-from isaaclab_rl.rsl_rl import RslRlPpoAlgorithmCfg  # noqa: F401
-
-
-@configclass
-class SymmetryCfg:
-    use_data_augmentation: bool = False
-
-    use_mirror_loss: bool = False
-
-    data_augmentation_func: callable = None
+from isaaclab_rl.rsl_rl import RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg  # noqa: F401
 
 
 @configclass
@@ -64,11 +55,19 @@ class OffPolicyAlgorithmCfg:
 
 
 @configclass
+class RslRlFancyActorCriticCfg(RslRlPpoActorCriticCfg):
+    """Configuration for the fancy actor-critic networks."""
+
+    state_dependent_std: bool = False
+    """Whether to use state-dependent standard deviation."""
+
+    noise_std_type: Literal["scalar", "log", "gsde"] = "scalar"
+    """The type of noise standard deviation for the policy. Default is scalar."""
+
+
+@configclass
 class RslRlFancyPpoAlgorithmCfg(RslRlPpoAlgorithmCfg):
     """Configuration for the PPO algorithm."""
-
-    symmetry_cfg: SymmetryCfg | None = None
-    """The configuration for the symmetry."""
 
     behavior_cloning_cfg: BehaviorCloningCfg | None = None
     """The configuration for the online behavior cloning."""

@@ -1,13 +1,13 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-import uwlab_assets.robots.spot as spot
-
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils import configclass
+
+import uwlab_assets.robots.spot as spot
 
 import uwlab_tasks.manager_based.locomotion.advance_skills.config.spot.mdp as spot_mdp
 

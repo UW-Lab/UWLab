@@ -1,0 +1,33 @@
+# ignore .git related folders
+.git/
+.github/
+.gitignore
+# ignore docs
+docs/
+# copy in licenses folder to the container
+!docs/licenses/
+# ignore logs
+**/logs/
+**/runs/
+**/output/*
+**/outputs/*
+**/videos/*
+**/wandb/*
+*.tmp
+# ignore docker
+docker/cluster/exports/
+docker/.container.cfg
+# ignore recordings
+recordings/
+# ignore __pycache__
+**/__pycache__/
+**/*.egg-info/
+# ignore local virtual environments
+env_uwlab/
+# Note: _isaaclab/ is NOT ignored so it gets synced to cluster
+# ignore isaac sim symlink
+_isaac_sim?
+# Docker history
+docker/.uw-lab-docker-history
+# datasets
+/datasets/

@@ -25,7 +25,7 @@ Added
 Added
 ^^^^^
 
-* added custom franka setup at :folder:`uwlab_asset.franka`
+* added custom franka setup at :mod:`uwlab_asset.franka`
 
 0.4.1 (2024-09-01)
 ~~~~~~~~~~~~~~~~~~
@@ -33,7 +33,7 @@ Added
 Added
 ^^^^^
 
-* Fixed the reversed y axis in Tycho Teleop Cfg at :const:`uwlab_asset.tycho.action.TELEOP_CFG`
+* Fixed the reversed y axis in Tycho Teleop Cfg at :data:`uwlab_asset.tycho.action.TELEOP_CFG`
 
 0.4.0 (2024-09-01)
 ~~~~~~~~~~~~~~~~~~
@@ -96,8 +96,8 @@ Added
 Changed
 ^^^^^^^
 
-* Bug fix at :const:`uwlab_assets.robots.leap.actions.LEAP_JOINT_POSITION`
-  and :const:`uwlab_assets.robots.leap.actions.LEAP_JOINT_EFFORT` because
+* Bug fix at :data:`uwlab_assets.robots.leap.actions.LEAP_JOINT_POSITION`
+  and :data:`uwlab_assets.robots.leap.actions.LEAP_JOINT_EFFORT` because
   previous version did not include all joint name. it used to be
   ``joint_names=["j.*"]`` now becomes ``joint_names=["w.*", "j.*"]``
 

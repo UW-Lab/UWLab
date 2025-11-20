@@ -1,14 +1,14 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-import uwlab_assets.robots.tycho as tycho
-import uwlab_assets.robots.tycho.mdp as tycho_mdp
-
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
+
+import uwlab_assets.robots.tycho as tycho
+import uwlab_assets.robots.tycho.mdp as tycho_mdp
 
 import uwlab_tasks.manager_based.manipulation.track_goal.mdp as mdp
 

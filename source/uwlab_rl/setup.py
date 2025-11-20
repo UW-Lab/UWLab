@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -25,7 +25,11 @@ INSTALL_REQUIRES = [
 PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu118"]
 
 # Extra dependencies for RL agents
-EXTRAS_REQUIRE = {}
+EXTRAS_REQUIRE = {
+    "rsl-rl": [
+        "rsl-rl-lib @ git+https://github.com/zoctipus/rsl_rl.git@master",
+    ],
+}
 
 # Cumulation of all extra-requires
 EXTRAS_REQUIRE["all"] = list(itertools.chain.from_iterable(EXTRAS_REQUIRE.values()))

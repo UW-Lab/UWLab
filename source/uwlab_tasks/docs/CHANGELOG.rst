@@ -1,7 +1,46 @@
 Changelog
 ---------
 
+0.13.8 (2025-10-24)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Moved hydra utilities from uwlab apps to tasks
+
+
+
+0.13.7 (2025-10-09)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Removed Leap6D robot and it related track environment as it is not used any more
+
+
+
+0.13.6 (2025-10-09)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Fixed the terrain position patching style to be minimal
+
+
+0.13.5 (2025-09-27)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Fixed spot augmentation function not working with the most up to date rsl-rl-lib==3.0.1
+
+
 0.13.4 (2025-03-23)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fixed
 ^^^^^
@@ -10,15 +49,17 @@ Fixed
 
 
 0.13.3 (2025-03-23)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fixed
 ^^^^^
 
 * fixed the contains relationship does not work for x in env.scene because it doesn't have __contains__
-property, the solution is to use x in env.scene.keys() with # noqa: SIM118 to suppress flake8 complaint
+  property, the solution is to use x in env.scene.keys() with # noqa: SIM118 to suppress flake8 complaint
 
 
 0.13.2 (2025-03-23)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fixed
 ^^^^^
@@ -26,6 +67,7 @@ Fixed
 * the named mdp in accordance made in uwlab.envs.mdp for clarity
 
 0.13.1 (2025-01-13)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fixed
 ^^^^^
@@ -35,7 +77,7 @@ Fixed
 
 
 0.13.0 (2024-11-10)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -44,7 +86,7 @@ Added
 
 
 0.12.1 (2024-10-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -52,7 +94,7 @@ Added
 * added skrl ppo config for single cake decoration environment
 
 0.12.0 (2024-10-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -61,7 +103,7 @@ Added
 * tested to be compatible with current evolution branch
 
 0.11.0 (2024-10-20)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -69,7 +111,7 @@ Added
 * merged franka workshop environment, frank multi cake environment into uwlab, Thanks Yufeng!
 
 0.10.0 (2024-10-20)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -77,7 +119,7 @@ Added
 * merged skrl workflow pipeline into uwlab
 
 0.9.6 (2024-09-06)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -86,7 +128,7 @@ Changed
   changes at :func:`uwlab_tasks.tasks.locomotion.fetching.config.a1.__init__.py`
 
 0.9.5 (2024-09-02)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -98,7 +140,7 @@ Changed
 
 
 0.9.4 (2024-08-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -107,14 +149,14 @@ Changed
 
 
 0.9.3 (2024-08-24)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 * separated out lift objects environment from lift hammer environment at tasks.manipulation.lift_objects
 
 0.9.2 (2024-08-19)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -123,14 +165,14 @@ Changed
   and :class:`uwlab_tasks.tasks.manipulation.cake_decoration.config.hebi.tycho_joint_pos.IkabsoluteAction`
 
 0.9.1 (2024-08-06)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^^^
-* Added necessary mdps for :folder:`uwlab_tasks.tasks.locomotion` tasks
+* Added necessary mdps for :mod:`uwlab_tasks.tasks.locomotion` tasks
 
 0.9.0 (2024-08-06)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -139,7 +181,7 @@ Changed
 
 
 0.8.3 (2024-08-06)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -153,7 +195,7 @@ Changed
 
 
 0.8.2 (2024-08-06)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -162,7 +204,7 @@ Added
 
 
 0.8.1 (2024-08-06)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fixed
 ^^^^^
@@ -171,7 +213,7 @@ Fixed
 
 
 0.8.0 (2024-07-29)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fixed
 ^^^^^
@@ -180,7 +222,7 @@ Fixed
 
 
 0.8.0 (2024-07-29)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -189,16 +231,16 @@ Added
 
 
 0.7.0 (2024-07-29)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
 * added Unitree Go1 Go2 and spot for Fetching task at
-  :folder:`uwlab_tasks.tasks.locomotion.fetching`
+  :mod:`uwlab_tasks.tasks.locomotion.fetching`
 
 
 0.6.1 (2024-07-29)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -207,7 +249,7 @@ Changed
 
 
 0.6.0 (2024-07-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -216,7 +258,7 @@ Changed
 
 
 0.5.2 (2024-07-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -225,16 +267,16 @@ Changed
   'UW-LiftObjects-XarmLeap-IkDel-v0'
 
 0.5.1 (2024-07-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 * support IkDelta action for environment LiftObjectsXarmLeap at
-  :folder:`uwlab_tasks.tasks.manipulation.lift_objects`
+  :mod:`uwlab_tasks.tasks.manipulation.lift_objects`
 
 
 0.5.0 (2024-07-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -242,7 +284,7 @@ Changed
 
 
 0.4.3 (2024-07-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -250,7 +292,7 @@ Changed
 
 
 0.4.2 (2024-07-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -259,61 +301,61 @@ Changed
 
 
 0.4.1 (2024-07-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 
-* update track_goal tasks under folder :folder:`uwlab_tasks.tasks.manipulation.track_goal`
+* update track_goal tasks under folder :mod:`uwlab_tasks.tasks.manipulation.track_goal`
 
 
 0.4.0 (2024-07-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 
-* renaming :folder:`uwlab_tasks.tasks.manipulation.lift_cube` as
-  :folder:`uwlab_tasks.tasks.manipulation.lift_objects`
+* renaming :mod:`uwlab_tasks.tasks.manipulation.lift_cube` as
+  :mod:`uwlab_tasks.tasks.manipulation.lift_objects`
 * separates lift_cube and lift_multiobjects as two different environments
 
 * adopting new environment structure for task lift_objects
 
 
 0.3.0 (2024-07-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 
-* renaming :folder:`uwlab_tasks.tasks.manipulation.craneberryLavaChocoCake` as
-  :folder:`uwlab_tasks.tasks.manipulation.cake_decoration`
+* renaming :mod:`uwlab_tasks.tasks.manipulation.craneberryLavaChocoCake` as
+  :mod:`uwlab_tasks.tasks.manipulation.cake_decoration`
 
 * adopting new environment structure for task cake_decoration
 
 
 0.2.3 (2024-07-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 
 * sketched Fetching as a separate locomotion task, instead of being a part of
-  :folder:`uwlab_tasks.tasks.locomotion.velocity`
+  :mod:`uwlab_tasks.tasks.locomotion.velocity`
 
 
 0.2.2 (2024-07-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 
-* dropped dependency of :folder:`uwlab_tasks.cfg` in favor of extension ``uwlab_assets``
+* dropped dependency of :mod:`uwlab_tasks.cfg` in favor of extension ``uwlab_assets``
 
 
 
 0.2.1 (2024-07-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -321,7 +363,7 @@ Changed
 * added UW as author and maintainer to :file:`uwlab_tasks.setup.py`
 
 0.2.0 (2024-07-14)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -331,7 +373,7 @@ Changed
 
 
 0.2.0 (2024-07-14)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -343,7 +385,7 @@ Changed
   reward_fingers_object_distance tanh return std was 0.1 now 0.2
 
 0.1.9 (2024-07-13)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -353,11 +395,11 @@ Changed
 * added leap hand xarm event :func:`uwlab_tasks.cfgs.robots.leap_hand_xarm.mdp.events.reset_joints_by_offset` which accepts
   additional joint ids
 * changed cube lift environment cube size to be a bit larger
-* added mass randomization cfg in cube lift environment :field:`uwlab_tasks.tasks.manipulation.lift_cube.`
+* added mass randomization cfg in cube lift environment ``uwlab_tasks.tasks.manipulation.lift_cube``
 
 
 0.1.8 (2024-07-12)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -369,7 +411,7 @@ Changed
 
 
 0.1.7 (2024-07-08)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -387,7 +429,7 @@ Added
 
 
 0.1.6 (2024-07-07)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 memo:
 ^^^^^
@@ -403,9 +445,9 @@ Changed
 ^^^^^^^
 
 * Changed :class:`uwlab_tasks.cfgs.robots.hebi.robot_dynamics.RobotTerminationsCfg` to include DoneTerm: robot_extremely_bad_posture
-* Changed :function:`uwlab_tasks.cfgs.robots.hebi.mdp.terminations.terminate_extremely_bad_posture` to be probabilistic
-* Changed :field:`uwlab_tasks.tasks.manipulation.track_goal.config.hebi.Hebi_JointPos_GoalTracking_Env.RewardsCfg.end_effector_position_tracking`
-  and :field:`uwlab_tasks.tasks.manipulation.track_goal.config.hebi.Hebi_JointPos_GoalTracking_Env.RewardsCfg.end_effector_orientation_tracking`
+* Changed :func:`uwlab_tasks.cfgs.robots.hebi.mdp.terminations.terminate_extremely_bad_posture` to be probabilistic
+* Changed :attr:`uwlab_tasks.tasks.manipulation.track_goal.config.hebi.Hebi_JointPos_GoalTracking_Env.RewardsCfg.end_effector_position_tracking`
+  and :attr:`uwlab_tasks.tasks.manipulation.track_goal.config.hebi.Hebi_JointPos_GoalTracking_Env.RewardsCfg.end_effector_orientation_tracking`
   to be incentive reward instead of punishment reward.
 * Renamed orbit_mdp to lab_mdp in :file:`uwlab_tasks.tasks.manipulation.track_goal.config.Hebi_JointPos_GoalTracking_Env`
 
@@ -417,7 +459,7 @@ Added
 * Added experiments :file:`uwlab_tasks.tasks.manipulation.track_goal.config.hebi.strategy4_scale_experiments.py`
 
 0.1.5 (2024-07-06)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Added
@@ -435,19 +477,19 @@ Added
 
 
 0.1.4 (2024-07-05)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
 
-* :const:`uwlab_tasks.cfgs.robots.hebi.robot_cfg.HEBI_STRATEGY3_CFG`
-  :const:`uwlab_tasks.cfgs.robots.hebi.robot_cfg.HEBI_STRATEGY4_CFG`
+* :data:`uwlab_tasks.cfgs.robots.hebi.robot_cfg.HEBI_STRATEGY3_CFG`
+  :data:`uwlab_tasks.cfgs.robots.hebi.robot_cfg.HEBI_STRATEGY4_CFG`
   changed from manually editing scaling factor to cfg specifying scaling factor.
-* :const:`uwlab_tasks.cfgs.robots.hebi.robot_cfg.robot_dynamic`
+* :data:`uwlab_tasks.cfgs.robots.hebi.robot_cfg.robot_dynamic`
 * :func:`workflows.teleoperation.teleop_se3_agent_absolute.main` added visualization for full gloves data
 
 0.1.3 (2024-06-29)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changed
 ^^^^^^^
@@ -459,7 +501,7 @@ Changed
 
 
 0.1.2 (2024-06-28)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Changed
@@ -472,7 +514,7 @@ Changed
 
 
 0.1.1 (2024-06-27)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^
@@ -481,7 +523,7 @@ Added
 
 
 0.1.0 (2024-06-11)
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 ^^^^^

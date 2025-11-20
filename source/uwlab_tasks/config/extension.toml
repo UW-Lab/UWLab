@@ -1,13 +1,13 @@
 [package]
 
 # Semantic Versioning is used: https://semver.org/
-version = "0.13.4"
+version = "0.13.8"
 
 # Description
 title = "UW Lab Tasks"
 readme  = "docs/README.md"
 description="Extension for Isaac Lab"
-repository = "https://github.com/UW-Lab/UWLab"
+repository = "https://github.com/uw-lab/UWLab"
 category = "robotics"
 keywords = ["robotics", "rl", "il", "learning"]
 

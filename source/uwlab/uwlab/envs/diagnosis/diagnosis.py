@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -6,17 +6,18 @@
 from __future__ import annotations
 
 import torch
-from typing import TYPE_CHECKING, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from isaaclab.assets import Articulation
 from isaaclab.managers import SceneEntityCfg
 
 if TYPE_CHECKING:
-    from uwlab.envs import DataManagerBasedRLEnv
+    from isaaclab.envs import ManagerBasedRLEnv
 
 
 def get_link_incoming_joint_force(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -37,7 +38,7 @@ def get_link_incoming_joint_force(
 
 
 def get_dof_projected_joint_forces(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -60,7 +61,7 @@ def get_dof_projected_joint_forces(
 
 
 def get_dof_applied_torque(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -76,7 +77,7 @@ def get_dof_applied_torque(
 
 
 def get_dof_computed_torque(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -88,7 +89,7 @@ def get_dof_computed_torque(
 
 
 def get_dof_target_position(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -100,7 +101,7 @@ def get_dof_target_position(
 
 
 def get_dof_position(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -112,7 +113,7 @@ def get_dof_position(
 
 
 def get_dof_target_velocity(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -124,7 +125,7 @@ def get_dof_target_velocity(
 
 
 def get_dof_velocity(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -136,7 +137,7 @@ def get_dof_velocity(
 
 
 def get_dof_acceleration(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -148,14 +149,14 @@ def get_dof_acceleration(
 
 
 def get_action_rate(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
 ) -> torch.Tensor:
     return torch.square(env.action_manager.action[env_ids] - env.action_manager.prev_action[env_ids])
 
 
 def get_joint_torque_utilization(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -169,7 +170,7 @@ def get_joint_torque_utilization(
 
 
 def get_joint_velocity_utilization(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -183,7 +184,7 @@ def get_joint_velocity_utilization(
 
 
 def get_joint_power(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -197,7 +198,7 @@ def get_joint_power(
 
 
 def get_joint_mechanical_work(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -217,7 +218,7 @@ def get_joint_mechanical_work(
 
 
 def effective_torque(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -255,7 +256,7 @@ def effective_torque(
 
 
 def get_dof_weight_distribution(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     env_ids: Sequence[int] | torch.Tensor | None,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:

@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -11,7 +11,6 @@ from io import BytesIO
 from typing import TYPE_CHECKING
 
 import requests
-
 from isaaclab.envs.mdp.actions import JointPositionAction
 
 if TYPE_CHECKING:

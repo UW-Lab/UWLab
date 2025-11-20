@@ -1,17 +1,17 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 """Configuration for the Tycho robot."""
 
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
-
 import isaaclab.sim as sim_utils
 from isaaclab.actuators import ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
 from isaaclab.sensors import FrameTransformerCfg
 from isaaclab.sensors.frame_transformer.frame_transformer_cfg import OffsetCfg
+
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
 

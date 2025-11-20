@@ -21,6 +21,9 @@ make current-docs
 
 # 3. Open the current docs
 xdg-open _build/current/index.html
+
+# 3. Option B: Serve locally (handy over SSH)
+make serve-current  # serves http://127.0.0.1:8000
 ```
 </details>
 

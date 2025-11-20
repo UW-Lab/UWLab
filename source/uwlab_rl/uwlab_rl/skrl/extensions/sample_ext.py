@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -6,12 +6,12 @@
 from __future__ import annotations
 
 import torch
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from isaaclab.envs import ManagerBasedRLEnv
     from skrl.agents.torch.base import Agent
-
-    from uwlab.envs import DataManagerBasedRLEnv
 
 """
 Sample extension returns a function that takes a batch of samples
@@ -20,7 +20,7 @@ and return the additional samples wish to be added to the memory.
 
 
 def experts_act_f(
-    env: DataManagerBasedRLEnv,
+    env: ManagerBasedRLEnv,
     agent: Agent,
     context: dict,
     map_encoding_to_expert_key: str,
@@ -30,7 +30,7 @@ def experts_act_f(
 
     Parameters:
     ----------
-    env : DataManagerBasedRLEnv
+    env : ManagerBasedRLEnv
         The IsaacLab Manager-based RL environment
 
     agent : Agent

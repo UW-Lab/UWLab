@@ -1,18 +1,13 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 """Configuration for custom terrains."""
 
-import uwlab.terrains as terrain_gen
+from isaaclab.terrains import TerrainGeneratorCfg
 
-from ..terrain_generator_cfg import TerrainGeneratorCfg
+import uwlab.terrains as terrain_gen
 
 ROUGH_TERRAINS_CFG = TerrainGeneratorCfg(
     size=(8.0, 8.0),

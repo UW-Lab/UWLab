@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from isaaclab.devices import DeviceBase
 from isaaclab.utils.math import compute_pose_error
+
 from uwlab.utils.math import create_axis_remap_function
 
 if TYPE_CHECKING:

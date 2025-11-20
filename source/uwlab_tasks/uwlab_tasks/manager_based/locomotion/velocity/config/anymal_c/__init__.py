@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -13,7 +13,7 @@ from . import agents, flat_env_cfg, rough_env_cfg
 
 gym.register(
     id="UW-Velocity-Flat-Anymal-C-v0",
-    entry_point="uwlab.envs:DataManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.AnymalCRoughEnvCfg,
@@ -25,7 +25,7 @@ gym.register(
 
 gym.register(
     id="UW-Velocity-Flat-Anymal-C-Play-v0",
-    entry_point="uwlab.envs:DataManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.AnymalCFlatEnvCfg_PLAY,
@@ -38,7 +38,7 @@ gym.register(
 
 gym.register(
     id="UW-Velocity-Rough-Anymal-C-v0",
-    entry_point="uwlab.envs:DataManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.AnymalCRoughEnvCfg,
@@ -50,7 +50,7 @@ gym.register(
 
 gym.register(
     id="UW-Velocity-Rough-Anymal-C-Play-v0",
-    entry_point="uwlab.envs:DataManagerBasedRLEnv",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.AnymalCRoughEnvCfg_PLAY,

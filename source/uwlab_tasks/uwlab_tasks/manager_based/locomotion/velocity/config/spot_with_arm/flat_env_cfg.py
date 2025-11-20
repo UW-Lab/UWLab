@@ -1,10 +1,12 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers.
+# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
 # All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 import isaaclab.sim as sim_utils
 import isaaclab.terrains as terrain_gen
+import isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
+import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab.envs import ViewerCfg
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
@@ -15,11 +17,9 @@ from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAACLAB_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
-from uwlab.envs.mdp import DefaultJointPositionStaticActionCfg
-
-import isaaclab_tasks.manager_based.locomotion.velocity.config.spot.mdp as spot_mdp
-import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab_tasks.manager_based.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg
+
+from uwlab.envs.mdp import DefaultJointPositionStaticActionCfg
 
 ##
 # Pre-defined configs
