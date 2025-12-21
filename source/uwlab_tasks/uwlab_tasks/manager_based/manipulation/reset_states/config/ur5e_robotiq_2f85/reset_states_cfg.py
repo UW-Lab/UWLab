@@ -175,7 +175,7 @@ class ResetStatesBaseEventCfg:
             "pose_range": {
                 "x": (0.3, 0.55),
                 "y": (-0.1, 0.3),
-                "z": (0.0, 0.01),
+                "z": (0.0, 0.001),
                 "roll": (0.0, 0.0),
                 "pitch": (0.0, 0.0),
                 "yaw": (-np.pi / 12, np.pi / 12),
@@ -196,7 +196,7 @@ class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
         params={
             "pose_range": {
                 "x": (0.3, 0.55),
-                "y": (-0.1, 0.3),
+                "y": (-0.1, 0.5),
                 "z": (0.0, 0.3),
                 "roll": (-np.pi, np.pi),
                 "pitch": (-np.pi, np.pi),
@@ -236,7 +236,7 @@ class ObjectRestingEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "base_paths": [f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/Assemblies/ObjectAnywhereEEAnywhere"],
+            "base_paths": [f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/ObjectPairs/ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
         },
     )
@@ -245,7 +245,7 @@ class ObjectRestingEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_end_effector_from_grasp_dataset,
         mode="reset",
         params={
-            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/GraspSampling/Assemblies",
+            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/GraspSampling/ObjectPairs",
             "fixed_asset_cfg": SceneEntityCfg("insertive_object"),
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"
@@ -288,7 +288,7 @@ class ObjectAnywhereEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_end_effector_from_grasp_dataset,
         mode="reset",
         params={
-            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/GraspSampling/Assemblies",
+            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/GraspSampling/ObjectPairs",
             "fixed_asset_cfg": SceneEntityCfg("insertive_object"),
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"
@@ -312,7 +312,7 @@ class ObjectPartiallyAssembledEEAnywhereEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_insertive_object_from_partial_assembly_dataset,
         mode="reset",
         params={
-            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/PartialAssemblies/Assemblies",
+            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/PartialAssemblies/ObjectPairs",
             "insertive_object_cfg": SceneEntityCfg("insertive_object"),
             "receptive_object_cfg": SceneEntityCfg("receptive_object"),
             "pose_range_b": {
@@ -353,7 +353,7 @@ class ObjectPartiallyAssembledEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_insertive_object_from_partial_assembly_dataset,
         mode="reset",
         params={
-            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/PartialAssemblies/Assemblies",
+            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/PartialAssemblies/ObjectPairs",
             "insertive_object_cfg": SceneEntityCfg("insertive_object"),
             "receptive_object_cfg": SceneEntityCfg("receptive_object"),
             "pose_range_b": {
@@ -371,7 +371,7 @@ class ObjectPartiallyAssembledEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_end_effector_from_grasp_dataset,
         mode="reset",
         params={
-            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/GraspSampling/Assemblies",
+            "base_path": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/GraspSampling/ObjectPairs",
             "fixed_asset_cfg": SceneEntityCfg("insertive_object"),
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"
@@ -428,7 +428,7 @@ class ResetStatesTerminationCfg:
             ],
             "max_robot_pos_deviation": 0.05,
             "max_object_pos_deviation": MISSING,
-            "pos_z_threshold": -0.01,
+            "pos_z_threshold": -0.02,
             "consecutive_stability_steps": 5,
         },
         time_out=True,
@@ -492,6 +492,9 @@ variants = {
             f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/DrawerBottom/drawer_bottom.usd"
         ),
         "peg": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Peg/peg.usd"),
+        "cupcake": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/CupCake/cupcake.usd"),
+        "cube": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/InsertiveCube/insertive_cube.usd"),
+        "rectangle": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Rectangle/rectangle.usd"),
     },
     "scene.receptive_object": {
         "fbtabletop": make_receptive_object(
@@ -501,6 +504,9 @@ variants = {
             f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/DrawerBox/drawer_box.usd"
         ),
         "peghole": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/PegHole/peg_hole.usd"),
+        "plate": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Plate/plate.usd"),
+        "cube": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/ReceptiveCube/receptive_cube.usd"),
+        "wall": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Wall/wall.usd"),
     },
 }
 
@@ -578,7 +584,7 @@ class ObjectPartiallyAssembledEEAnywhereResetStatesCfg(UR5eRobotiq2f85ResetState
 
     def __post_init__(self):
         super().__post_init__()
-        self.terminations.success.params["max_object_pos_deviation"] = 0.005
+        self.terminations.success.params["max_object_pos_deviation"] = 0.025
 
 
 @configclass
@@ -587,4 +593,4 @@ class ObjectPartiallyAssembledEEGraspedResetStatesCfg(UR5eRobotiq2f85ResetStates
 
     def __post_init__(self):
         super().__post_init__()
-        self.terminations.success.params["max_object_pos_deviation"] = 0.005
+        self.terminations.success.params["max_object_pos_deviation"] = 0.025

@@ -967,8 +967,20 @@ class assembly_sampling_event(ManagerTermBase):
         # Apply receptive assembled offset to get target position
         target_pos, target_quat = self.receptive_assembled_offset.combine(receptive_pos, receptive_quat)
 
-        # Apply inverse insertive offset to get insertive object root position
-        insertive_pos, insertive_quat = self.insertive_assembled_offset.subtract(target_pos, target_quat)
+        # Handle position and orientation separately
+        # Offset quat is in insertive object's frame: target_quat = insertive_quat * offset_quat
+        offset_quat = (
+            torch.tensor(self.insertive_assembled_offset.quat).to(target_quat.device).repeat(target_quat.shape[0], 1)
+        )
+        insertive_quat = math_utils.quat_mul(target_quat, math_utils.quat_inv(offset_quat))
+
+        # Position offset is in insertive object's frame, but rotated by target_quat to keep it independent of offset_quat
+        # This ensures changing offset_quat doesn't change the position offset direction
+        offset_pos = (
+            torch.tensor(self.insertive_assembled_offset.pos).to(target_pos.device).repeat(target_pos.shape[0], 1)
+        )
+        offset_pos_world = math_utils.quat_apply(target_quat, offset_pos)
+        insertive_pos = target_pos - offset_pos_world
 
         # Set insertive object pose
         self.insertive_object.write_root_state_to_sim(

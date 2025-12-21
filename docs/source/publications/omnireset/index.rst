@@ -6,7 +6,7 @@ OmniReset
 .. important::
    **Pre-trained RL Checkpoints Available!**
 
-   We provide trained RL checkpoints for all three tasks: **Drawer Assembly**, **Leg Twisting**, and **Peg Insertion**.
+   We provide trained RL checkpoints for all six tasks: **Drawer Assembly**, **Leg Twisting**, **Peg Insertion**, **Rectangle Reorientation on Wall**, **Cupcake on Plate**, and **Cube Stacking**.
    Download the checkpoints and evaluate them immediately!
 
    See the :doc:`instruction` guide for download links and evaluation instructions.
@@ -34,6 +34,27 @@ OmniReset
          Your browser does not support the video tag.
        </video>
        <p style="margin-top: 10px; font-weight: bold;">Peg Insertion</p>
+     </div>
+     <div style="text-align: center;">
+       <video width="350" height="260" controls>
+         <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/rectangle.mp4" type="video/mp4">
+         Your browser does not support the video tag.
+       </video>
+       <p style="margin-top: 10px; font-weight: bold;">Rectangle Reorientation on Wall</p>
+     </div>
+     <div style="text-align: center;">
+       <video width="350" height="260" controls>
+         <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cupcake.mp4" type="video/mp4">
+         Your browser does not support the video tag.
+       </video>
+       <p style="margin-top: 10px; font-weight: bold;">Cupcake on Plate</p>
+     </div>
+     <div style="text-align: center;">
+       <video width="350" height="260" controls>
+         <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cube.mp4" type="video/mp4">
+         Your browser does not support the video tag.
+       </video>
+       <p style="margin-top: 10px; font-weight: bold;">Cube Stacking</p>
      </div>
    </div>
 
