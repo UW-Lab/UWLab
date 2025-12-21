@@ -253,10 +253,10 @@ class TrainEventCfg(BaseEventCfg):
         mode="reset",
         params={
             "base_paths": [
-                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/Assemblies/ObjectAnywhereEEAnywhere",
-                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/Assemblies/ObjectRestingEEGrasped",
-                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/Assemblies/ObjectAnywhereEEGrasped",
-                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/Assemblies/ObjectPartiallyAssembledEEGrasped",
+                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/ObjectPairs/ObjectAnywhereEEAnywhere",
+                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/ObjectPairs/ObjectRestingEEGrasped",
+                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/ObjectPairs/ObjectAnywhereEEGrasped",
+                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/ObjectPairs/ObjectPartiallyAssembledEEGrasped",
             ],
             "probs": [0.25, 0.25, 0.25, 0.25],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -273,7 +273,7 @@ class EvalEventCfg(BaseEventCfg):
         mode="reset",
         params={
             "base_paths": [
-                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/Assemblies/ObjectAnywhereEEAnywhere",
+                f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/Resets/ObjectPairs/ObjectAnywhereEEAnywhere",
             ],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -288,7 +288,7 @@ class CommandsCfg:
     task_command = task_mdp.TaskCommandCfg(
         asset_cfg=SceneEntityCfg("robot", body_names="body"),
         resampling_time_range=(1e6, 1e6),
-        success_position_threshold=0.0025,
+        success_position_threshold=0.005,
         success_orientation_threshold=0.025,
         insertive_asset_cfg=SceneEntityCfg("insertive_object"),
         receptive_asset_cfg=SceneEntityCfg("receptive_object"),
@@ -555,6 +555,9 @@ variants = {
             f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/DrawerBottom/drawer_bottom.usd"
         ),
         "peg": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Peg/peg.usd"),
+        "cupcake": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/CupCake/cupcake.usd"),
+        "cube": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/InsertiveCube/insertive_cube.usd"),
+        "rectangle": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Rectangle/rectangle.usd"),
     },
     "scene.receptive_object": {
         "fbtabletop": make_receptive_object(
@@ -564,6 +567,9 @@ variants = {
             f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/DrawerBox/drawer_box.usd"
         ),
         "peghole": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/PegHole/peg_hole.usd"),
+        "plate": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Plate/plate.usd"),
+        "cube": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/ReceptiveCube/receptive_cube.usd"),
+        "wall": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Wall/wall.usd"),
     },
 }
 

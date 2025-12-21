@@ -126,6 +126,8 @@ class check_grasp_success(ManagerTermBase):
         self.collision_analyzer = self.collision_analyzer_cfg.class_type(self.collision_analyzer_cfg, self._env)
         self.max_pos_deviation = cfg.params.get("max_pos_deviation")
         self.pos_z_threshold = cfg.params.get("pos_z_threshold")
+        self.consecutive_stability_steps = cfg.params.get("consecutive_stability_steps", 5)
+        self.stability_counter = torch.zeros(env.num_envs, device=env.device, dtype=torch.int32)
 
     def reset(self, env_ids: torch.Tensor | None = None) -> None:
         super().reset(env_ids)
@@ -138,6 +140,11 @@ class check_grasp_success(ManagerTermBase):
             object_asset.initial_pos[env_ids] = object_asset.data.root_pos_w[env_ids].clone()
             object_asset.initial_quat[env_ids] = object_asset.data.root_quat_w[env_ids].clone()
 
+        if env_ids is None:
+            self.stability_counter.zero_()
+        else:
+            self.stability_counter[env_ids] = 0
+
     def __call__(
         self,
         env: ManagerBasedEnv,
@@ -146,6 +153,7 @@ class check_grasp_success(ManagerTermBase):
         collision_analyzer_cfg: CollisionAnalyzerCfg,
         max_pos_deviation: float = 0.05,
         pos_z_threshold: float = 0.05,
+        consecutive_stability_steps: int = 5,
     ) -> torch.Tensor:
         # Get object and gripper from scene
         object_asset = env.scene[self.object_cfg.name]
@@ -158,6 +166,26 @@ class check_grasp_success(ManagerTermBase):
         abnormal_gripper_state = (gripper_asset.data.joint_vel.abs() > (gripper_asset.data.joint_vel_limits * 2)).any(
             dim=1
         )
+
+        # Check if asset velocities are small
+        current_step_stable = torch.ones(env.num_envs, device=env.device, dtype=torch.bool)
+        # Check gripper (articulation) velocities
+        current_step_stable &= gripper_asset.data.joint_vel.abs().sum(dim=1) < 5.0
+        # Check object (rigid object) velocities
+        if isinstance(object_asset, RigidObject):
+            current_step_stable &= object_asset.data.body_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.05
+            current_step_stable &= object_asset.data.body_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
+        elif isinstance(object_asset, RigidObjectCollection):
+            current_step_stable &= object_asset.data.object_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.05
+            current_step_stable &= object_asset.data.object_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
+
+        self.stability_counter = torch.where(
+            current_step_stable,
+            self.stability_counter + 1,  # Increment counter if stable
+            torch.zeros_like(self.stability_counter),  # Reset counter if not stable
+        )
+
+        stability_reached = self.stability_counter >= self.consecutive_stability_steps
 
         # Skip if position or quaternion is NaN
         pos_is_nan = torch.isnan(object_asset.data.root_pos_w).any(dim=1)
@@ -177,7 +205,12 @@ class check_grasp_success(ManagerTermBase):
         collision_free = self.collision_analyzer(env, all_env_ids)
 
         grasp_success = (
-            (~abnormal_gripper_state) & (~excessive_pose_deviation) & pos_above_ground & collision_free & time_out
+            (~abnormal_gripper_state)
+            & stability_reached
+            & (~excessive_pose_deviation)
+            & pos_above_ground
+            & collision_free
+            & time_out
         )
 
         return grasp_success
@@ -270,10 +303,10 @@ class check_reset_state_success(ManagerTermBase):
             if isinstance(asset, Articulation):
                 current_step_stable &= asset.data.joint_vel.abs().sum(dim=1) < 5.0
             elif isinstance(asset, RigidObject):
-                current_step_stable &= asset.data.body_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.05
+                current_step_stable &= asset.data.body_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.1
                 current_step_stable &= asset.data.body_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
             elif isinstance(asset, RigidObjectCollection):
-                current_step_stable &= asset.data.object_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.05
+                current_step_stable &= asset.data.object_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.1
                 current_step_stable &= asset.data.object_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
 
         self.stability_counter = torch.where(

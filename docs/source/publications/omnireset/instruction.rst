@@ -11,8 +11,11 @@ Choose your path: :ref:`evaluate our pre-trained checkpoints <evaluate-checkpoin
    * **Drawer Assembly:** ``fbdrawerbottom`` / ``fbdrawerbox``
    * **Twisting:** ``fbleg`` / ``fbtabletop``
    * **Insertion:** ``peg`` / ``peghole``
+   * **Rectangle Reorientation on Wall:** ``rectangle`` / ``wall``
+   * **Cupcake on Plate:** ``cupcake`` / ``plate``
+   * **Cube Stacking:** ``cube`` / ``cube``
 
-   For grasp sampling, replace ``object`` with ``fbleg``, ``fbdrawerbottom``, or ``peg``.
+   For grasp sampling, replace ``object`` with ``fbleg``, ``fbdrawerbottom``, ``peg``, ``rectangle``, ``cupcake``, or ``cube``.
 
 ----
 
@@ -33,6 +36,9 @@ Download the pre-trained checkpoints from our Backblaze B2 storage (drawer assem
    wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/fbdrawerbottom_state_rl_expert.pt
    wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/fbleg_state_rl_expert.pt
    wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/peg_state_rl_expert.pt
+   wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/rectangle_state_rl_expert.pt
+   wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cupcake_state_rl_expert.pt
+   wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cube_state_rl_expert.pt
 
 Evaluate Checkpoints
 ^^^^^^^^^^^^^^^^^^^^
@@ -99,6 +105,10 @@ Object Anywhere, End-Effector Anywhere (Reaching)
 Object Resting, End-Effector Grasped (Near Object)
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
+.. warning::
+
+   This task depends on reset states from **Object Anywhere, End-Effector Anywhere**. If you are generating your own reset states, make sure to set ``base_paths`` in ``reset_states_cfg.py`` to point to your generated ``ObjectAnywhereEEAnywhere`` dataset directory.
+
 .. code:: bash
 
    python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=insertive_object env.scene.receptive_object=receptive_object
@@ -154,29 +164,24 @@ Train reinforcement learning policies using the generated reset states.
 Training Curves
 ^^^^^^^^^^^^^^^
 
-Below are sample training curves for each task:
+Below are success rate curves for each task plotting over number of training iterations and wall clock time when training on 4xL40S GPUs.
+Insertion, twisting, cube stacking, and rectangle orientation on wall tasks converge within **8 hours**, while drawer assembly and cupcake on plate tasks take **1 day**.
 
 .. list-table::
-   :widths: 33 33 33
+   :widths: 50 50
    :class: borderless
 
-   * - .. figure:: ../../../source/_static/publications/omnireset/drawer_assembly_training_curve.jpg
+   * - .. figure:: ../../../source/_static/publications/omnireset/success_rate_over_steps.jpg
           :width: 100%
-          :alt: Drawer assembly training curve
+          :alt: Training curve over steps
 
-          Drawer Assembly task
+          Success Rate of 6 Tasks Over Number of Training Iterations
 
-     - .. figure:: ../../../source/_static/publications/omnireset/twisting_training_curve.jpg
+     - .. figure:: ../../../source/_static/publications/omnireset/success_rate_over_wall_clock.jpg
           :width: 100%
-          :alt: Leg Twisting training curve
+          :alt: Training curve over wall clock time
 
-          Leg Twisting task
-
-     - .. figure:: ../../../source/_static/publications/omnireset/peg_training_curve.jpg
-          :width: 100%
-          :alt: Peg Insertion training curve
-
-          Peg Insertion task
+          Success Rate of 6 Tasks Over Wall Clock Time
 
 ----
 

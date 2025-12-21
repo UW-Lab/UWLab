@@ -57,6 +57,12 @@ Environments based on fixed-arm manipulation tasks.
     +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
     | |omnireset-ur5e-peg-insert|    | |omnireset-ur5e-peg-insert-link|               | Insert a square peg into the square peg hole                                 |
     +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
+    | |omnireset-ur5e-rectangle|     | |omnireset-ur5e-rectangle-link|                | Orient a rectangle into desired location during a wall                       |
+    +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
+    | |omnireset-ur5e-cupcake|       | |omnireset-ur5e-cupcake-link|                  | Place a cupcake into desired location on a plate                             |
+    +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
+    | |omnireset-ur5e-cube-stack|    | |omnireset-ur5e-cube-stack-link|               | Stack one cube on top of another cube in a desired orientation.              |
+    +--------------------------------+------------------------------------------------+------------------------------------------------------------------------------+
 
 .. |track-goal-ur5| image:: ../_static/tasks/manipulation/ur5_track_goal.jpg
 .. |track-goal-tycho| image:: ../_static/tasks/manipulation/tycho_track_goal.jpg
@@ -67,6 +73,9 @@ Environments based on fixed-arm manipulation tasks.
 .. |omnireset-ur5e-drawer| image:: ../_static/tasks/manipulation/omnireset_drawer_assemble.jpg
 .. |omnireset-ur5e-fbleg| image:: ../_static/tasks/manipulation/omnireset_fbleg_screw.jpg
 .. |omnireset-ur5e-peg-insert| image:: ../_static/tasks/manipulation/omnireset_peg_insert.jpg
+.. |omnireset-ur5e-rectangle| image:: ../_static/tasks/manipulation/omnireset_rectangle_reorientation.jpg
+.. |omnireset-ur5e-cupcake| image:: ../_static/tasks/manipulation/omnireset_cupcake_on_plate.jpg
+.. |omnireset-ur5e-cube-stack| image:: ../_static/tasks/manipulation/omnireset_cube_stack.jpg
 
 .. |track-goal-ur5-link| replace:: `UW-Track-Goal-Ur5-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/ur5/track_goal_ur5_env_cfg.py>`__
 .. |track-goal-tycho-link| replace:: `UW-Track-Goal-Tycho-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/track_goal/config/tycho/tycho_track_goal.py>`__
@@ -74,9 +83,12 @@ Environments based on fixed-arm manipulation tasks.
 .. |ext-nut-thread-franka-link| replace:: `UW-Nut-Thread-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/nutthread_env_cfg.py>`__
 .. |ext-gear-mesh-franka-link| replace:: `UW-Gear-Mesh-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/gearmesh_env_cfg.py>`__
 .. |ext-peg-insert-franka-link| replace:: `UW-Peg-Insert-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/peginsert_env_cfg.py>`__
-.. |omnireset-ur5e-drawer-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py>`__
-.. |omnireset-ur5e-fbleg-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py>`__
-.. |omnireset-ur5e-peg-insert-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelJointPos-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/reset_states_cfg.py>`__
+.. |omnireset-ur5e-drawer-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-fbleg-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-peg-insert-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-rectangle-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-cupcake-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-cube-stack-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
 
 
 Locomotion
