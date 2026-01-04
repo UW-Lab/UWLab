@@ -597,27 +597,6 @@ python<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/play.py<span
 </div>
 <input id="sd-tab-item-4" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-4">
-Cupcake on Plate</label><div class="sd-tab-content docutils">
-<div style="text-align: center; margin-bottom: 20px;">
-  <video width="400" height="300" controls>
-    <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cupcake.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download checkpoint</span>
-wget<span class="w"> </span>https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cupcake_state_rl_expert.pt
-
-<span class="c1"># Run evaluation</span>
-python<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/play.py<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_envs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--checkpoint<span class="w"> </span>cupcake_state_rl_expert.pt<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.receptive_object<span class="o">=</span>plate
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-5" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
 Cube Stacking</label><div class="sd-tab-content docutils">
 <div style="text-align: center; margin-bottom: 20px;">
   <video width="400" height="300" controls>
@@ -637,15 +616,36 @@ python<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/play.py<span
 </pre></div>
 </div>
 </div>
+<input id="sd-tab-item-5" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+Cupcake on Plate</label><div class="sd-tab-content docutils">
+<div style="text-align: center; margin-bottom: 20px;">
+  <video width="400" height="300" controls>
+    <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cupcake.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download checkpoint</span>
+wget<span class="w"> </span>https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cupcake_state_rl_expert.pt
+
+<span class="c1"># Run evaluation</span>
+python<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/play.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_envs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--checkpoint<span class="w"> </span>cupcake_state_rl_expert.pt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>env.scene.receptive_object<span class="o">=</span>plate
+</pre></div>
+</div>
+</div>
 </div>
 <hr class="docutils" />
 </section>
 <section id="reproduce-our-training">
 <span id="reproduce-training"></span><h2>Reproduce Our Training<a class="headerlink" href="#reproduce-our-training" title="Permalink to this heading">#</a></h2>
 <p>Reproduce our training results from scratch.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>Before running reset state generation scripts (step 3), make sure <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">base_paths</span></code> in <code class="docutils literal notranslate"><span class="pre">reset_states_cfg.py</span></code> are set appropriately.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Want to try it quickly?</strong> Start with <strong>Cube Stacking</strong> or <strong>Peg Insertion</strong>. They have the fastest reset state collection times and converge within ~8 hours on 4×L40S GPUs.</p>
 </div>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
@@ -660,6 +660,10 @@ Leg Twisting</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p><strong>Step 3: Generate Reset State Datasets</strong> (~1 min to 1 hour depending on the reset)</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Before running, make sure <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">base_paths</span></code> in <code class="docutils literal notranslate"><span class="pre">reset_states_cfg.py</span></code> are set appropriately.</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Object Anywhere, End-Effector Anywhere (Reaching)</span>
 python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEAnywhere<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>fbleg<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>fbtabletop
 
@@ -700,6 +704,10 @@ Drawer Assembly</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p><strong>Step 3: Generate Reset State Datasets</strong> (~1 min to 1 hour depending on the reset)</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Before running, make sure <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">base_paths</span></code> in <code class="docutils literal notranslate"><span class="pre">reset_states_cfg.py</span></code> are set appropriately.</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Object Anywhere, End-Effector Anywhere (Reaching)</span>
 python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEAnywhere<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>fbdrawerbottom<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>fbdrawerbox
 
@@ -740,6 +748,10 @@ Peg Insertion</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p><strong>Step 3: Generate Reset State Datasets</strong> (~1 min to 1 hour depending on the reset)</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Before running, make sure <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">base_paths</span></code> in <code class="docutils literal notranslate"><span class="pre">reset_states_cfg.py</span></code> are set appropriately.</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Object Anywhere, End-Effector Anywhere (Reaching)</span>
 python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEAnywhere<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>peg<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>peghole
 
@@ -780,6 +792,10 @@ Rectangle on Wall</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p><strong>Step 3: Generate Reset State Datasets</strong> (~1 min to 1 hour depending on the reset)</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Before running, make sure <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">base_paths</span></code> in <code class="docutils literal notranslate"><span class="pre">reset_states_cfg.py</span></code> are set appropriately.</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Object Anywhere, End-Effector Anywhere (Reaching)</span>
 python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEAnywhere<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>rectangle<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>wall
 
@@ -810,46 +826,6 @@ python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class
 </div>
 <input id="sd-tab-item-10" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-10">
-Cupcake on Plate</label><div class="sd-tab-content docutils">
-<p><strong>Step 1: Collect Partial Assemblies</strong> (~30 seconds)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/record_partial_assemblies.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-PartialAssemblies-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">10</span><span class="w"> </span>--num_trajectories<span class="w"> </span><span class="m">10</span><span class="w"> </span>--dataset_dir<span class="w"> </span>./partial_assembly_datasets<span class="w"> </span>--headless<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
-</pre></div>
-</div>
-<p><strong>Step 2: Sample Grasp Poses</strong> (~1 minute)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/record_grasps.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-Robotiq2f85-GraspSampling-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">8192</span><span class="w"> </span>--num_grasps<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--dataset_dir<span class="w"> </span>./grasp_datasets<span class="w"> </span>--headless<span class="w"> </span>env.scene.object<span class="o">=</span>cupcake
-</pre></div>
-</div>
-<p><strong>Step 3: Generate Reset State Datasets</strong> (~1 min to 1 hour depending on the reset)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Object Anywhere, End-Effector Anywhere (Reaching)</span>
-python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEAnywhere<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
-
-<span class="c1"># Object Resting, End-Effector Grasped (Near Object)</span>
-python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectRestingEEGrasped<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
-
-<span class="c1"># Object Anywhere, End-Effector Grasped (Grasped)</span>
-python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEGrasped<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
-
-<span class="c1"># Object Partially Assembled, End-Effector Grasped (Near Goal)</span>
-python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectPartiallyAssembledEEGrasped<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
-</pre></div>
-</div>
-<p><strong>Step 4: Train RL Policy</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>torch.distributed.run<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--nnodes<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--nproc_per_node<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>scripts/reinforcement_learning/rsl_rl/train.py<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_envs<span class="w"> </span><span class="m">16384</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--logger<span class="w"> </span>wandb<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--distributed<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.receptive_object<span class="o">=</span>plate
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-11" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-11">
 Cube Stacking</label><div class="sd-tab-content docutils">
 <p><strong>Step 1: Collect Partial Assemblies</strong> (~30 seconds)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/record_partial_assemblies.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-PartialAssemblies-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">10</span><span class="w"> </span>--num_trajectories<span class="w"> </span><span class="m">10</span><span class="w"> </span>--dataset_dir<span class="w"> </span>./partial_assembly_datasets<span class="w"> </span>--headless<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cube<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>cube
@@ -860,6 +836,10 @@ Cube Stacking</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p><strong>Step 3: Generate Reset State Datasets</strong> (~1 min to 1 hour depending on the reset)</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Before running, make sure <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">base_paths</span></code> in <code class="docutils literal notranslate"><span class="pre">reset_states_cfg.py</span></code> are set appropriately.</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Object Anywhere, End-Effector Anywhere (Reaching)</span>
 python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEAnywhere<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cube<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>cube
 
@@ -885,6 +865,50 @@ python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class
 <span class="w">    </span>--distributed<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>cube<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>cube
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-11" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
+Cupcake on Plate</label><div class="sd-tab-content docutils">
+<p><strong>Step 1: Collect Partial Assemblies</strong> (~30 seconds)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/record_partial_assemblies.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-PartialAssemblies-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">10</span><span class="w"> </span>--num_trajectories<span class="w"> </span><span class="m">10</span><span class="w"> </span>--dataset_dir<span class="w"> </span>./partial_assembly_datasets<span class="w"> </span>--headless<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
+</pre></div>
+</div>
+<p><strong>Step 2: Sample Grasp Poses</strong> (~1 minute)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/record_grasps.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-Robotiq2f85-GraspSampling-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">8192</span><span class="w"> </span>--num_grasps<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--dataset_dir<span class="w"> </span>./grasp_datasets<span class="w"> </span>--headless<span class="w"> </span>env.scene.object<span class="o">=</span>cupcake
+</pre></div>
+</div>
+<p><strong>Step 3: Generate Reset State Datasets</strong> (~1 min to 1 hour depending on the reset)</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Before running, make sure <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">base_paths</span></code> in <code class="docutils literal notranslate"><span class="pre">reset_states_cfg.py</span></code> are set appropriately.</p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Object Anywhere, End-Effector Anywhere (Reaching)</span>
+python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEAnywhere<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
+
+<span class="c1"># Object Resting, End-Effector Grasped (Near Object)</span>
+python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectRestingEEGrasped<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
+
+<span class="c1"># Object Anywhere, End-Effector Grasped (Grasped)</span>
+python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectAnywhereEEGrasped<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
+
+<span class="c1"># Object Partially Assembled, End-Effector Grasped (Near Goal)</span>
+python<span class="w"> </span>scripts_v2/tools/record_reset_states.py<span class="w"> </span>--task<span class="w"> </span>OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0<span class="w"> </span>--num_envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--num_reset_states<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--headless<span class="w"> </span>--dataset_dir<span class="w"> </span>./reset_state_datasets/ObjectPartiallyAssembledEEGrasped<span class="w"> </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span>env.scene.receptive_object<span class="o">=</span>plate
+</pre></div>
+</div>
+<p><strong>Step 4: Train RL Policy</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>torch.distributed.run<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--nnodes<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--nproc_per_node<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>scripts/reinforcement_learning/rsl_rl/train.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_envs<span class="w"> </span><span class="m">16384</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logger<span class="w"> </span>wandb<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--distributed<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>env.scene.insertive_object<span class="o">=</span>cupcake<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>env.scene.receptive_object<span class="o">=</span>plate
 </pre></div>
 </div>
 </div>
