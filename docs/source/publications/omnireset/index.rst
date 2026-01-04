@@ -117,30 +117,6 @@ Download our pretrained checkpoint and run evaluation.
              env.scene.insertive_object=rectangle \
              env.scene.receptive_object=wall
 
-   .. tab-item:: Cupcake on Plate
-
-      .. raw:: html
-
-         <div style="text-align: center; margin-bottom: 20px;">
-           <video width="400" height="300" controls>
-             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cupcake.mp4" type="video/mp4">
-             Your browser does not support the video tag.
-           </video>
-         </div>
-
-      .. code:: bash
-
-         # Download checkpoint
-         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cupcake_state_rl_expert.pt
-
-         # Run evaluation
-         python scripts/reinforcement_learning/rsl_rl/play.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-             --num_envs 1 \
-             --checkpoint cupcake_state_rl_expert.pt \
-             env.scene.insertive_object=cupcake \
-             env.scene.receptive_object=plate
-
    .. tab-item:: Cube Stacking
 
       .. raw:: html
@@ -165,6 +141,30 @@ Download our pretrained checkpoint and run evaluation.
              env.scene.insertive_object=cube \
              env.scene.receptive_object=cube
 
+   .. tab-item:: Cupcake on Plate
+
+      .. raw:: html
+
+         <div style="text-align: center; margin-bottom: 20px;">
+           <video width="400" height="300" controls>
+             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cupcake.mp4" type="video/mp4">
+             Your browser does not support the video tag.
+           </video>
+         </div>
+
+      .. code:: bash
+
+         # Download checkpoint
+         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cupcake_state_rl_expert.pt
+
+         # Run evaluation
+         python scripts/reinforcement_learning/rsl_rl/play.py \
+             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+             --num_envs 1 \
+             --checkpoint cupcake_state_rl_expert.pt \
+             env.scene.insertive_object=cupcake \
+             env.scene.receptive_object=plate
+
 ----
 
 .. _reproduce-training:
@@ -174,9 +174,9 @@ Reproduce Our Training
 
 Reproduce our training results from scratch.
 
-.. important::
+.. tip::
 
-   Before running reset state generation scripts (step 3), make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+   **Want to try it quickly?** Start with **Cube Stacking** or **Peg Insertion**. They have the fastest reset state collection times and converge within ~8 hours on 4×L40S GPUs.
 
 .. tab-set::
 
@@ -195,6 +195,10 @@ Reproduce our training results from scratch.
          python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=fbleg
 
       **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
+
+      .. important::
+
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
 
       .. code:: bash
 
@@ -242,6 +246,10 @@ Reproduce our training results from scratch.
 
       **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
 
+      .. important::
+
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+
       .. code:: bash
 
          # Object Anywhere, End-Effector Anywhere (Reaching)
@@ -287,6 +295,10 @@ Reproduce our training results from scratch.
          python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=peg
 
       **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
+
+      .. important::
+
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
 
       .. code:: bash
 
@@ -334,6 +346,10 @@ Reproduce our training results from scratch.
 
       **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
 
+      .. important::
+
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+
       .. code:: bash
 
          # Object Anywhere, End-Effector Anywhere (Reaching)
@@ -364,52 +380,6 @@ Reproduce our training results from scratch.
              env.scene.insertive_object=rectangle \
              env.scene.receptive_object=wall
 
-   .. tab-item:: Cupcake on Plate
-
-      **Step 1: Collect Partial Assemblies** (~30 seconds)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-      **Step 2: Sample Grasp Poses** (~1 minute)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=cupcake
-
-      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
-
-      .. code:: bash
-
-         # Object Anywhere, End-Effector Anywhere (Reaching)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-         # Object Resting, End-Effector Grasped (Near Object)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-         # Object Anywhere, End-Effector Grasped (Grasped)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-         # Object Partially Assembled, End-Effector Grasped (Near Goal)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-      **Step 4: Train RL Policy**
-
-      .. code:: bash
-
-         python -m torch.distributed.run \
-             --nnodes 1 \
-             --nproc_per_node 4 \
-             scripts/reinforcement_learning/rsl_rl/train.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
-             --num_envs 16384 \
-             --logger wandb \
-             --headless \
-             --distributed \
-             env.scene.insertive_object=cupcake \
-             env.scene.receptive_object=plate
-
    .. tab-item:: Cube Stacking
 
       **Step 1: Collect Partial Assemblies** (~30 seconds)
@@ -425,6 +395,10 @@ Reproduce our training results from scratch.
          python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=cube
 
       **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
+
+      .. important::
+
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
 
       .. code:: bash
 
@@ -455,6 +429,56 @@ Reproduce our training results from scratch.
              --distributed \
              env.scene.insertive_object=cube \
              env.scene.receptive_object=cube
+
+   .. tab-item:: Cupcake on Plate
+
+      **Step 1: Collect Partial Assemblies** (~30 seconds)
+
+      .. code:: bash
+
+         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=cupcake env.scene.receptive_object=plate
+
+      **Step 2: Sample Grasp Poses** (~1 minute)
+
+      .. code:: bash
+
+         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=cupcake
+
+      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
+
+      .. important::
+
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+
+      .. code:: bash
+
+         # Object Anywhere, End-Effector Anywhere (Reaching)
+         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=cupcake env.scene.receptive_object=plate
+
+         # Object Resting, End-Effector Grasped (Near Object)
+         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
+
+         # Object Anywhere, End-Effector Grasped (Grasped)
+         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
+
+         # Object Partially Assembled, End-Effector Grasped (Near Goal)
+         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
+
+      **Step 4: Train RL Policy**
+
+      .. code:: bash
+
+         python -m torch.distributed.run \
+             --nnodes 1 \
+             --nproc_per_node 4 \
+             scripts/reinforcement_learning/rsl_rl/train.py \
+             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
+             --num_envs 16384 \
+             --logger wandb \
+             --headless \
+             --distributed \
+             env.scene.insertive_object=cupcake \
+             env.scene.receptive_object=plate
 
 Training Curves
 ^^^^^^^^^^^^^^^
