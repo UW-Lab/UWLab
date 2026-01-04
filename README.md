@@ -29,12 +29,12 @@ In addition to what IsaacLab provides, UW Lab brings:
 
 ## Installation
 
-Follow the [installation guide](https://uw-lab.github.io/UWLab/main/source/setup/installation/pip_installation.html).
+Follow the [installation guide](https://uw-lab.github.io/UWLab/main/source/setup/installation/index.html).
 
 
 ## Getting Started
 
-- **Train Your First Policy** — Train an ant to run in minutes → [Quickstart](https://uw-lab.github.io/UWLab/main/source/setup/quickstart.html#launch-training)
+- **Train Your First Policy** — Train an ant to run in minutes → [Quickstart](https://uw-lab.github.io/UWLab/main/source/setup/installation/pip_installation.html#train-a-robot)
 - **OmniReset** — RL for manipulation without reward engineering or demos → [Quickstart](https://uw-lab.github.io/UWLab/main/source/publications/omnireset/index.html#quick-start)
 
 See [all available environments](https://uw-lab.github.io/UWLab/main/source/overview/uw_environments.html) and [full documentation](https://uw-lab.github.io/UWLab) for details.
