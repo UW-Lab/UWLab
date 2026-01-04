@@ -27,12 +27,17 @@ In addition to what IsaacLab provides, UW Lab brings:
 - **Sim to Real**: Providing robots and configuration that has been tested in Lab and deliver the Simulation Setup that can directly transfer to reals
 
 
+## Installation
+
+Follow the [installation guide](https://uw-lab.github.io/UWLab/main/source/setup/installation/pip_installation.html).
+
+
 ## Getting Started
 
-Our [documentation page](https://uw-lab.github.io/UWLab) provides everything you need to get started, including detailed tutorials and step-by-step guides. Follow these links to learn more about:
+- **Train Your First Policy** — Train an ant to run in minutes → [Quickstart](https://uw-lab.github.io/UWLab/main/source/setup/quickstart.html#launch-training)
+- **OmniReset** — RL for manipulation without reward engineering or demos → [Quickstart](https://uw-lab.github.io/UWLab/main/source/publications/omnireset/index.html#quick-start)
 
-- [Installation steps](https://uw-lab.github.io/UWLab/main/source/setup/installation/index.html)
-- [Available environments](https://uw-lab.github.io/UWLab/main/source/overview/uw_environments.html)
+See [all available environments](https://uw-lab.github.io/UWLab/main/source/overview/uw_environments.html) and [full documentation](https://uw-lab.github.io/UWLab) for details.
 
 
 ## Support
