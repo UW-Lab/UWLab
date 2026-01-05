@@ -182,6 +182,10 @@ Reproduce our training results from scratch.
 
    .. tab-item:: Leg Twisting
 
+      .. note::
+
+         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
+
       **Step 1: Collect Partial Assemblies** (~30 seconds)
 
       .. code:: bash
@@ -198,7 +202,7 @@ Reproduce our training results from scratch.
 
       .. important::
 
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
 
       .. code:: bash
 
@@ -214,7 +218,19 @@ Reproduce our training results from scratch.
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
 
+      **Step 3.5: Visualize Reset States (Optional)**
+
+      Visualize the generated reset states to verify they are correct.
+
+      .. code:: bash
+
+         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
+
       **Step 4: Train RL Policy**
+
+      .. important::
+
+         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
 
       .. code:: bash
 
@@ -232,6 +248,10 @@ Reproduce our training results from scratch.
 
    .. tab-item:: Drawer Assembly
 
+      .. note::
+
+         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
+
       **Step 1: Collect Partial Assemblies** (~30 seconds)
 
       .. code:: bash
@@ -248,7 +268,7 @@ Reproduce our training results from scratch.
 
       .. important::
 
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
 
       .. code:: bash
 
@@ -264,7 +284,19 @@ Reproduce our training results from scratch.
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
 
+      **Step 3.5: Visualize Reset States (Optional)**
+
+      Visualize the generated reset states to verify they are correct.
+
+      .. code:: bash
+
+         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
+
       **Step 4: Train RL Policy**
+
+      .. important::
+
+         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
 
       .. code:: bash
 
@@ -282,6 +314,10 @@ Reproduce our training results from scratch.
 
    .. tab-item:: Peg Insertion
 
+      .. note::
+
+         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
+
       **Step 1: Collect Partial Assemblies** (~30 seconds)
 
       .. code:: bash
@@ -298,7 +334,7 @@ Reproduce our training results from scratch.
 
       .. important::
 
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
 
       .. code:: bash
 
@@ -314,7 +350,19 @@ Reproduce our training results from scratch.
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=peg env.scene.receptive_object=peghole
 
+      **Step 3.5: Visualize Reset States (Optional)**
+
+      Visualize the generated reset states to verify they are correct.
+
+      .. code:: bash
+
+         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=peg env.scene.receptive_object=peghole
+
       **Step 4: Train RL Policy**
+
+      .. important::
+
+         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
 
       .. code:: bash
 
@@ -332,6 +380,10 @@ Reproduce our training results from scratch.
 
    .. tab-item:: Rectangle on Wall
 
+      .. note::
+
+         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
+
       **Step 1: Collect Partial Assemblies** (~30 seconds)
 
       .. code:: bash
@@ -348,7 +400,7 @@ Reproduce our training results from scratch.
 
       .. important::
 
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
 
       .. code:: bash
 
@@ -364,7 +416,19 @@ Reproduce our training results from scratch.
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=rectangle env.scene.receptive_object=wall
 
+      **Step 3.5: Visualize Reset States (Optional)**
+
+      Visualize the generated reset states to verify they are correct.
+
+      .. code:: bash
+
+         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=rectangle env.scene.receptive_object=wall
+
       **Step 4: Train RL Policy**
+
+      .. important::
+
+         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
 
       .. code:: bash
 
@@ -382,6 +446,10 @@ Reproduce our training results from scratch.
 
    .. tab-item:: Cube Stacking
 
+      .. note::
+
+         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
+
       **Step 1: Collect Partial Assemblies** (~30 seconds)
 
       .. code:: bash
@@ -398,7 +466,7 @@ Reproduce our training results from scratch.
 
       .. important::
 
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
 
       .. code:: bash
 
@@ -414,7 +482,19 @@ Reproduce our training results from scratch.
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=cube env.scene.receptive_object=cube
 
+      **Step 3.5: Visualize Reset States (Optional)**
+
+      Visualize the generated reset states to verify they are correct.
+
+      .. code:: bash
+
+         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=cube env.scene.receptive_object=cube
+
       **Step 4: Train RL Policy**
+
+      .. important::
+
+         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
 
       .. code:: bash
 
@@ -432,6 +512,10 @@ Reproduce our training results from scratch.
 
    .. tab-item:: Cupcake on Plate
 
+      .. note::
+
+         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
+
       **Step 1: Collect Partial Assemblies** (~30 seconds)
 
       .. code:: bash
@@ -448,7 +532,7 @@ Reproduce our training results from scratch.
 
       .. important::
 
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` are set appropriately.
+         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
 
       .. code:: bash
 
@@ -464,7 +548,19 @@ Reproduce our training results from scratch.
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
 
+      **Step 3.5: Visualize Reset States (Optional)**
+
+      Visualize the generated reset states to verify they are correct.
+
+      .. code:: bash
+
+         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=cupcake env.scene.receptive_object=plate
+
       **Step 4: Train RL Policy**
+
+      .. important::
+
+         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
 
       .. code:: bash
 
