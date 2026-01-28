@@ -1017,8 +1017,7 @@ class MultiResetManager(ManagerTermBase):
         # Load all datasets
         self.datasets = []
         num_states = []
-        rank = int(os.getenv("RANK", "0"))
-        download_dir = os.path.join(tempfile.gettempdir(), f"rank_{rank}")
+        download_dir = utils.get_temp_dir()
         for dataset_file in dataset_files:
             # Handle both local files and URLs
             local_file_path = retrieve_file_path(dataset_file, download_dir=download_dir)

@@ -373,9 +373,6 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         self.insertive_object_cfg = cfg.params.get("insertive_object_cfg")
         self.insertive_object = env.scene[self.insertive_object_cfg.name]
 
-        insertive_metadata = utils.read_metadata_from_usd_directory(self.insertive_object.cfg.spawn.usd_path)
-
-        self.insertive_target_mesh_path = insertive_metadata.get("target_mesh_path")
         self.enable_visualization = cfg.params.get("enable_visualization", False)
 
         # Initialize OBB computation cache and compute OBBs once
@@ -397,13 +394,7 @@ class check_obb_no_overlap_termination(ManagerTermBase):
     def _compute_object_obbs(self):
         """Compute OBB for insertive object and convert to body frame."""
         # Get prim path (use env 0 as template)
-        insertive_base_path = self.insertive_object.cfg.prim_path.replace(".*", "0", 1)
-
-        # Determine object prim path - use specific mesh if provided
-        if self.insertive_target_mesh_path is not None:
-            insertive_prim_path = f"{insertive_base_path}/{self.insertive_target_mesh_path}"
-        else:
-            insertive_prim_path = insertive_base_path
+        insertive_prim_path = self.insertive_object.cfg.prim_path.replace(".*", "0", 1)
 
         # Compute OBB in world frame using Isaac Sim's built-in functions
         insertive_centroid_world, insertive_axes_world, insertive_half_extents = bounds_utils.compute_obb(
