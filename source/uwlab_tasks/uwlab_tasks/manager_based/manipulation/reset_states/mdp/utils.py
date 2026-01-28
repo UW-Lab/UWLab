@@ -304,6 +304,30 @@ def temporary_seed(seed: int, restore_numpy: bool = True, restore_python: bool =
             random.setstate(py_state)
 
 
+def get_temp_dir(rank: int | None = None) -> str:
+    """Get a user/job-specific temporary directory under /tmp/uwlab/.
+
+    Creates a directory structure that avoids conflicts between users and jobs:
+    /tmp/uwlab/{uid}/{job_id}/{rank}/
+
+    Args:
+        rank: Process rank (defaults to RANK env var or 0)
+
+    Returns:
+        Path to the temporary directory (created if it doesn't exist)
+    """
+    if rank is None:
+        rank = int(os.getenv("RANK", "0"))
+
+    uid = os.getuid()
+    job_id = os.getenv("SLURM_JOB_ID") or os.getenv("PBS_JOBID") or "local"
+
+    download_dir = os.path.join("/tmp", "uwlab", str(uid), str(job_id), f"rank_{rank}")
+    os.makedirs(download_dir, mode=0o700, exist_ok=True)
+
+    return download_dir
+
+
 def read_metadata_from_usd_directory(usd_path: str) -> dict:
     """Read metadata from metadata.yaml in the same directory as the USD file."""
     # Get the directory containing the USD file
@@ -311,8 +335,7 @@ def read_metadata_from_usd_directory(usd_path: str) -> dict:
 
     # Look for metadata.yaml in the same directory
     metadata_path = os.path.join(usd_dir, "metadata.yaml")
-    rank = int(os.getenv("RANK", "0"))
-    download_dir = os.path.join(tempfile.gettempdir(), f"rank_{rank}")
+    download_dir = get_temp_dir()
     with open(retrieve_file_path(metadata_path, download_dir=download_dir)) as f:
         metadata_file = yaml.safe_load(f)
 
