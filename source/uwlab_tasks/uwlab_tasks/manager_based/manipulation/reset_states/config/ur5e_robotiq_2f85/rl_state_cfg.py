@@ -278,6 +278,7 @@ class EvalEventCfg(BaseEventCfg):
             ],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
+            "reset_to_same_state": True,
         },
     )
 

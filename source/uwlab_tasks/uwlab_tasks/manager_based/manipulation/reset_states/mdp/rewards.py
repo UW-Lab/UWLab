@@ -180,6 +180,7 @@ def success_reward(env: ManagerBasedRLEnv, context: str = "progress_context") ->
 
 def success_term(env: ManagerBasedRLEnv, context: str = "progress_context") -> torch.Tensor:
     rew = success_reward(env, context)
+    success_term.env_succeeded = rew.to(dtype=torch.bool)
     return rew.to(dtype=torch.bool)
 
 def action_l2_clamped(env: ManagerBasedRLEnv) -> torch.Tensor:

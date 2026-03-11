@@ -998,6 +998,7 @@ class MultiResetManager(ManagerTermBase):
 
         base_paths: list[str] = cfg.params.get("base_paths", [])
         probabilities: list[float] = cfg.params.get("probs", [])
+        self.reset_to_same_state: bool = cfg.params.get("reset_to_same_state", False)
 
         if not base_paths:
             raise ValueError("No base paths provided")
@@ -1046,6 +1047,8 @@ class MultiResetManager(ManagerTermBase):
             self.success_monitor = success_monitor_cfg.class_type(success_monitor_cfg)
 
         self.task_id = torch.randint(0, self.num_tasks, (self.num_envs,), device=self.device)
+        self.state_id = torch.zeros((self.num_envs,), device=self.device, dtype=torch.int32)
+        self.first_reset = True
 
     def __call__(
         self,
@@ -1075,8 +1078,9 @@ class MultiResetManager(ManagerTermBase):
                 })
 
         # Sample which dataset to use for each environment
-        dataset_indices = torch.multinomial(self.probs, len(env_ids), replacement=True)
-        self.task_id[env_ids] = dataset_indices
+        if not self.reset_to_same_state:
+            dataset_indices = torch.multinomial(self.probs, len(env_ids), replacement=True)
+            self.task_id[env_ids] = dataset_indices
 
         # Process each dataset's environments
         for dataset_idx in range(self.num_tasks):
@@ -1085,11 +1089,17 @@ class MultiResetManager(ManagerTermBase):
                 continue
 
             current_env_ids = env_ids[mask]
-            state_indices = torch.randint(
-                0, self.num_states[dataset_idx], (len(current_env_ids),), device=self._env.device
-            )
+            if self.reset_to_same_state and not self.first_reset:
+                state_indices = self.state_id[current_env_ids]
+            else:
+                state_indices = torch.randint(
+                    0, self.num_states[dataset_idx], (len(current_env_ids),), device=self._env.device
+                )
+                self.state_id[current_env_ids] = state_indices
             states_to_reset_from = sample_from_nested_dict(self.datasets[dataset_idx], state_indices)
             self._env.scene.reset_to(states_to_reset_from["initial_state"], env_ids=current_env_ids, is_relative=True)
+        
+        self.first_reset = False
 
         # Reset velocities
         robot: Articulation = self._env.scene["robot"]
