@@ -178,6 +178,9 @@ def success_reward(env: ManagerBasedRLEnv, context: str = "progress_context") ->
     position_aligned: torch.Tensor = getattr(context_term, "position_aligned")
     return torch.where(orientation_aligned & position_aligned, 1.0, 0.0)
 
+def success_term(env: ManagerBasedRLEnv, context: str = "progress_context") -> torch.Tensor:
+    rew = success_reward(env, context)
+    return rew.to(dtype=torch.bool)
 
 def action_l2_clamped(env: ManagerBasedRLEnv) -> torch.Tensor:
     """Penalize the actions using L2 squared kernel."""

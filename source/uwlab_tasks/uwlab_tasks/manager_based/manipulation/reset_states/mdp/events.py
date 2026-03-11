@@ -1028,6 +1028,7 @@ class MultiResetManager(ManagerTermBase):
                 raise FileNotFoundError(f"Dataset file {dataset_file} could not be accessed or downloaded.")
 
             dataset = torch.load(local_file_path)
+            print(f"Loaded dataset {dataset_file} with {len(dataset['initial_state']['articulation']['robot']['joint_position'])} states")
             num_states.append(len(dataset["initial_state"]["articulation"]["robot"]["joint_position"]))
             init_indices = torch.arange(num_states[-1], device=env.device)
             self.datasets.append(sample_state_data_set(dataset, init_indices, env.device))
