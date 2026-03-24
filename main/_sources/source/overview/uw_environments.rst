@@ -83,12 +83,12 @@ Environments based on fixed-arm manipulation tasks.
 .. |ext-nut-thread-franka-link| replace:: `UW-Nut-Thread-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/nutthread_env_cfg.py>`__
 .. |ext-gear-mesh-franka-link| replace:: `UW-Gear-Mesh-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/gearmesh_env_cfg.py>`__
 .. |ext-peg-insert-franka-link| replace:: `UW-Peg-Insert-Franka-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/factory_extension/peginsert_env_cfg.py>`__
-.. |omnireset-ur5e-drawer-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
-.. |omnireset-ur5e-fbleg-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
-.. |omnireset-ur5e-peg-insert-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
-.. |omnireset-ur5e-rectangle-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
-.. |omnireset-ur5e-cupcake-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
-.. |omnireset-ur5e-cube-stack-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/reset_states/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-drawer-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/omnireset/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-fbleg-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/omnireset/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-peg-insert-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/omnireset/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-rectangle-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/omnireset/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-cupcake-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/omnireset/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
+.. |omnireset-ur5e-cube-stack-link| replace:: `OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 <https://github.com/uw-lab/UWLab/blob/main/source/uwlab_tasks/uwlab_tasks/manager_based/manipulation/omnireset/config/ur5e_robotiq_2f85/rl_state_cfg.py>`__
 
 
 Locomotion
