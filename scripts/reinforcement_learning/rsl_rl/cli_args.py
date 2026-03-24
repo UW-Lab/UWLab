@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 import argparse
+import importlib.metadata as metadata
+import inspect
 import random
 from typing import TYPE_CHECKING
 
@@ -87,5 +89,33 @@ def update_rsl_rl_cfg(agent_cfg: RslRlBaseRunnerCfg, args_cli: argparse.Namespac
     if agent_cfg.logger in {"wandb", "neptune"} and args_cli.log_project_name:
         agent_cfg.wandb_project = args_cli.log_project_name
         agent_cfg.neptune_project = args_cli.log_project_name
+
+    return agent_cfg
+
+
+def sanitize_rsl_rl_cfg(agent_cfg: RslRlBaseRunnerCfg) -> RslRlBaseRunnerCfg:
+    """Make agent_cfg compatible with the installed rsl-rl version.
+
+    Calls IsaacLab's deprecation handler, then drops any algorithm-config keys
+    that the installed algorithm class does not accept (e.g. ``optimizer`` and
+    ``share_cnn_encoders`` were added for rsl-rl >= 4.0 but are absent in 3.x).
+    """
+    from isaaclab_rl.rsl_rl import handle_deprecated_rsl_rl_cfg
+
+    installed_version = metadata.version("rsl-rl-lib")
+    agent_cfg = handle_deprecated_rsl_rl_cfg(agent_cfg, installed_version)
+
+    # Resolve the actual algorithm class and drop unknown keys
+    alg_cfg = agent_cfg.algorithm
+    class_name = getattr(alg_cfg, "class_name", None)
+    if class_name is not None:
+        from rsl_rl import algorithms
+
+        alg_class = getattr(algorithms, class_name, None)
+        if alg_class is not None:
+            accepted = set(inspect.signature(alg_class.__init__).parameters.keys())
+            for key in list(vars(alg_cfg)):
+                if key != "class_name" and key not in accepted:
+                    delattr(alg_cfg, key)
 
     return agent_cfg

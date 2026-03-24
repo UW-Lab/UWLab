@@ -3,4 +3,5 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 from .actions import *
-from .ur5e_robotiq_2f85_gripper import EXPLICIT_UR5E_ROBOTIQ_2F85, IMPLICIT_UR5E_ROBOTIQ_2F85, ROBOTIQ_2F85
+from .kinematics import *
+from .ur5e_robotiq_2f85_gripper import *

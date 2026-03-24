@@ -1,0 +1,113 @@
+# Copyright (c) 2024-2026, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# hdri_paths_ood.yaml
+# Out-of-distribution HDRIs from AmbientCG (EXR format)
+# These are completely different from Poly Haven HDRIs used in training
+
+# AmbientCG HDRIs (cloud - Backblaze B2)
+cloud:
+  # Day Environment HDRIs (20 textures)
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI001_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI005_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI010_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI015_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI020_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI025_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI030_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI035_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI040_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI045_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI050_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI055_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI060_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI065_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI070_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI075_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI080_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI085_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI090_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DayEnvironmentHDRI095_1K_HDR.exr
+
+  # Day Sky HDRIs (7 textures)
+  - Assets/AmbientCG/HDRIs/DaySkyHDRI001A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DaySkyHDRI010A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DaySkyHDRI020A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DaySkyHDRI030A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DaySkyHDRI040A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DaySkyHDRI050A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/DaySkyHDRI060A_1K_HDR.exr
+
+  # Evening Environment HDRIs (5 textures)
+  - Assets/AmbientCG/HDRIs/EveningEnvironmentHDRI001_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningEnvironmentHDRI002_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningEnvironmentHDRI003_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningEnvironmentHDRI004_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningEnvironmentHDRI005_1K_HDR.exr
+
+  # Evening Sky HDRIs (9 textures)
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI001A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI005A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI010A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI015A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI020A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI025A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI030A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI035A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/EveningSkyHDRI040A_1K_HDR.exr
+
+  # Indoor Environment HDRIs (22 textures)
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI001_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI002_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI003_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI004_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI005_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI006_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI007_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI008_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI009_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI010_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI011_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI012_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI013_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI014_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI015_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI016_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI017_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI018_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI019_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI020_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI021_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/IndoorEnvironmentHDRI022_1K_HDR.exr
+
+  # Morning Sky HDRIs (6 textures)
+  - Assets/AmbientCG/HDRIs/MorningSkyHDRI001A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/MorningSkyHDRI003A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/MorningSkyHDRI005A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/MorningSkyHDRI007A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/MorningSkyHDRI009A_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/MorningSkyHDRI011A_1K_HDR.exr
+
+  # Night Environment HDRIs (10 textures)
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI001_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI002_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI003_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI004_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI005_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI006_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI007_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI008_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI009_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightEnvironmentHDRI010_1K_HDR.exr
+
+  # Night Sky HDRIs (8 textures)
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI001_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI003_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI005_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI007_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI009_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI011_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI013_1K_HDR.exr
+  - Assets/AmbientCG/HDRIs/NightSkyHDRI015_1K_HDR.exr

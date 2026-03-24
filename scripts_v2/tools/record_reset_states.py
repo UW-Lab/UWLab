@@ -12,7 +12,6 @@ from __future__ import annotations
 import argparse
 import os
 import torch
-import yaml
 from tqdm import tqdm
 from typing import cast
 
@@ -25,7 +24,13 @@ parser.add_argument(
     "--task", type=str, default="OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0", help="Name of the task."
 )
 parser.add_argument(
-    "--dataset_dir", type=str, default="./reset_state_datasets/", help="Directory to save reset state results."
+    "--dataset_dir", type=str, default="./Datasets/OmniReset/", help="Root Datasets/OmniReset/ directory."
+)
+parser.add_argument(
+    "--reset_type",
+    type=str,
+    default=None,
+    help="Reset type name (e.g. ObjectAnywhereEEAnywhere). Auto-inferred from --task if omitted.",
 )
 parser.add_argument(
     "--num_reset_states", type=int, default=100, help="Number of reset states to record. Set to 0 for infinite."
@@ -50,7 +55,7 @@ from isaaclab.managers.recorder_manager import DatasetExportMode
 from uwlab.utils.datasets.torch_dataset_file_handler import TorchDatasetFileHandler
 
 import uwlab_tasks  # noqa: F401
-import uwlab_tasks.manager_based.manipulation.reset_states.mdp as task_mdp
+import uwlab_tasks.manager_based.manipulation.omnireset.mdp as task_mdp
 from uwlab_tasks.utils.hydra import hydra_task_compose
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -73,33 +78,34 @@ def main(env_cfg, agent_cfg) -> None:
     # make sure environment is non-deterministic for diverse pose discovery
     env_cfg.seed = None
 
-    # Get USD paths for hash computation
+    # Derive pair directory and reset type for output path
     insertive_usd_path = env_cfg.scene.insertive_object.spawn.usd_path
     receptive_usd_path = env_cfg.scene.receptive_object.spawn.usd_path
-    reset_state_hash = task_mdp.utils.compute_assembly_hash(insertive_usd_path, receptive_usd_path)
+    pair = task_mdp.utils.compute_pair_dir(insertive_usd_path, receptive_usd_path)
 
-    # Update info.yaml with this hash and USD paths
-    info_file = os.path.join(args_cli.dataset_dir, "info.yaml")
-    info_data = {}
-    if os.path.exists(info_file):
-        with open(info_file) as f:
-            info_data = yaml.safe_load(f) or {}
+    # Auto-infer reset_type from task name if not provided
+    reset_type = args_cli.reset_type
+    if reset_type is None:
+        for candidate in [
+            "ObjectAnywhereEEAnywhere",
+            "ObjectRestingEEGrasped",
+            "ObjectAnywhereEEGrasped",
+            "ObjectPartiallyAssembledEEGrasped",
+        ]:
+            if candidate in args_cli.task:
+                reset_type = candidate
+                break
+        if reset_type is None:
+            raise ValueError(f"Could not infer reset_type from task '{args_cli.task}'. Pass --reset_type explicitly.")
 
-    info_data[reset_state_hash] = {
-        "insertive_object_usd_path": insertive_usd_path,
-        "receptive_object_usd_path": receptive_usd_path,
-    }
-
-    with open(info_file, "w") as f:
-        yaml.dump(info_data, f, default_flow_style=False)
-
-    print(f"Recording reset states for hash: {reset_state_hash}")
+    print(f"Recording reset states for: {pair} / {reset_type}")
     print(f"Insertive: {insertive_usd_path}")
     print(f"Receptive: {receptive_usd_path}")
 
     # Setup recording configuration
-    output_dir = args_cli.dataset_dir
-    output_file_name = f"{reset_state_hash}.pt"
+    output_dir = os.path.join(args_cli.dataset_dir, "Resets", pair)
+    os.makedirs(output_dir, exist_ok=True)
+    output_file_name = f"resets_{reset_type}.pt"
 
     env_cfg.recorders = task_mdp.StableStateRecorderManagerCfg()
     env_cfg.recorders.dataset_export_dir_path = output_dir

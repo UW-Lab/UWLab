@@ -13,10 +13,7 @@ from isaaclab.envs.mdp.actions.actions_cfg import (
 from isaaclab.utils import configclass
 
 from uwlab.controllers.differential_ik_cfg import MultiConstraintDifferentialIKControllerCfg
-from uwlab.envs.mdp.actions.actions_cfg import (
-    DefaultJointPositionStaticActionCfg,
-    MultiConstraintsDifferentialInverseKinematicsActionCfg,
-)
+from uwlab.envs.mdp.actions.actions_cfg import MultiConstraintsDifferentialInverseKinematicsActionCfg
 
 """
 UR5E ROBOTIQ 2F85 ACTIONS
@@ -67,10 +64,6 @@ ROBOTIQ_GRIPPER_BINARY_ACTIONS = BinaryJointPositionActionCfg(
     close_command_expr={"finger_joint": 0.785398},
 )
 
-ROBOTIQ_COMPLIANT_JOINTS = DefaultJointPositionStaticActionCfg(
-    asset_name="robot", joint_names=["left_inner_finger_joint", "right_inner_finger_joint"]
-)
-
 ROBOTIQ_MC_IK_ABSOLUTE = MultiConstraintsDifferentialInverseKinematicsActionCfg(
     asset_name="robot",
     joint_names=["joint.*"],
@@ -86,31 +79,26 @@ ROBOTIQ_MC_IK_ABSOLUTE = MultiConstraintsDifferentialInverseKinematicsActionCfg(
 class Ur5eRobotiq2f85IkAbsoluteAction:
     arm = UR5E_MC_IKABSOLUTE_ARM
     gripper = ROBOTIQ_GRIPPER_BINARY_ACTIONS
-    compliant_joints = ROBOTIQ_COMPLIANT_JOINTS
 
 
 @configclass
 class Ur5eRobotiq2f85McIkDeltaAction:
     arm = UR5E_MC_IKDELTA_ARM
     gripper = ROBOTIQ_GRIPPER_BINARY_ACTIONS
-    compliant_joints = ROBOTIQ_COMPLIANT_JOINTS
 
 
 @configclass
 class Ur5eRobotiq2f85JointPositionAction:
     arm = UR5E_JOINT_POSITION
     gripper = ROBOTIQ_GRIPPER_BINARY_ACTIONS
-    compliant_joints = ROBOTIQ_COMPLIANT_JOINTS
 
 
 @configclass
 class Ur5eRobotiq2f85RelativeJointPositionAction:
     arm = UR5E_RELATIVE_JOINT_POSITION
     gripper = ROBOTIQ_GRIPPER_BINARY_ACTIONS
-    compliant_joints = ROBOTIQ_COMPLIANT_JOINTS
 
 
 @configclass
 class Robotiq2f85BinaryGripperAction:
     gripper = ROBOTIQ_GRIPPER_BINARY_ACTIONS
-    compliant_joints = ROBOTIQ_COMPLIANT_JOINTS

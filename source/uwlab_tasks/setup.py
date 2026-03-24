@@ -18,7 +18,30 @@ EXTENSION_PATH = os.path.dirname(os.path.realpath(__file__))
 EXTENSION_TOML_DATA = toml.load(os.path.join(EXTENSION_PATH, "config", "extension.toml"))
 
 # Minimum dependencies required prior to installation
-INSTALL_REQUIRES = []
+INSTALL_REQUIRES = [
+    # OmniReset dependencies
+    "rtree",
+    "zarr==2.18.3",
+    "numcodecs==0.13.1",
+    "cmaes",
+]
+
+is_linux_x86_64 = platform.system() == "Linux" and platform.machine() in ("x86_64", "AMD64")
+py = f"cp{sys.version_info.major}{sys.version_info.minor}"
+
+wheel_by_py = {
+    "cp311": (
+        "https://github.com/MiroPsota/torch_packages_builder/releases/download/pytorch3d-0.7.8/"
+        "pytorch3d-0.7.8%2Bpt2.7.0cu128-cp311-cp311-linux_x86_64.whl"
+    ),
+    "cp310": (
+        "https://github.com/MiroPsota/torch_packages_builder/releases/download/pytorch3d-0.7.8/"
+        "pytorch3d-0.7.8%2Bpt2.7.0cu128-cp310-cp310-linux_x86_64.whl"
+    ),
+}
+
+if is_linux_x86_64 and py in wheel_by_py:
+    INSTALL_REQUIRES.append(f"pytorch3d @ {wheel_by_py[py]}")
 
 is_linux_x86_64 = platform.system() == "Linux" and platform.machine() in ("x86_64", "AMD64")
 py = f"cp{sys.version_info.major}{sys.version_info.minor}"

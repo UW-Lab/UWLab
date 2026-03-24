@@ -1,10 +1,8 @@
 OmniReset
 =========
 
-**OmniReset** is a robotic manipulation framework using RL to solve dexterous, contact-rich manipulation tasks without reward engineering or demos.
-
-.. note::
-   Detailed documentation will be updated following the public release of the paper.
+| **Paper:** `Emergent Dexterity via Diverse Resets and Large-Scale Reinforcement Learning (ICLR 2026) <https://arxiv.org/abs/2603.15789>`_
+| **Project website:** `omnireset.github.io <https://omnireset.github.io/>`_
 
 ----
 
@@ -27,23 +25,51 @@ Download our pretrained checkpoint and run evaluation.
 
          <div style="text-align: center; margin-bottom: 20px;">
            <video width="400" height="300" controls>
-             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/leg.mp4" type="video/mp4">
+             <source src="https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Media/OmniReset/leg.mp4" type="video/mp4">
              Your browser does not support the video tag.
            </video>
          </div>
 
-      .. code:: bash
+      .. tab-set::
 
-         # Download checkpoint
-         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/fbleg_state_rl_expert.pt
+         .. tab-item:: Seed 42
 
-         # Run evaluation
-         python scripts/reinforcement_learning/rsl_rl/play.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-             --num_envs 1 \
-             --checkpoint fbleg_state_rl_expert.pt \
-             env.scene.insertive_object=fbleg \
-             env.scene.receptive_object=fbtabletop
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed42.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint leg_state_rl_expert_seed42.pt \
+                   env.scene.insertive_object=fbleg \
+                   env.scene.receptive_object=fbtabletop
+
+         .. tab-item:: Seed 0
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed0.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint leg_state_rl_expert_seed0.pt \
+                   env.scene.insertive_object=fbleg \
+                   env.scene.receptive_object=fbtabletop
+
+         .. tab-item:: Seed 1
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed1.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint leg_state_rl_expert_seed1.pt \
+                   env.scene.insertive_object=fbleg \
+                   env.scene.receptive_object=fbtabletop
 
    .. tab-item:: Drawer Assembly
 
@@ -51,23 +77,51 @@ Download our pretrained checkpoint and run evaluation.
 
          <div style="text-align: center; margin-bottom: 20px;">
            <video width="400" height="300" controls>
-             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/drawer.mp4" type="video/mp4">
+             <source src="https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Media/OmniReset/drawer.mp4" type="video/mp4">
              Your browser does not support the video tag.
            </video>
          </div>
 
-      .. code:: bash
+      .. tab-set::
 
-         # Download checkpoint
-         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/fbdrawerbottom_state_rl_expert.pt
+         .. tab-item:: Seed 42
 
-         # Run evaluation
-         python scripts/reinforcement_learning/rsl_rl/play.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-             --num_envs 1 \
-             --checkpoint fbdrawerbottom_state_rl_expert.pt \
-             env.scene.insertive_object=fbdrawerbottom \
-             env.scene.receptive_object=fbdrawerbox
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed42.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint drawer_state_rl_expert_seed42.pt \
+                   env.scene.insertive_object=fbdrawerbottom \
+                   env.scene.receptive_object=fbdrawerbox
+
+         .. tab-item:: Seed 0
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed0.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint drawer_state_rl_expert_seed0.pt \
+                   env.scene.insertive_object=fbdrawerbottom \
+                   env.scene.receptive_object=fbdrawerbox
+
+         .. tab-item:: Seed 1
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed1.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint drawer_state_rl_expert_seed1.pt \
+                   env.scene.insertive_object=fbdrawerbottom \
+                   env.scene.receptive_object=fbdrawerbox
 
    .. tab-item:: Peg Insertion
 
@@ -75,23 +129,51 @@ Download our pretrained checkpoint and run evaluation.
 
          <div style="text-align: center; margin-bottom: 20px;">
            <video width="400" height="300" controls>
-             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/peg.mp4" type="video/mp4">
+             <source src="https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Media/OmniReset/peg.mp4" type="video/mp4">
              Your browser does not support the video tag.
            </video>
          </div>
 
-      .. code:: bash
+      .. tab-set::
 
-         # Download checkpoint
-         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/peg_state_rl_expert.pt
+         .. tab-item:: Seed 42
 
-         # Run evaluation
-         python scripts/reinforcement_learning/rsl_rl/play.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-             --num_envs 1 \
-             --checkpoint peg_state_rl_expert.pt \
-             env.scene.insertive_object=peg \
-             env.scene.receptive_object=peghole
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed42.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint peg_state_rl_expert_seed42.pt \
+                   env.scene.insertive_object=peg \
+                   env.scene.receptive_object=peghole
+
+         .. tab-item:: Seed 0
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed0.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint peg_state_rl_expert_seed0.pt \
+                   env.scene.insertive_object=peg \
+                   env.scene.receptive_object=peghole
+
+         .. tab-item:: Seed 1
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed1.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint peg_state_rl_expert_seed1.pt \
+                   env.scene.insertive_object=peg \
+                   env.scene.receptive_object=peghole
 
    .. tab-item:: Rectangle on Wall
 
@@ -99,7 +181,7 @@ Download our pretrained checkpoint and run evaluation.
 
          <div style="text-align: center; margin-bottom: 20px;">
            <video width="400" height="300" controls>
-             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/rectangle.mp4" type="video/mp4">
+             <source src="https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Media/OmniReset/rectangle.mp4" type="video/mp4">
              Your browser does not support the video tag.
            </video>
          </div>
@@ -107,13 +189,13 @@ Download our pretrained checkpoint and run evaluation.
       .. code:: bash
 
          # Download checkpoint
-         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/rectangle_state_rl_expert.pt
+         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed0.pt
 
          # Run evaluation
          python scripts/reinforcement_learning/rsl_rl/play.py \
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
              --num_envs 1 \
-             --checkpoint rectangle_state_rl_expert.pt \
+             --checkpoint rectangle_state_rl_expert_seed0.pt \
              env.scene.insertive_object=rectangle \
              env.scene.receptive_object=wall
 
@@ -123,7 +205,7 @@ Download our pretrained checkpoint and run evaluation.
 
          <div style="text-align: center; margin-bottom: 20px;">
            <video width="400" height="300" controls>
-             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cube.mp4" type="video/mp4">
+             <source src="https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Media/OmniReset/cube.mp4" type="video/mp4">
              Your browser does not support the video tag.
            </video>
          </div>
@@ -131,13 +213,13 @@ Download our pretrained checkpoint and run evaluation.
       .. code:: bash
 
          # Download checkpoint
-         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cube_state_rl_expert.pt
+         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed42.pt
 
          # Run evaluation
          python scripts/reinforcement_learning/rsl_rl/play.py \
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
              --num_envs 1 \
-             --checkpoint cube_state_rl_expert.pt \
+             --checkpoint cube_state_rl_expert_seed42.pt \
              env.scene.insertive_object=cube \
              env.scene.receptive_object=cube
 
@@ -147,7 +229,7 @@ Download our pretrained checkpoint and run evaluation.
 
          <div style="text-align: center; margin-bottom: 20px;">
            <video width="400" height="300" controls>
-             <source src="https://s3.us-west-004.backblazeb2.com/uwlab-assets/Media/OmniReset/cupcake.mp4" type="video/mp4">
+             <source src="https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Media/OmniReset/cupcake.mp4" type="video/mp4">
              Your browser does not support the video tag.
            </video>
          </div>
@@ -155,447 +237,98 @@ Download our pretrained checkpoint and run evaluation.
       .. code:: bash
 
          # Download checkpoint
-         wget https://s3.us-west-004.backblazeb2.com/uwlab-assets/Policies/OmniReset/cupcake_state_rl_expert.pt
+         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed42.pt
 
          # Run evaluation
          python scripts/reinforcement_learning/rsl_rl/play.py \
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
              --num_envs 1 \
-             --checkpoint cupcake_state_rl_expert.pt \
+             --checkpoint cupcake_state_rl_expert_seed42.pt \
              env.scene.insertive_object=cupcake \
              env.scene.receptive_object=plate
 
 ----
 
-.. _reproduce-training:
+.. _full-pipeline:
 
-Reproduce Our Training
-----------------------
+Full Pipeline
+-------------
 
-Reproduce our training results from scratch.
+The full OmniReset pipeline from custom task creation to real-robot deployment:
+
+.. raw:: html
+
+   <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin: 24px 0; flex-wrap: nowrap; font-size: 0.85em;">
+     <div style="background: #e3f2fd; border: 2px solid #1976d2; border-radius: 8px; padding: 8px 12px; text-align: center; white-space: nowrap;">
+       <strong>1. Create New Task</strong><br><span style="font-size: 0.85em; color: #555;">assets &amp; variants</span>
+     </div>
+     <div style="font-size: 1.3em; color: #888;">&rarr;</div>
+     <div style="background: #e8f5e9; border: 3px solid #2e7d32; border-radius: 8px; padding: 8px 12px; text-align: center; white-space: nowrap; box-shadow: 0 0 8px rgba(46,125,50,0.3);">
+       <strong style="font-size: 1.1em;">2. Train RL Policy</strong><br><span style="font-size: 0.85em; color: #555;">resets &amp; training</span><br><span style="font-size: 0.75em; color: #2e7d32;">&#9733; most users start here</span>
+     </div>
+     <div style="font-size: 1.3em; color: #888;">&rarr;</div>
+     <div style="background: #fff3e0; border: 2px solid #f57c00; border-radius: 8px; padding: 8px 12px; text-align: center; white-space: nowrap;">
+       <strong>3. Sys-ID &amp; Finetune</strong><br><span style="font-size: 0.85em; color: #555;">sim2real alignment</span>
+     </div>
+     <div style="font-size: 1.3em; color: #888;">&rarr;</div>
+     <div style="background: #f3e5f5; border: 2px solid #7b1fa2; border-radius: 8px; padding: 8px 12px; text-align: center; white-space: nowrap;">
+       <strong>4. Distill &amp; Deploy</strong><br><span style="font-size: 0.85em; color: #555;">vision policy &amp; real robot</span>
+     </div>
+   </div>
 
 .. tip::
 
-   **Want to try it quickly?** Start with **Cube Stacking** or **Peg Insertion**. They have the fastest reset state collection times and converge within ~8 hours on 4×L40S GPUs.
-
-.. tab-set::
-
-   .. tab-item:: Leg Twisting
-
-      .. note::
-
-         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
-
-      **Step 1: Collect Partial Assemblies** (~30 seconds)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
-
-      **Step 2: Sample Grasp Poses** (~1 minute)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=fbleg
-
-      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
-
-      .. important::
-
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
-
-      .. code:: bash
-
-         # Object Anywhere, End-Effector Anywhere (Reaching)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
-
-         # Object Resting, End-Effector Grasped (Near Object)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
-
-         # Object Anywhere, End-Effector Grasped (Grasped)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
-
-         # Object Partially Assembled, End-Effector Grasped (Near Goal)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
-
-      **Step 3.5: Visualize Reset States (Optional)**
-
-      Visualize the generated reset states to verify they are correct.
-
-      .. code:: bash
-
-         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
-
-      **Step 4: Train RL Policy**
-
-      .. important::
-
-         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
-
-      .. code:: bash
-
-         python -m torch.distributed.run \
-             --nnodes 1 \
-             --nproc_per_node 4 \
-             scripts/reinforcement_learning/rsl_rl/train.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
-             --num_envs 16384 \
-             --logger wandb \
-             --headless \
-             --distributed \
-             env.scene.insertive_object=fbleg \
-             env.scene.receptive_object=fbtabletop
-
-   .. tab-item:: Drawer Assembly
-
-      .. note::
-
-         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
-
-      **Step 1: Collect Partial Assemblies** (~30 seconds)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
-
-      **Step 2: Sample Grasp Poses** (~1 minute)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=fbdrawerbottom
-
-      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
-
-      .. important::
-
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
-
-      .. code:: bash
-
-         # Object Anywhere, End-Effector Anywhere (Reaching)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
-
-         # Object Resting, End-Effector Grasped (Near Object)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
-
-         # Object Anywhere, End-Effector Grasped (Grasped)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
-
-         # Object Partially Assembled, End-Effector Grasped (Near Goal)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
-
-      **Step 3.5: Visualize Reset States (Optional)**
-
-      Visualize the generated reset states to verify they are correct.
-
-      .. code:: bash
-
-         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
-
-      **Step 4: Train RL Policy**
-
-      .. important::
-
-         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
-
-      .. code:: bash
-
-         python -m torch.distributed.run \
-             --nnodes 1 \
-             --nproc_per_node 4 \
-             scripts/reinforcement_learning/rsl_rl/train.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
-             --num_envs 16384 \
-             --logger wandb \
-             --headless \
-             --distributed \
-             env.scene.insertive_object=fbdrawerbottom \
-             env.scene.receptive_object=fbdrawerbox
-
-   .. tab-item:: Peg Insertion
-
-      .. note::
-
-         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
-
-      **Step 1: Collect Partial Assemblies** (~30 seconds)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=peg env.scene.receptive_object=peghole
-
-      **Step 2: Sample Grasp Poses** (~1 minute)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=peg
-
-      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
-
-      .. important::
-
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
-
-      .. code:: bash
-
-         # Object Anywhere, End-Effector Anywhere (Reaching)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=peg env.scene.receptive_object=peghole
-
-         # Object Resting, End-Effector Grasped (Near Object)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=peg env.scene.receptive_object=peghole
-
-         # Object Anywhere, End-Effector Grasped (Grasped)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=peg env.scene.receptive_object=peghole
-
-         # Object Partially Assembled, End-Effector Grasped (Near Goal)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=peg env.scene.receptive_object=peghole
-
-      **Step 3.5: Visualize Reset States (Optional)**
-
-      Visualize the generated reset states to verify they are correct.
-
-      .. code:: bash
-
-         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=peg env.scene.receptive_object=peghole
-
-      **Step 4: Train RL Policy**
-
-      .. important::
-
-         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
-
-      .. code:: bash
-
-         python -m torch.distributed.run \
-             --nnodes 1 \
-             --nproc_per_node 4 \
-             scripts/reinforcement_learning/rsl_rl/train.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
-             --num_envs 16384 \
-             --logger wandb \
-             --headless \
-             --distributed \
-             env.scene.insertive_object=peg \
-             env.scene.receptive_object=peghole
-
-   .. tab-item:: Rectangle on Wall
-
-      .. note::
-
-         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
-
-      **Step 1: Collect Partial Assemblies** (~30 seconds)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=rectangle env.scene.receptive_object=wall
-
-      **Step 2: Sample Grasp Poses** (~1 minute)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=rectangle
-
-      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
-
-      .. important::
-
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
-
-      .. code:: bash
-
-         # Object Anywhere, End-Effector Anywhere (Reaching)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=rectangle env.scene.receptive_object=wall
-
-         # Object Resting, End-Effector Grasped (Near Object)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=rectangle env.scene.receptive_object=wall
-
-         # Object Anywhere, End-Effector Grasped (Grasped)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=rectangle env.scene.receptive_object=wall
-
-         # Object Partially Assembled, End-Effector Grasped (Near Goal)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=rectangle env.scene.receptive_object=wall
-
-      **Step 3.5: Visualize Reset States (Optional)**
-
-      Visualize the generated reset states to verify they are correct.
-
-      .. code:: bash
-
-         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=rectangle env.scene.receptive_object=wall
-
-      **Step 4: Train RL Policy**
-
-      .. important::
-
-         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
-
-      .. code:: bash
-
-         python -m torch.distributed.run \
-             --nnodes 1 \
-             --nproc_per_node 4 \
-             scripts/reinforcement_learning/rsl_rl/train.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
-             --num_envs 16384 \
-             --logger wandb \
-             --headless \
-             --distributed \
-             env.scene.insertive_object=rectangle \
-             env.scene.receptive_object=wall
-
-   .. tab-item:: Cube Stacking
-
-      .. note::
-
-         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
-
-      **Step 1: Collect Partial Assemblies** (~30 seconds)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=cube env.scene.receptive_object=cube
-
-      **Step 2: Sample Grasp Poses** (~1 minute)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=cube
-
-      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
-
-      .. important::
-
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
-
-      .. code:: bash
-
-         # Object Anywhere, End-Effector Anywhere (Reaching)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=cube env.scene.receptive_object=cube
-
-         # Object Resting, End-Effector Grasped (Near Object)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=cube env.scene.receptive_object=cube
-
-         # Object Anywhere, End-Effector Grasped (Grasped)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=cube env.scene.receptive_object=cube
-
-         # Object Partially Assembled, End-Effector Grasped (Near Goal)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=cube env.scene.receptive_object=cube
-
-      **Step 3.5: Visualize Reset States (Optional)**
-
-      Visualize the generated reset states to verify they are correct.
-
-      .. code:: bash
-
-         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=cube env.scene.receptive_object=cube
-
-      **Step 4: Train RL Policy**
-
-      .. important::
-
-         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
-
-      .. code:: bash
-
-         python -m torch.distributed.run \
-             --nnodes 1 \
-             --nproc_per_node 4 \
-             scripts/reinforcement_learning/rsl_rl/train.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
-             --num_envs 16384 \
-             --logger wandb \
-             --headless \
-             --distributed \
-             env.scene.insertive_object=cube \
-             env.scene.receptive_object=cube
-
-   .. tab-item:: Cupcake on Plate
-
-      .. note::
-
-         **Skip directly to Step 4** if you want to train an RL policy with our pre-generated reset state datasets. Only run Steps 1-3 if you want to generate your own.
-
-      **Step 1: Collect Partial Assemblies** (~30 seconds)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --dataset_dir ./partial_assembly_datasets --headless env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-      **Step 2: Sample Grasp Poses** (~1 minute)
-
-      .. code:: bash
-
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --dataset_dir ./grasp_datasets --headless env.scene.object=cupcake
-
-      **Step 3: Generate Reset State Datasets** (~1 min to 1 hour depending on the reset)
-
-      .. important::
-
-         Before running, make sure ``base_path`` and ``base_paths`` in ``reset_states_cfg.py`` point to your dataset directories.
-
-      .. code:: bash
-
-         # Object Anywhere, End-Effector Anywhere (Reaching)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEAnywhere env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-         # Object Resting, End-Effector Grasped (Near Object)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectRestingEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-         # Object Anywhere, End-Effector Grasped (Grasped)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectAnywhereEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-         # Object Partially Assembled, End-Effector Grasped (Near Goal)
-         python scripts_v2/tools/record_reset_states.py --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 --num_envs 4096 --num_reset_states 10000 --headless --dataset_dir ./reset_state_datasets/ObjectPartiallyAssembledEEGrasped env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-      **Step 3.5: Visualize Reset States (Optional)**
-
-      Visualize the generated reset states to verify they are correct.
-
-      .. code:: bash
-
-         python scripts_v2/tools/visualize_reset_states.py --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 --num_envs 4 --dataset_dir ./reset_state_datasets env.scene.insertive_object=cupcake env.scene.receptive_object=plate
-
-      **Step 4: Train RL Policy**
-
-      .. important::
-
-         If you generated your own datasets in Steps 1-3, make sure to update ``base_paths`` in ``rl_state_cfg.py`` to point to your dataset directories.
-
-      .. code:: bash
-
-         python -m torch.distributed.run \
-             --nnodes 1 \
-             --nproc_per_node 4 \
-             scripts/reinforcement_learning/rsl_rl/train.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
-             --num_envs 16384 \
-             --logger wandb \
-             --headless \
-             --distributed \
-             env.scene.insertive_object=cupcake \
-             env.scene.receptive_object=plate
-
-Training Curves
-^^^^^^^^^^^^^^^
-
-Below are success rate curves for each task plotting over number of training iterations and wall clock time when training on 4xL40S GPUs.
-Insertion, twisting, cube stacking, and rectangle orientation on wall tasks converge within **8 hours**, while drawer assembly and cupcake on plate tasks take **1 day**.
-
-.. list-table::
-   :widths: 50 50
-   :class: borderless
-
-   * - .. figure:: ../../../source/_static/publications/omnireset/success_rate_over_steps.jpg
-          :width: 100%
-          :alt: Training curve over steps
-
-          Success Rate of 6 Tasks Over Number of Training Iterations
-
-     - .. figure:: ../../../source/_static/publications/omnireset/success_rate_over_wall_clock.jpg
-          :width: 100%
-          :alt: Training curve over wall clock time
-
-          Success Rate of 6 Tasks Over Wall Clock Time
+   **Most users only need step 2.** If you're training on one of our 6 existing tasks, jump straight to :doc:`rl_training`.
+
+- :doc:`new_task` -- Prepare USD assets, register object variants, verify in sim.
+- :doc:`rl_training` -- Collect reset states and train an RL policy from scratch. **Start here for most use cases.**
+- :doc:`sim2real` -- Robot calibration & USD, system identification, camera calibration, then ADR finetuning, or use our pre-finetuned checkpoints.
+- :doc:`distillation` -- Evaluate pretrained RGB checkpoints, or collect demos and train your own ResNet18-MLP vision policy. Deploy on real robot.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Pipeline
+
+   new_task
+   rl_training
+   sim2real
+   distillation
 
 ----
+
+Compute & Hardware Requirements
+-------------------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Stage
+     - Requirements
+   * - Policy evaluation
+     - 1 GPU.
+   * - RL training
+     - 4 GPUs, 24+ GB VRAM each (e.g. L40S, 4090). Cube/Peg converge in ~8 hours on 4x L40S.
+   * - RL finetuning
+     - 1--4 GPUs depending on task (see :doc:`sim2real` for per-task env counts). Peg converges in ~8 hours on 1x L40S.
+   * - Demo collection
+     - 1 RTX GPU, 24+ GB VRAM (32 envs fit on an RTX 4090). 10K demos ~2 hours.
+   * - Vision policy training
+     - 1 GPU. ~2 days of training on a H200 for transfer. ~1 day of training on a H200 for sim-only distillation.
+   * - Real-robot deploy
+     - UR5e/UR7e + Robotiq 2F-85 + 3x Intel RealSense (D415/D435/D455).
+
+----
+
+BibTeX
+------
+.. code:: bibtex
+
+   @inproceedings{
+      yin2026omnireset,
+      title={Emergent Dexterity via Diverse Resets and Large-Scale Reinforcement Learning},
+      author={Patrick Yin and Tyler Westenbroek and Zhengyu Zhang and Joshua Tran and Ignacio Dagnino and Eeshani Shilamkar and Numfor Mbiziwo-Tiapo and Simran Bagaria and Xinlei Liu and Galen Mullins and Andrey Kolobov and Abhishek Gupta},
+      booktitle={The Fourteenth International Conference on Learning Representations},
+      year={2026},
+      url={https://arxiv.org/abs/2603.15789}
+   }
