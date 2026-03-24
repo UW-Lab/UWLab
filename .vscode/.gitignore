@@ -4,6 +4,7 @@
 
 # Note: These files are kept for development purposes only.
 !tools/settings.template.json
+!tools/launch.template.json
 !tools/setup_vscode.py
 !extensions.json
 !launch.json

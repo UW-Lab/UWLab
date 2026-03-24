@@ -23,7 +23,7 @@ from isaaclab.terrains.trimesh.mesh_terrains import inverted_pyramid_stairs_terr
 from isaaclab.terrains.trimesh.mesh_terrains_cfg import MeshInvertedPyramidStairsTerrainCfg, MeshPyramidStairsTerrainCfg
 from isaaclab.terrains.trimesh.utils import make_border, make_plane
 
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR, resolve_cloud_path
 
 if TYPE_CHECKING:
     from . import mesh_terrains_cfg
@@ -112,10 +112,10 @@ def cached_terrain_gen(
     height = cfg.height
     overhang = "overhang_yes" if cfg.include_overhang else "overhang_no"
     mesh_id = "mesh_0"
-    root_path = f"{UWLAB_CLOUD_ASSETS_DIR}/dataset/terrains/dataset/generated_terrain/{terrain_type}/shape_8/height_{height}/level_{level}/{overhang}/{mesh_id}"
+    root_url = f"{UWLAB_CLOUD_ASSETS_DIR}/dataset/terrains/dataset/generated_terrain/{terrain_type}/shape_8/height_{height}/level_{level}/{overhang}/{mesh_id}"
 
-    terrain_mesh_path = os.path.join(root_path, "mesh_terrain.obj")
-    spawnfile_path = os.path.join(root_path, "spawnable_locations.npy")
+    terrain_mesh_path = resolve_cloud_path(f"{root_url}/mesh_terrain.obj")
+    spawnfile_path = resolve_cloud_path(f"{root_url}/spawnable_locations.npy")
 
     mesh: trimesh.Trimesh = load_mesh(terrain_mesh_path)
     xy_scale = cfg.size / (mesh.bounds[1] - mesh.bounds[0])[:2]

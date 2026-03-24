@@ -1,0 +1,172 @@
+# Copyright (c) 2024-2026, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Out-of-Distribution (OOD) Texture paths for domain randomization testing
+#
+# These textures are from AmbientCG (https://ambientcg.com) - a DIFFERENT source
+# than the training textures (which use Poly Haven and NVIDIA vMaterials_2).
+#
+# Total: 136 textures across diverse categories
+# License: CC0 (Public Domain)
+
+# AmbientCG textures (cloud - Backblaze B2)
+cloud:
+  # Ice/Snow - Very different from typical indoor surfaces (10 textures)
+  - Assets/AmbientCG/Textures/Ice001.jpg
+  - Assets/AmbientCG/Textures/Ice002.jpg
+  - Assets/AmbientCG/Textures/Ice003.jpg
+  - Assets/AmbientCG/Textures/Ice004.jpg
+  - Assets/AmbientCG/Textures/Snow001.jpg
+  - Assets/AmbientCG/Textures/Snow002.jpg
+  - Assets/AmbientCG/Textures/Snow003.jpg
+  - Assets/AmbientCG/Textures/Snow004.jpg
+  - Assets/AmbientCG/Textures/Snow005.jpg
+  - Assets/AmbientCG/Textures/Snow006.jpg
+
+  # Lava - Unusual volcanic textures (5 textures)
+  - Assets/AmbientCG/Textures/Lava001.jpg
+  - Assets/AmbientCG/Textures/Lava002.jpg
+  - Assets/AmbientCG/Textures/Lava003.jpg
+  - Assets/AmbientCG/Textures/Lava004.jpg
+  - Assets/AmbientCG/Textures/Lava005.jpg
+
+  # Grass - Outdoor natural surfaces (5 textures)
+  - Assets/AmbientCG/Textures/Grass001.jpg
+  - Assets/AmbientCG/Textures/Grass002.jpg
+  - Assets/AmbientCG/Textures/Grass003.jpg
+  - Assets/AmbientCG/Textures/Grass004.jpg
+  - Assets/AmbientCG/Textures/Grass005.jpg
+
+  # Ground - Various terrain textures (22 textures)
+  - Assets/AmbientCG/Textures/Ground001.jpg
+  - Assets/AmbientCG/Textures/Ground002.jpg
+  - Assets/AmbientCG/Textures/Ground003.jpg
+  - Assets/AmbientCG/Textures/Ground004.jpg
+  - Assets/AmbientCG/Textures/Ground005.jpg
+  - Assets/AmbientCG/Textures/Ground007.jpg
+  - Assets/AmbientCG/Textures/Ground008.jpg
+  - Assets/AmbientCG/Textures/Ground010.jpg
+  - Assets/AmbientCG/Textures/Ground012.jpg
+  - Assets/AmbientCG/Textures/Ground015.jpg
+  - Assets/AmbientCG/Textures/Ground020.jpg
+  - Assets/AmbientCG/Textures/Ground022.jpg
+  - Assets/AmbientCG/Textures/Ground025.jpg
+  - Assets/AmbientCG/Textures/Ground030.jpg
+  - Assets/AmbientCG/Textures/Ground035.jpg
+  - Assets/AmbientCG/Textures/Ground037.jpg
+  - Assets/AmbientCG/Textures/Ground040.jpg
+  - Assets/AmbientCG/Textures/Ground042.jpg
+  - Assets/AmbientCG/Textures/Ground044.jpg
+  - Assets/AmbientCG/Textures/Ground048.jpg
+  - Assets/AmbientCG/Textures/Ground050.jpg
+  - Assets/AmbientCG/Textures/Ground054.jpg
+
+  # Rock - Different rock patterns from AmbientCG (20 textures)
+  - Assets/AmbientCG/Textures/Rock001.jpg
+  - Assets/AmbientCG/Textures/Rock002.jpg
+  - Assets/AmbientCG/Textures/Rock003.jpg
+  - Assets/AmbientCG/Textures/Rock004.jpg
+  - Assets/AmbientCG/Textures/Rock005.jpg
+  - Assets/AmbientCG/Textures/Rock006.jpg
+  - Assets/AmbientCG/Textures/Rock007.jpg
+  - Assets/AmbientCG/Textures/Rock008.jpg
+  - Assets/AmbientCG/Textures/Rock010.jpg
+  - Assets/AmbientCG/Textures/Rock012.jpg
+  - Assets/AmbientCG/Textures/Rock014.jpg
+  - Assets/AmbientCG/Textures/Rock016.jpg
+  - Assets/AmbientCG/Textures/Rock018.jpg
+  - Assets/AmbientCG/Textures/Rock020.jpg
+  - Assets/AmbientCG/Textures/Rock022.jpg
+  - Assets/AmbientCG/Textures/Rock024.jpg
+  - Assets/AmbientCG/Textures/Rock026.jpg
+  - Assets/AmbientCG/Textures/Rock028.jpg
+  - Assets/AmbientCG/Textures/Rock030.jpg
+  - Assets/AmbientCG/Textures/Rock032.jpg
+
+  # Fabric - Different fabric patterns (8 textures)
+  - Assets/AmbientCG/Textures/Fabric001.jpg
+  - Assets/AmbientCG/Textures/Fabric002.jpg
+  - Assets/AmbientCG/Textures/Fabric003.jpg
+  - Assets/AmbientCG/Textures/Fabric004.jpg
+  - Assets/AmbientCG/Textures/Fabric005.jpg
+  - Assets/AmbientCG/Textures/Fabric006.jpg
+  - Assets/AmbientCG/Textures/Fabric007.jpg
+  - Assets/AmbientCG/Textures/Fabric008.jpg
+
+  # Metal - Different metal finishes (25 textures)
+  - Assets/AmbientCG/Textures/Metal001.jpg
+  - Assets/AmbientCG/Textures/Metal002.jpg
+  - Assets/AmbientCG/Textures/Metal003.jpg
+  - Assets/AmbientCG/Textures/Metal004.jpg
+  - Assets/AmbientCG/Textures/Metal005.jpg
+  - Assets/AmbientCG/Textures/Metal006.jpg
+  - Assets/AmbientCG/Textures/Metal007.jpg
+  - Assets/AmbientCG/Textures/Metal008.jpg
+  - Assets/AmbientCG/Textures/Metal009.jpg
+  - Assets/AmbientCG/Textures/Metal010.jpg
+  - Assets/AmbientCG/Textures/Metal012.jpg
+  - Assets/AmbientCG/Textures/Metal014.jpg
+  - Assets/AmbientCG/Textures/Metal016.jpg
+  - Assets/AmbientCG/Textures/Metal018.jpg
+  - Assets/AmbientCG/Textures/Metal020.jpg
+  - Assets/AmbientCG/Textures/Metal022.jpg
+  - Assets/AmbientCG/Textures/Metal024.jpg
+  - Assets/AmbientCG/Textures/Metal026.jpg
+  - Assets/AmbientCG/Textures/Metal028.jpg
+  - Assets/AmbientCG/Textures/Metal030.jpg
+  - Assets/AmbientCG/Textures/Metal032.jpg
+  - Assets/AmbientCG/Textures/Metal034.jpg
+  - Assets/AmbientCG/Textures/Metal036.jpg
+  - Assets/AmbientCG/Textures/Metal038.jpg
+  - Assets/AmbientCG/Textures/Metal040.jpg
+
+  # Wood - Different wood types (10 textures)
+  - Assets/AmbientCG/Textures/Wood001.jpg
+  - Assets/AmbientCG/Textures/Wood002.jpg
+  - Assets/AmbientCG/Textures/Wood003.jpg
+  - Assets/AmbientCG/Textures/Wood004.jpg
+  - Assets/AmbientCG/Textures/Wood005.jpg
+  - Assets/AmbientCG/Textures/Wood006.jpg
+  - Assets/AmbientCG/Textures/Wood007.jpg
+  - Assets/AmbientCG/Textures/Wood008.jpg
+  - Assets/AmbientCG/Textures/Wood009.jpg
+  - Assets/AmbientCG/Textures/Wood010.jpg
+
+  # Leather - Different leather patterns (10 textures)
+  - Assets/AmbientCG/Textures/Leather001.jpg
+  - Assets/AmbientCG/Textures/Leather002.jpg
+  - Assets/AmbientCG/Textures/Leather003.jpg
+  - Assets/AmbientCG/Textures/Leather004.jpg
+  - Assets/AmbientCG/Textures/Leather005.jpg
+  - Assets/AmbientCG/Textures/Leather006.jpg
+  - Assets/AmbientCG/Textures/Leather007.jpg
+  - Assets/AmbientCG/Textures/Leather008.jpg
+  - Assets/AmbientCG/Textures/Leather009.jpg
+  - Assets/AmbientCG/Textures/Leather010.jpg
+
+  # Tiles - Different tile patterns (20 textures)
+  - Assets/AmbientCG/Textures/Tiles001.jpg
+  - Assets/AmbientCG/Textures/Tiles002.jpg
+  - Assets/AmbientCG/Textures/Tiles003.jpg
+  - Assets/AmbientCG/Textures/Tiles004.jpg
+  - Assets/AmbientCG/Textures/Tiles005.jpg
+  - Assets/AmbientCG/Textures/Tiles006.jpg
+  - Assets/AmbientCG/Textures/Tiles007.jpg
+  - Assets/AmbientCG/Textures/Tiles008.jpg
+  - Assets/AmbientCG/Textures/Tiles009.jpg
+  - Assets/AmbientCG/Textures/Tiles010.jpg
+  - Assets/AmbientCG/Textures/Tiles015.jpg
+  - Assets/AmbientCG/Textures/Tiles020.jpg
+  - Assets/AmbientCG/Textures/Tiles025.jpg
+  - Assets/AmbientCG/Textures/Tiles030.jpg
+  - Assets/AmbientCG/Textures/Tiles035.jpg
+  - Assets/AmbientCG/Textures/Tiles040.jpg
+  - Assets/AmbientCG/Textures/Tiles045.jpg
+  - Assets/AmbientCG/Textures/Tiles050.jpg
+  - Assets/AmbientCG/Textures/Tiles055.jpg
+  - Assets/AmbientCG/Textures/Tiles060.jpg
+
+  # Unusual/Fun - Holiday textures (1 texture)
+  - Assets/AmbientCG/Textures/ChristmasTreeOrnament001.jpg

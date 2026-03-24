@@ -574,13 +574,6 @@ while [[ $# -gt 0 ]]; do
             # LD_PRELOAD is restored below, after installation
             begin_arm_install_sandbox
 
-            # --- ensure fork of rsl-rl-lib is used ---
-            echo "[INFO] Forcing reinstall of rsl-rl-lib from zoctipus/rsl_rl.git@master..."
-            ${pip_uninstall_command} rsl-rl-lib || true
-            ${pip_command} --no-cache-dir --force-reinstall --no-deps \
-                "rsl-rl-lib @ git+https://github.com/zoctipus/rsl_rl.git@master"
-            echo "[INFO] Verified: rsl-rl-lib reinstalled from UWLab fork."
-
             # install pytorch (version based on arch)
             ensure_cuda_torch
             # recursively look into directories and install them

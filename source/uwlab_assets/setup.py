@@ -14,6 +14,12 @@ from setuptools import setup
 EXTENSION_PATH = os.path.dirname(os.path.realpath(__file__))
 # Read the extension.toml file
 EXTENSION_TOML_DATA = toml.load(os.path.join(EXTENSION_PATH, "config", "extension.toml"))
+
+# Minimum dependencies required prior to installation
+INSTALL_REQUIRES = [
+    "usd-core",
+]
+
 # Installation operation
 setup(
     name="uwlab_assets",
@@ -25,6 +31,7 @@ setup(
     keywords=EXTENSION_TOML_DATA["package"]["keywords"],
     license="BSD-3-Clause",
     include_package_data=True,
+    install_requires=INSTALL_REQUIRES,
     python_requires=">=3.10",
     packages=["uwlab_assets"],
     classifiers=[

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Script to visualize saved states from HDF5 dataset."""
+"""Script to visualize saved reset states from a dataset directory."""
 
 from __future__ import annotations
 
@@ -21,8 +21,14 @@ parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument(
     "--dataset_dir",
     type=str,
-    default="./reset_state_datasets",
-    help="Directory containing reset-state datasets saved as <hash>.pt",
+    default="./Datasets/OmniReset",
+    help="Base dataset directory (contains Resets/<Pair>/ subdirectories).",
+)
+parser.add_argument(
+    "--reset_type",
+    type=str,
+    default=None,
+    help="Single reset type to visualize (e.g. ObjectAnywhereEEAnywhere). If omitted, all four types are loaded.",
 )
 parser.add_argument("--reset_interval", type=float, default=0.1, help="Time interval between resets in seconds.")
 
@@ -37,11 +43,11 @@ simulation_app = app_launcher.app
 
 import contextlib
 import gymnasium as gym
+import inspect
 
 from isaaclab.envs import ManagerBasedRLEnv
-from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import ManagerTermBase
 
-from uwlab_tasks.manager_based.manipulation.reset_states.mdp import events as task_mdp
 from uwlab_tasks.utils.hydra import hydra_task_compose
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -59,22 +65,29 @@ def main(env_cfg, agent_cfg) -> None:
     # make sure environment is non-deterministic for diverse pose discovery
     env_cfg.seed = None
 
-    # Set up the MultiResetManager to load states from the computed dataset
-    reset_from_reset_states = EventTerm(
-        func=task_mdp.MultiResetManager,
-        mode="reset",
-        params={
-            "base_paths": [args_cli.dataset_dir],
-            "probs": [1.0],
-            "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
-        },
-    )
-
-    # Add the reset manager to the environment configuration
-    env_cfg.events.reset_from_reset_states = reset_from_reset_states
+    # Override existing MultiResetManager params to use the CLI-specified dataset/types
+    ALL_RESET_TYPES = [
+        "ObjectAnywhereEEAnywhere",
+        "ObjectRestingEEGrasped",
+        "ObjectAnywhereEEGrasped",
+        "ObjectPartiallyAssembledEEGrasped",
+    ]
+    reset_types = [args_cli.reset_type] if args_cli.reset_type else ALL_RESET_TYPES
+    env_cfg.events.reset_from_reset_states.params["dataset_dir"] = args_cli.dataset_dir
+    env_cfg.events.reset_from_reset_states.params["reset_types"] = reset_types
+    env_cfg.events.reset_from_reset_states.params["probs"] = [1.0] * len(reset_types)
 
     # create environment
     env = cast(ManagerBasedRLEnv, gym.make(args_cli.task, cfg=env_cfg)).unwrapped
+
+    # The EventManager is created before sim.play(), so ManagerTermBase classes
+    # are deferred to a timeline callback that can silently fail.  Force-init any
+    # class-based event terms that the callback missed.
+    for mode_cfgs in env.event_manager._mode_term_cfgs.values():
+        for tc in mode_cfgs:
+            if inspect.isclass(tc.func) and issubclass(tc.func, ManagerTermBase):
+                tc.func = tc.func(cfg=tc, env=env)
+
     env.reset()
 
     # Initialize variables
@@ -85,7 +98,7 @@ def main(env_cfg, agent_cfg) -> None:
         while True:
             asset = env.unwrapped.scene["robot"]
             # specific for robotiq
-            gripper_joint_positions = asset.data.joint_pos[:, asset.find_joints(["right_inner_finger_joint"])[0][0]]
+            gripper_joint_positions = asset.data.joint_pos[:, asset.find_joints(["finger_joint"])[0][0]]
             gripper_closed_fraction = (
                 torch.abs(gripper_joint_positions) / env_cfg.actions.gripper.close_command_expr["finger_joint"]
             )

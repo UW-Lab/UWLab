@@ -27,6 +27,9 @@ class BehaviorCloningCfg:
     experts_observation_func: callable = None
     """The function that returns expert observation data, default is None, same as student observation."""
 
+    experts_action_group_cfg: str | None = None
+    """The action group of the expert which may be different from student"""
+
     learn_std: bool = False
     """Whether to learn the standard deviation of the expert policy."""
 

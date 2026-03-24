@@ -8,7 +8,7 @@ from __future__ import annotations
 from isaaclab.envs.mdp.actions.actions_cfg import JointPositionActionCfg
 from isaaclab.utils import configclass
 
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR, resolve_cloud_path
 
 from uwlab.controllers.differential_ik_cfg import MultiConstraintDifferentialIKControllerCfg
 from uwlab.envs.mdp.actions.actions_cfg import (
@@ -74,7 +74,7 @@ XARM_LEAP_PCA_JOINT_POSITION = PCAJointPositionActionCfg(
     asset_name="robot",
     joint_names=["joint.*", "j[0-9]+"],
     scale=1.0,
-    eigenspace_path=f"{UWLAB_CLOUD_ASSETS_DIR}/dataset/misc/hammer_grasping_pca_components.npy",
+    eigenspace_path=resolve_cloud_path(f"{UWLAB_CLOUD_ASSETS_DIR}/dataset/misc/hammer_grasping_pca_components.npy"),
     joint_range=(-3.14, 3.14),
 )
 

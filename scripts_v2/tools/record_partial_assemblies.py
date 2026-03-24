@@ -12,7 +12,6 @@ from __future__ import annotations
 import argparse
 import os
 import torch
-import yaml
 from tqdm import tqdm
 from typing import cast
 
@@ -23,7 +22,7 @@ parser = argparse.ArgumentParser(description="Record partial assemblies for obje
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default="UW-FBLeg-PartialAssemblies-v0", help="Name of the task.")
 parser.add_argument(
-    "--dataset_dir", type=str, default="./partial_assembly_datasets/", help="Directory to save assembly results."
+    "--dataset_dir", type=str, default="./Datasets/OmniReset/", help="Root Datasets/OmniReset/ directory."
 )
 parser.add_argument(
     "--num_trajectories", type=int, default=1, help="Number of physics trajectories to run for pose discovery."
@@ -49,7 +48,7 @@ import isaaclab_tasks  # noqa: F401
 from isaaclab.envs import ManagerBasedRLEnv
 
 import uwlab_tasks  # noqa: F401
-from uwlab_tasks.manager_based.manipulation.reset_states.mdp.utils import compute_assembly_hash
+from uwlab_tasks.manager_based.manipulation.omnireset.mdp.utils import compute_pair_dir
 from uwlab_tasks.utils.hydra import hydra_task_compose
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -75,29 +74,12 @@ def main(env_cfg, agent_cfg) -> None:
     # Create environment
     env = cast(ManagerBasedRLEnv, gym.make(args_cli.task, cfg=env_cfg)).unwrapped
 
-    # Get USD paths for hash computation
+    # Derive pair directory for output path
     insertive_usd_path = env_cfg.scene.insertive_object.spawn.usd_path
     receptive_usd_path = env_cfg.scene.receptive_object.spawn.usd_path
+    pair = compute_pair_dir(insertive_usd_path, receptive_usd_path)
 
-    # Compute hash for this object combination
-    dataset_hash = compute_assembly_hash(insertive_usd_path, receptive_usd_path)
-
-    # Update info.yaml with this hash and USD paths
-    info_file = os.path.join(args_cli.dataset_dir, "info.yaml")
-    info_data = {}
-    if os.path.exists(info_file):
-        with open(info_file) as f:
-            info_data = yaml.safe_load(f) or {}
-
-    info_data[dataset_hash] = {
-        "insertive_object_usd_path": insertive_usd_path,
-        "receptive_object_usd_path": receptive_usd_path,
-    }
-
-    with open(info_file, "w") as f:
-        yaml.dump(info_data, f, default_flow_style=False)
-
-    print(f"Recording partial assemblies for hash: {dataset_hash}")
+    print(f"Recording partial assemblies for: {pair}")
     print(f"Insertive: {insertive_usd_path}")
     print(f"Receptive: {receptive_usd_path}")
 
@@ -187,7 +169,7 @@ def main(env_cfg, agent_cfg) -> None:
 
     # Save any remaining poses
     if recorded_poses:
-        _save_poses_to_dataset(recorded_poses, args_cli.dataset_dir, dataset_hash)
+        _save_poses_to_dataset(recorded_poses, args_cli.dataset_dir, pair)
 
     pbar.close()
 
@@ -201,7 +183,7 @@ def main(env_cfg, agent_cfg) -> None:
     env.close()
 
 
-def _save_poses_to_dataset(pose_batches: list, dataset_dir: str, dataset_hash: str) -> None:
+def _save_poses_to_dataset(pose_batches: list, dataset_dir: str, pair_name: str) -> None:
     """Save pose batches to Torch dataset (.pt)."""
     if not pose_batches:
         return
@@ -211,8 +193,9 @@ def _save_poses_to_dataset(pose_batches: list, dataset_dir: str, dataset_hash: s
     for key in pose_batches[0].keys():
         all_poses[key] = torch.cat([batch[key] for batch in pose_batches], dim=0).cpu()
 
-    # Save as Torch .pt file
-    output_file = os.path.join(dataset_dir, f"{dataset_hash}.pt")
+    output_dir = os.path.join(dataset_dir, "Resets", pair_name)
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, "partial_assemblies.pt")
     torch.save(all_poses, output_file)
 
     print(f"Saved {len(all_poses['relative_position'])} poses to {output_file}")
