@@ -27,7 +27,7 @@ PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu118"]
 # Extra dependencies for RL agents
 EXTRAS_REQUIRE = {
     "rsl-rl": [
-        "rsl-rl-lib @ git+https://github.com/zoctipus/rsl_rl.git@master",
+        "rsl-rl-lib @ git+https://github.com/UW-Lab/rsl_rl.git@main",
     ],
 }
 
