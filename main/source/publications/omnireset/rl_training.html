@@ -64,7 +64,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Mar 24, 2026"/>
+    <meta name="docbuild:last-update" content="Mar 25, 2026"/>
   </head>
   
   
@@ -160,6 +160,7 @@
           </div>
           <select id="version-select" class="version-dropdown" style="margin: 0 auto; display: block;" onchange="location = this.value;">
             <option value="rl_training.html" selected>main</option>
+            <option value="../../../../v1.2.0/source/publications/omnireset/rl_training.html" >v1.2.0</option>
             <option value="../../../../v1.1.0/index.html" >v1.1.0</option>
             <option value="../../../../v1.0.0/index.html" >v1.0.0</option>
           </select>
@@ -486,6 +487,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modifying-rsl-rl">Modifying RSL-RL</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
 </ul>
             </nav>
@@ -1436,6 +1438,23 @@ Near Goal</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <hr class="docutils" />
+<section id="modifying-rsl-rl">
+<h2>Modifying RSL-RL<a class="headerlink" href="#modifying-rsl-rl" title="Permalink to this heading">#</a></h2>
+<p>If you want to modify the RSL-RL algorithm (e.g. custom loss functions, network architectures, or training loops), you can install a local editable copy. Clone it as a sibling of UWLab:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>parent_dir/
+├── UWLab/
+└── rsl_rl/
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/UW-Lab/rsl_rl.git
+<span class="nb">cd</span><span class="w"> </span>rsl_rl
+pip<span class="w"> </span>uninstall<span class="w"> </span>rsl-rl-lib
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>Any changes you make to the cloned <code class="docutils literal notranslate"><span class="pre">rsl_rl/</span></code> directory will take effect immediately without reinstalling.</p>
+</section>
+<hr class="docutils" />
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
 <p>With a trained policy, you can:</p>
@@ -1492,6 +1511,7 @@ Near Goal</label><div class="sd-tab-content docutils">
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modifying-rsl-rl">Modifying RSL-RL</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
 </ul>
   </nav></div>
@@ -1526,7 +1546,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 24, 2026.
+  Last updated on Mar 25, 2026.
   <br/>
 </p>
   </div>
