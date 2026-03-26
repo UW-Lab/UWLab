@@ -146,7 +146,7 @@ class RelCartesianOSCAction(ActionTerm):
         joint_vel = self._asset.data.joint_vel[:, self._joint_ids]
 
         # Analytical Jacobian (base_link frame, matching EE pose frame)
-        jacobian = compute_jacobian_analytical(joint_pos, device=str(self.device))
+        jacobian = compute_jacobian_analytical(joint_pos)
 
         # EE velocity from J @ dq (consistent with analytical Jacobian)
         ee_vel = torch.bmm(jacobian, joint_vel.unsqueeze(-1)).squeeze(-1)  # (N, 6)

@@ -23,6 +23,8 @@ base_link frame (180 deg Z rotation from base_link_inertia).
 import functools
 import os
 import tempfile
+from dataclasses import dataclass
+
 import torch
 import yaml
 
@@ -45,6 +47,15 @@ NUM_ARM_JOINTS = 6
 
 # 180 deg rotation around Z-axis (base_link_inertia -> base_link conversion)
 R_180Z = torch.tensor([[-1, 0, 0], [0, -1, 0], [0, 0, 1]], dtype=torch.float32)
+
+
+@dataclass(frozen=True)
+class _CalibratedKinematicsCache:
+    """Device-local calibrated constants reused across Jacobian evaluations."""
+
+    joints_xyz: torch.Tensor
+    fixed_rotations: torch.Tensor
+    base_rotation: torch.Tensor
 
 
 # ============================================================================
@@ -111,73 +122,99 @@ def rpy_to_matrix_torch(rpy: torch.Tensor) -> torch.Tensor:
         return R
 
 
+def _resolve_kinematics_device(device: torch.device | str | None, fallback: torch.device) -> torch.device:
+    """Resolve an optional explicit device override for analytical kinematics."""
+    if device is None:
+        return fallback
+    return torch.device(device)
+
+
+@functools.lru_cache(maxsize=None)
+def _get_calibrated_kinematics_cache(
+    device_type: str, device_index: int, dtype: torch.dtype
+) -> _CalibratedKinematicsCache:
+    """Materialize calibrated UR5e constants once per device/dtype."""
+    resolved_device = torch.device(device_type if device_index < 0 else f"{device_type}:{device_index}")
+    calibration = _load_calibration()
+    joints_xyz = calibration["joints_xyz"].to(device=resolved_device, dtype=dtype)
+    joints_rpy = calibration["joints_rpy"].to(device=resolved_device, dtype=dtype)
+    return _CalibratedKinematicsCache(
+        joints_xyz=joints_xyz,
+        fixed_rotations=rpy_to_matrix_torch(joints_rpy),
+        base_rotation=R_180Z.to(device=resolved_device, dtype=dtype),
+    )
+
+
 # ============================================================================
 # Analytical Jacobian
 # ============================================================================
 
 
-def compute_jacobian_analytical(joint_angles: torch.Tensor, device: str = "cuda") -> torch.Tensor:
+def compute_jacobian_analytical(
+    joint_angles: torch.Tensor, device: torch.device | str | None = None
+) -> torch.Tensor:
     """Compute geometric Jacobian using calibrated kinematics (batched).
 
     Computes to wrist_3_link frame origin (NOT COM), matching real robot code.
 
     Args:
         joint_angles: (N, 6) joint angles in radians.
+        device: Optional explicit device override. Defaults to ``joint_angles.device``.
     Returns:
         J: (N, 6, 6) Jacobian [linear; angular].
     """
-    N = joint_angles.shape[0]
-    cal = _load_calibration()
-    xyz_all = cal["joints_xyz"].to(device)
-    rpy_all = cal["joints_rpy"].to(device)
-    R_180Z_dev = R_180Z.to(device)
+    if joint_angles.ndim != 2 or joint_angles.shape[1] != NUM_ARM_JOINTS:
+        raise ValueError(f"Expected joint_angles to have shape (N, {NUM_ARM_JOINTS}), got {tuple(joint_angles.shape)}")
+    if not joint_angles.is_floating_point():
+        raise TypeError("joint_angles must be a floating point tensor")
 
-    # FK to get EE position
-    T = torch.eye(4, device=device, dtype=torch.float32).unsqueeze(0).repeat(N, 1, 1)
-    for i in range(6):
-        R_fixed = rpy_to_matrix_torch(rpy_all[i])
-        T_fixed = torch.eye(4, device=device, dtype=torch.float32)
-        T_fixed[:3, :3] = R_fixed
-        T_fixed[:3, 3] = xyz_all[i]
-        T_fixed = T_fixed.unsqueeze(0).repeat(N, 1, 1)
-        theta = joint_angles[:, i]
-        ct, st = torch.cos(theta), torch.sin(theta)
-        T_joint = torch.eye(4, device=device, dtype=torch.float32).unsqueeze(0).repeat(N, 1, 1)
-        T_joint[:, 0, 0] = ct
-        T_joint[:, 0, 1] = -st
-        T_joint[:, 1, 0] = st
-        T_joint[:, 1, 1] = ct
-        T = torch.bmm(torch.bmm(T, T_fixed), T_joint)
-    p_ee = T[:, :3, 3]
+    resolved_device = _resolve_kinematics_device(device, joint_angles.device)
+    joint_angles = joint_angles.to(device=resolved_device)
+    batch_size = joint_angles.shape[0]
+    device_index = resolved_device.index if resolved_device.index is not None else -1
+    constants = _get_calibrated_kinematics_cache(resolved_device.type, device_index, joint_angles.dtype)
 
-    # Jacobian columns
-    J = torch.zeros(N, 6, 6, device=device, dtype=torch.float32)
-    T = torch.eye(4, device=device, dtype=torch.float32).unsqueeze(0).repeat(N, 1, 1)
-    for i in range(6):
-        R_fixed = rpy_to_matrix_torch(rpy_all[i])
-        T_fixed = torch.eye(4, device=device, dtype=torch.float32)
-        T_fixed[:3, :3] = R_fixed
-        T_fixed[:3, 3] = xyz_all[i]
-        T_fixed = T_fixed.unsqueeze(0).repeat(N, 1, 1)
-        T_joint_frame = torch.bmm(T, T_fixed)
-        z_i = T_joint_frame[:, :3, 2]
-        p_i = T_joint_frame[:, :3, 3]
-        J[:, :3, i] = torch.cross(z_i, p_ee - p_i, dim=1)
-        J[:, 3:, i] = z_i
-        theta = joint_angles[:, i]
-        ct, st = torch.cos(theta), torch.sin(theta)
-        T_joint_rot = torch.eye(4, device=device, dtype=torch.float32).unsqueeze(0).repeat(N, 1, 1)
-        T_joint_rot[:, 0, 0] = ct
-        T_joint_rot[:, 0, 1] = -st
-        T_joint_rot[:, 1, 0] = st
-        T_joint_rot[:, 1, 1] = ct
-        T = torch.bmm(T_joint_frame, T_joint_rot)
+    # Use a compact recurrence over rotation/translation instead of rebuilding 4x4 transforms
+    # at every step. This is the hot path used by RelCartesianOSCAction.
+    rot_world = (
+        torch.eye(3, device=resolved_device, dtype=joint_angles.dtype)
+        .unsqueeze(0)
+        .expand(batch_size, -1, -1)
+        .clone()
+    )
+    pos_world = joint_angles.new_zeros(batch_size, 3)
+    joint_axes = []
+    joint_positions = []
 
-    # Rotate from base_link_inertia to base_link (REP-103)
-    R_180Z_batch = R_180Z_dev.unsqueeze(0).repeat(N, 1, 1)
-    J[:, :3, :] = torch.bmm(R_180Z_batch, J[:, :3, :])
-    J[:, 3:, :] = torch.bmm(R_180Z_batch, J[:, 3:, :])
-    return J
+    for joint_idx in range(NUM_ARM_JOINTS):
+        joint_frame_rot = torch.matmul(rot_world, constants.fixed_rotations[joint_idx])
+        joint_frame_pos = pos_world + torch.matmul(rot_world, constants.joints_xyz[joint_idx])
+        joint_axes.append(joint_frame_rot[:, :, 2])
+        joint_positions.append(joint_frame_pos)
+
+        theta = joint_angles[:, joint_idx]
+        ct = torch.cos(theta).unsqueeze(-1)
+        st = torch.sin(theta).unsqueeze(-1)
+        rot_world = torch.stack(
+            (
+                ct * joint_frame_rot[:, :, 0] + st * joint_frame_rot[:, :, 1],
+                -st * joint_frame_rot[:, :, 0] + ct * joint_frame_rot[:, :, 1],
+                joint_frame_rot[:, :, 2],
+            ),
+            dim=-1,
+        )
+        pos_world = joint_frame_pos
+
+    joint_axes_tensor = torch.stack(joint_axes, dim=-1)
+    joint_positions_tensor = torch.stack(joint_positions, dim=-1)
+    ee_offsets = pos_world.unsqueeze(-1) - joint_positions_tensor
+    linear_jacobian = torch.cross(joint_axes_tensor, ee_offsets, dim=1)
+
+    base_rotation = constants.base_rotation.unsqueeze(0).expand(batch_size, -1, -1)
+    jacobian = joint_angles.new_empty(batch_size, 6, NUM_ARM_JOINTS)
+    jacobian[:, :3, :] = torch.bmm(base_rotation, linear_jacobian)
+    jacobian[:, 3:, :] = torch.bmm(base_rotation, joint_axes_tensor)
+    return jacobian
 
 
 # ============================================================================

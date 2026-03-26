@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.5.3 (2026-03-26)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* cached calibrated UR5e analytical Jacobian constants to reduce per-step RelCartesianOSC overhead
+
+
 0.5.2 (2025-03-23)
 ~~~~~~~~~~~~~~~~~~
 
