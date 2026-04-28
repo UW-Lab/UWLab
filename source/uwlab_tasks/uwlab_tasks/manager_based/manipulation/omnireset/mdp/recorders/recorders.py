@@ -84,3 +84,22 @@ class PreStepDataCollectionObservationsRecorder(RecorderTerm):
     def record_pre_step(self):
         """Record data collection observations from the data_collection observation group."""
         return "obs", self._env.obs_buf["data_collection"]
+
+class PreStepExpertMaskRecorder(RecorderTerm):
+    """Recorder term that records an expert mask
+    """
+    def __init__(self, cfg, env):
+        super().__init__(cfg, env)
+        self._expert_mask = torch.ones((env.num_envs, 1), device=env.device)
+
+    def set_mask(self, expert_mask: torch.Tensor):
+        """Set the expert mask data externally."""
+        self._expert_mask = expert_mask
+    
+    def set_exploration_horizon(self, exploration_horizon: torch.Tensor):
+        """Set the exploration horizon data externally."""
+        self._exploration_horizon = exploration_horizon
+        
+    def record_pre_step(self) -> tuple[str, torch.Tensor]:
+        """Record the expert mask before each step."""
+        return "expert_mask", self._expert_mask.clone()

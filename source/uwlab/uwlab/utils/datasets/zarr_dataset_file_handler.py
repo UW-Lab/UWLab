@@ -234,7 +234,11 @@ class ZarrDatasetFileHandler(DatasetFileHandlerBase):
             "obs": processed_obs,
             "rewards": episode_dict.get("rewards", torch.zeros(num_frames)).cpu().numpy(),
             "dones": episode_dict.get("dones", torch.cat([torch.zeros(num_frames - 1), torch.ones(1)])).cpu().numpy(),
+            "expert_mask": episode_dict.get("expert_mask", torch.ones((num_frames, 1))).cpu().numpy(),
         }
+        if "expert_actions" in episode_dict.keys():
+            episode_data["expert_actions"] = episode_dict["expert_actions"].cpu().numpy()
+            episode_data["expert_obs"] = episode_dict["expert_obs"].cpu().numpy()
 
         # Save episode data to Zarr
         self._save_episode_to_zarr(episode_data)

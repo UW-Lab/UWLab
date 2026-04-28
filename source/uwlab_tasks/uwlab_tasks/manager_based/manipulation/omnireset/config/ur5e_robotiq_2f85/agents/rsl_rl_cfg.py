@@ -71,7 +71,7 @@ class Base_DAggerRunnerCfg(Base_PPORunnerCfg):
         max_grad_norm=1.0,
         offline_algorithm_cfg=OffPolicyAlgorithmCfg(
             behavior_cloning_cfg=BehaviorCloningCfg(
-                experts_path=[""],
+                experts_path=["logs/exported/policy.pt"],
                 experts_loader="torch.jit.load",
                 experts_observation_group_cfg="uwlab_tasks.manager_based.manipulation.omnireset.config.ur5e_robotiq_2f85.rl_state_cfg:ObservationsCfg.PolicyCfg",
                 experts_observation_func=my_experts_observation_func,

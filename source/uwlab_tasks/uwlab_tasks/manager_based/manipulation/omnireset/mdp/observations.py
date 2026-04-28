@@ -299,3 +299,34 @@ def binary_force_contact(
     force_norm = torch.norm(wrench_b[:, :3], dim=-1)  # (N,)
     contact = (force_norm > force_threshold).float()
     return contact.unsqueeze(-1)  # (N, 1)
+
+def fingertip_contact_force_b(
+    env: ManagerBasedRLEnv,
+    contact_sensor_name: str,
+    root_asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    root_body_name: str = "robotiq_base_link",
+) -> torch.Tensor:
+    """Get contact force from a single fingertip sensor in body frame.
+
+    Args:
+        env: The environment to extract contact forces from.
+        contact_sensor_name: Name of the contact sensor to read from.
+        root_asset_cfg: Configuration for the root asset to transform forces into its frame.
+        root_body_name: Name of the body in the root asset to use as reference frame.
+
+    Returns:
+        Contact force in body frame. Shape: (num_envs, 3).
+    """
+    root_asset: Articulation = env.scene[root_asset_cfg.name]
+    root_body_idx = root_asset.body_names.index(root_body_name)
+    root_quat_w = root_asset.data.body_link_quat_w[:, root_body_idx].view(-1, 4)
+
+    contact_sensor = env.scene.sensors[contact_sensor_name]
+    # Get contact forces in world frame using force_matrix_w
+    # force_matrix_w is flattened, so we reshape to (num_envs, 3)
+    force_w = contact_sensor.data.force_matrix_w.view(env.num_envs, 3)
+
+    # Transform force from world to body frame (rotation only, forces are free vectors)
+    force_b = math_utils.quat_apply_inverse(root_quat_w, force_w)
+
+    return force_b
