@@ -343,7 +343,7 @@ if __name__ == "__main__":
         8.0
     ]
     if args.schedule == "fixed":
-        episode_length_s = [16.0, 16.0, 16.0, 16.0, 16.0]
+        episode_length_s = [8.0, 8.0, 8.0, 8.0, 8.0]
         horizons = [
             (0.2, 0.5),
             (0.3, 0.7),
@@ -479,7 +479,7 @@ if __name__ == "__main__":
             exp_name=exp_name,
             wandb_project=wandb_project,
             wandb_group="eval",
-            episode_length_s=8.0,
+            episode_length_s=10.0,
             insertive_object=args.insertive_object,
             receptive_object=args.receptive_object,
             no_video=args.no_video,

@@ -50,3 +50,10 @@ See [all available environments](https://uw-lab.github.io/UWLab/main/source/over
 
 UW Lab is released under [BSD-3 License](LICENSE)
 The Isaac Lab framework is released under [BSD-3 License](LICENSE).
+
+
+### Pick up task
+
+expert ckpt: logs/rsl_rl/ur5e_robotiq_2f85_omnireset_agent/2026-04-29_18-42-38/model_5300.pt
+
+stage2_ckpt: logs/rsl_rl/ur5e_robotiq_2f85_omnireset_agent/2026-04-30_10-00-04/model_5500.pt

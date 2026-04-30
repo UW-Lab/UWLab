@@ -86,19 +86,19 @@ class TaskCommand(TaskDependentCommand):
 
         # obtain the terrain asset
         self.insertive_asset: Articulation | RigidObject = env.scene[cfg.insertive_asset_cfg.name]
-        self.receptive_asset: Articulation | RigidObject = env.scene[cfg.receptive_asset_cfg.name]
+        # self.receptive_asset: Articulation | RigidObject = env.scene[cfg.receptive_asset_cfg.name]
         insertive_meta = utils.read_metadata_from_usd_directory(self.insertive_asset.cfg.spawn.usd_path)
-        receptive_meta = utils.read_metadata_from_usd_directory(self.receptive_asset.cfg.spawn.usd_path)
+        # receptive_meta = utils.read_metadata_from_usd_directory(self.receptive_asset.cfg.spawn.usd_path)
         self.insertive_asset_offset = Offset(
             pos=tuple(insertive_meta.get("assembled_offset").get("pos")),
             quat=tuple(insertive_meta.get("assembled_offset").get("quat")),
         )
-        self.receptive_asset_offset = Offset(
-            pos=tuple(receptive_meta.get("assembled_offset").get("pos")),
-            quat=tuple(receptive_meta.get("assembled_offset").get("quat")),
-        )
-        self.success_position_threshold: float = receptive_meta.get("success_thresholds").get("position")
-        self.success_orientation_threshold: float = receptive_meta.get("success_thresholds").get("orientation")
+        # self.receptive_asset_offset = Offset(
+        #     pos=tuple(receptive_meta.get("assembled_offset").get("pos")),
+        #     quat=tuple(receptive_meta.get("assembled_offset").get("quat")),
+        # )
+        # self.success_position_threshold: float = receptive_meta.get("success_thresholds").get("position")
+        # self.success_orientation_threshold: float = receptive_meta.get("success_thresholds").get("orientation")
 
         self.metrics["average_rot_align_error"] = torch.zeros(self.num_envs, device=self.device)
         self.metrics["average_pos_align_error"] = torch.zeros(self.num_envs, device=self.device)
@@ -135,23 +135,23 @@ class TaskCommand(TaskDependentCommand):
         insertive_asset_alignment_pos_w, insertive_asset_alignment_quat_w = self.insertive_asset_offset.apply(
             self.insertive_asset
         )
-        receptive_asset_alignment_pos_w, receptive_asset_alignment_quat_w = self.receptive_asset_offset.apply(
-            self.receptive_asset
-        )
-        insertive_asset_in_receptive_asset_frame_pos, insertive_asset_in_receptive_asset_frame_quat = (
-            math_utils.subtract_frame_transforms(
-                receptive_asset_alignment_pos_w,
-                receptive_asset_alignment_quat_w,
-                insertive_asset_alignment_pos_w,
-                insertive_asset_alignment_quat_w,
-            )
-        )
-        e_x, e_y, _ = math_utils.euler_xyz_from_quat(insertive_asset_in_receptive_asset_frame_quat)
-        self.euler_xy_distance[:] = math_utils.wrap_to_pi(e_x).abs() + math_utils.wrap_to_pi(e_y).abs()
-        self.xyz_distance[:] = torch.norm(insertive_asset_in_receptive_asset_frame_pos, dim=1)
-        self.position_aligned[:] = self.xyz_distance < self.success_position_threshold
-        self.orientation_aligned[:] = self.euler_xy_distance < self.success_orientation_threshold
-        self.metrics["average_rot_align_error"][:] = self.euler_xy_distance
+        # receptive_asset_alignment_pos_w, receptive_asset_alignment_quat_w = self.receptive_asset_offset.apply(
+        #     self.receptive_asset
+        # )
+        # insertive_asset_in_receptive_asset_frame_pos, insertive_asset_in_receptive_asset_frame_quat = (
+        #     math_utils.subtract_frame_transforms(
+        #         receptive_asset_alignment_pos_w,
+        #         receptive_asset_alignment_quat_w,
+        #         insertive_asset_alignment_pos_w,
+        #         insertive_asset_alignment_quat_w,
+        #     )
+        # )
+        # e_x, e_y, _ = math_utils.euler_xyz_from_quat(insertive_asset_in_receptive_asset_frame_quat)
+        # self.euler_xy_distance[:] = math_utils.wrap_to_pi(e_x).abs() + math_utils.wrap_to_pi(e_y).abs()
+        # self.xyz_distance[:] = torch.norm(insertive_asset_in_receptive_asset_frame_pos, dim=1)
+        # self.position_aligned[:] = self.xyz_distance < self.success_position_threshold
+        # self.orientation_aligned[:] = self.euler_xy_distance < self.success_orientation_threshold
+        # self.metrics["average_rot_align_error"][:] = self.euler_xy_distance
         self.metrics["average_pos_align_error"][:] = self.xyz_distance
 
     def _resample_command(self, env_ids: Sequence[int]):

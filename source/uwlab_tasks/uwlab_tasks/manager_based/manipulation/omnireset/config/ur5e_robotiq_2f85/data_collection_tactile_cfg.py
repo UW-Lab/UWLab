@@ -27,6 +27,7 @@ from .rl_state_cfg import FinetuneEvalEventCfg, RlStateSceneCfg, Ur5eRobotiq2f85
 
 @configclass
 class DataCollectionTactileObjectSceneCfg(RlStateSceneCfg):
+    pass
     # background
     # curtain_left = RigidObjectCfg(
     #     prim_path="{ENV_REGEX_NS}/CurtainLeft",
@@ -109,13 +110,13 @@ class DataCollectionTactileObjectSceneCfg(RlStateSceneCfg):
     #     spawn=sim_utils.PinholeCameraCfg(focal_length=24.55),
     # )
 
-    right_inner_finger_contact_sensor = ContactSensorCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/right_inner_finger", update_period=0.0, history_length=6, debug_vis=False, filter_prim_paths_expr=["{ENV_REGEX_NS}/InsertiveObject"]
-    )
+    # right_inner_finger_contact_sensor = ContactSensorCfg(
+    #     prim_path="{ENV_REGEX_NS}/Robot/right_inner_finger", update_period=0.0, history_length=6, debug_vis=False, filter_prim_paths_expr=["{ENV_REGEX_NS}/InsertiveObject"]
+    # )
 
-    left_inner_finger_contact_sensor = ContactSensorCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/left_inner_finger", update_period=0.0, history_length=6, debug_vis=False, filter_prim_paths_expr=["{ENV_REGEX_NS}/InsertiveObject"]
-    )
+    # left_inner_finger_contact_sensor = ContactSensorCfg(
+    #     prim_path="{ENV_REGEX_NS}/Robot/left_inner_finger", update_period=0.0, history_length=6, debug_vis=False, filter_prim_paths_expr=["{ENV_REGEX_NS}/InsertiveObject"]
+    # )
     #TODO: replace with force torque sensors    
 
 
@@ -145,33 +146,34 @@ class TactileEventCfg(FinetuneEvalEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
-            "reset_types": ["ObjectAnywhereEEGrasped"],
+            "dataset_dir": f"logs/reset_state_datasets",
+            "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
         },
     )
 
 
-@configclass
-class DataCollectionTactileEventCfg(TactileEventCfg):
-    """Data collection events: override reset to sample from all 4 distributions."""
+# @configclass
+# class DataCollectionTactileEventCfg(TactileEventCfg):
+#     """Data collection events: override reset to sample from all 4 distributions."""
 
-    reset_from_reset_states = EventTerm(
-        func=task_mdp.MultiResetManager,
-        mode="reset",
-        params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
-            "reset_types": [
-                "ObjectAnywhereEEAnywhere",
-                "ObjectRestingEEGrasped",
-                "ObjectAnywhereEEGrasped",
-                "ObjectPartiallyAssembledEEGrasped",
-            ],
-            "probs": [0.25, 0.25, 0.25, 0.25],
-            "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
-        },
-    )
+#     reset_from_reset_states = EventTerm(
+#         func=task_mdp.MultiResetManager,
+#         mode="reset",
+#         params={
+#             "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+#             "reset_types": [
+#                 "ObjectAnywhereEEAnywhere",
+#                 "ObjectRestingEEGrasped",
+#                 "ObjectAnywhereEEGrasped",
+#                 # "ObjectPartiallyAssembledEEGrasped",
+#             ],
+#             "probs": [0.25, 0.25, 0.25, 0.25],
+#             "probs"
+#             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
+#         },
+#     )
 
 
 @configclass
@@ -182,7 +184,7 @@ class TactileCommandCfg:
         asset_cfg=SceneEntityCfg("robot", body_names="body"),
         resampling_time_range=(1e6, 1e6),
         insertive_asset_cfg=SceneEntityCfg("insertive_object"),
-        receptive_asset_cfg=SceneEntityCfg("receptive_object"),
+        # receptive_asset_cfg=SceneEntityCfg("receptive_object"),
     )
 
 
@@ -222,23 +224,33 @@ class TactileObservationsCfg:
             },
         )
 
-        right_inner_finger_contact_force = ObsTerm(
-            func=task_mdp.fingertip_contact_force_b,
+        gripper_joint_pos = ObsTerm(
+            func=task_mdp.joint_pos,
             params={
-                "contact_sensor_name": "right_inner_finger_contact_sensor",
-                "root_asset_cfg": SceneEntityCfg("robot"),
-                "root_body_name": "robotiq_base_link",
-            },
+                "asset_cfg": SceneEntityCfg(
+                    "robot",
+                    joint_names=[".*_inner_finger_knuckle_joint"],
+                ),
+            }
         )
 
-        left_inner_finger_contact_force = ObsTerm(
-            func=task_mdp.fingertip_contact_force_b,
-            params={
-                "contact_sensor_name": "left_inner_finger_contact_sensor",
-                "root_asset_cfg": SceneEntityCfg("robot"),
-                "root_body_name": "robotiq_base_link",
-            },
-        )
+        # right_inner_finger_contact_force = ObsTerm(
+        #     func=task_mdp.fingertip_contact_force_b,
+        #     params={
+        #         "contact_sensor_name": "right_inner_finger_contact_sensor",
+        #         "root_asset_cfg": SceneEntityCfg("robot"),
+        #         "root_body_name": "robotiq_base_link",
+        #     },
+        # )
+
+        # left_inner_finger_contact_force = ObsTerm(
+        #     func=task_mdp.fingertip_contact_force_b,
+        #     params={
+        #         "contact_sensor_name": "left_inner_finger_contact_sensor",
+        #         "root_asset_cfg": SceneEntityCfg("robot"),
+        #         "root_body_name": "robotiq_base_link",
+        #     },
+        # )
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -278,6 +290,16 @@ class TactileObservationsCfg:
             },
         )
 
+        gripper_joint_pos = ObsTerm(
+            func=task_mdp.joint_pos,
+            params={
+                "asset_cfg": SceneEntityCfg(
+                    "robot",
+                    joint_names=[".*_inner_finger_knuckle_joint"],
+                ),
+            }
+        )
+
         # Additional observations
         binary_contact = ObsTerm(
             func=task_mdp.binary_force_contact,
@@ -288,50 +310,50 @@ class TactileObservationsCfg:
             },
         )
 
-        insertive_asset_pose = ObsTerm(
-            func=task_mdp.target_asset_pose_in_root_asset_frame,
-            params={
-                "target_asset_cfg": SceneEntityCfg("insertive_object"),
-                "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
-                "rotation_repr": "axis_angle",
-            },
-        )
+        # insertive_asset_pose = ObsTerm(
+        #     func=task_mdp.target_asset_pose_in_root_asset_frame,
+        #     params={
+        #         "target_asset_cfg": SceneEntityCfg("insertive_object"),
+        #         "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
+        #         "rotation_repr": "axis_angle",
+        #     },
+        # )
 
-        receptive_asset_pose = ObsTerm(
-            func=task_mdp.target_asset_pose_in_root_asset_frame,
-            params={
-                "target_asset_cfg": SceneEntityCfg("receptive_object"),
-                "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
-                "rotation_repr": "axis_angle",
-            },
-        )
+        # receptive_asset_pose = ObsTerm(
+        #     func=task_mdp.target_asset_pose_in_root_asset_frame,
+        #     params={
+        #         "target_asset_cfg": SceneEntityCfg("receptive_object"),
+        #         "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
+        #         "rotation_repr": "axis_angle",
+        #     },
+        # )
 
-        insertive_asset_in_receptive_asset_frame: ObsTerm = ObsTerm(
-            func=task_mdp.target_asset_pose_in_root_asset_frame,
-            params={
-                "target_asset_cfg": SceneEntityCfg("insertive_object"),
-                "root_asset_cfg": SceneEntityCfg("receptive_object"),
-                "rotation_repr": "axis_angle",
-            },
-        )
+        # insertive_asset_in_receptive_asset_frame: ObsTerm = ObsTerm(
+        #     func=task_mdp.target_asset_pose_in_root_asset_frame,
+        #     params={
+        #         "target_asset_cfg": SceneEntityCfg("insertive_object"),
+        #         "root_asset_cfg": SceneEntityCfg("receptive_object"),
+        #         "rotation_repr": "axis_angle",
+        #     },
+        # )
 
-        right_inner_finger_contact_force = ObsTerm(
-            func=task_mdp.fingertip_contact_force_b,
-            params={
-                "contact_sensor_name": "right_inner_finger_contact_sensor",
-                "root_asset_cfg": SceneEntityCfg("robot"),
-                "root_body_name": "robotiq_base_link",
-            },
-        )
+        # right_inner_finger_contact_force = ObsTerm(
+        #     func=task_mdp.fingertip_contact_force_b,
+        #     params={
+        #         "contact_sensor_name": "right_inner_finger_contact_sensor",
+        #         "root_asset_cfg": SceneEntityCfg("robot"),
+        #         "root_body_name": "robotiq_base_link",
+        #     },
+        # )
 
-        left_inner_finger_contact_force = ObsTerm(
-            func=task_mdp.fingertip_contact_force_b,
-            params={
-                "contact_sensor_name": "left_inner_finger_contact_sensor",
-                "root_asset_cfg": SceneEntityCfg("robot"),
-                "root_body_name": "robotiq_base_link",
-            },
-        )
+        # left_inner_finger_contact_force = ObsTerm(
+        #     func=task_mdp.fingertip_contact_force_b,
+        #     params={
+        #         "contact_sensor_name": "left_inner_finger_contact_sensor",
+        #         "root_asset_cfg": SceneEntityCfg("robot"),
+        #         "root_body_name": "robotiq_base_link",
+        #     },
+        # )
 
         def __post_init__(self):
             self.enable_corruption = True

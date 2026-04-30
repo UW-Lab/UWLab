@@ -80,8 +80,9 @@ def main(env_cfg, agent_cfg) -> None:
 
     # Derive pair directory and reset type for output path
     insertive_usd_path = env_cfg.scene.insertive_object.spawn.usd_path
-    receptive_usd_path = env_cfg.scene.receptive_object.spawn.usd_path
-    pair = task_mdp.utils.compute_pair_dir(insertive_usd_path, receptive_usd_path)
+    pair = task_mdp.utils.compute_pair_dir(insertive_usd_path)
+    # receptive_usd_path = env_cfg.scene.receptive_object.spawn.usd_path
+    # pair = task_mdp.utils.compute_pair_dir(insertive_usd_path, receptive_usd_path)
 
     # Auto-infer reset_type from task name if not provided
     reset_type = args_cli.reset_type
@@ -100,7 +101,7 @@ def main(env_cfg, agent_cfg) -> None:
 
     print(f"Recording reset states for: {pair} / {reset_type}")
     print(f"Insertive: {insertive_usd_path}")
-    print(f"Receptive: {receptive_usd_path}")
+    # print(f"Receptive: {receptive_usd_path}")
 
     # Setup recording configuration
     output_dir = os.path.join(args_cli.dataset_dir, "Resets", pair)

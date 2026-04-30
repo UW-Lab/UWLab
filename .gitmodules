@@ -1,3 +1,0 @@
-[submodule "diffusion_policy"]
-	path = diffusion_policy
-	url = git@github.com:sriyash421/diffusion_policy.git

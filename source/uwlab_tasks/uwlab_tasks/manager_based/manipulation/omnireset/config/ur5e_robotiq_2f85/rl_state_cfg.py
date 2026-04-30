@@ -54,21 +54,21 @@ class RlStateSceneCfg(InteractiveSceneCfg):
         init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, 0.0), rot=(1.0, 0.0, 0.0, 0.0)),
     )
 
-    receptive_object: RigidObjectCfg = RigidObjectCfg(
-        prim_path="{ENV_REGEX_NS}/ReceptiveObject",
-        spawn=sim_utils.UsdFileCfg(
-            usd_path=f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/PegHole/peg_hole.usd",
-            scale=(1, 1, 1),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                solver_position_iteration_count=4,
-                solver_velocity_iteration_count=0,
-                disable_gravity=False,
-                kinematic_enabled=True,
-            ),
-            mass_props=sim_utils.MassPropertiesCfg(mass=0.5),
-        ),
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, 0.0), rot=(1.0, 0.0, 0.0, 0.0)),
-    )
+    # receptive_object: RigidObjectCfg = RigidObjectCfg(
+    #     prim_path="{ENV_REGEX_NS}/ReceptiveObject",
+    #     spawn=sim_utils.UsdFileCfg(
+    #         usd_path=f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/PegHole/peg_hole.usd",
+    #         scale=(1, 1, 1),
+    #         rigid_props=sim_utils.RigidBodyPropertiesCfg(
+    #             solver_position_iteration_count=4,
+    #             solver_velocity_iteration_count=0,
+    #             disable_gravity=False,
+    #             kinematic_enabled=True,
+    #         ),
+    #         mass_props=sim_utils.MassPropertiesCfg(mass=0.5),
+    #     ),
+    #     init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, 0.0), rot=(1.0, 0.0, 0.0, 0.0)),
+    # )
 
     # Environment
     table = RigidObjectCfg(
@@ -140,18 +140,18 @@ class BaseEventCfg:
         },
     )
 
-    receptive_object_material = EventTerm(
-        func=task_mdp.randomize_rigid_body_material,  # type: ignore
-        mode="startup",
-        params={
-            "static_friction_range": (0.2, 0.6),
-            "dynamic_friction_range": (0.15, 0.5),
-            "restitution_range": (0.0, 0.0),
-            "num_buckets": 256,
-            "asset_cfg": SceneEntityCfg("receptive_object"),
-            "make_consistent": True,
-        },
-    )
+    # receptive_object_material = EventTerm(
+    #     func=task_mdp.randomize_rigid_body_material,  # type: ignore
+    #     mode="startup",
+    #     params={
+    #         "static_friction_range": (0.2, 0.6),
+    #         "dynamic_friction_range": (0.15, 0.5),
+    #         "restitution_range": (0.0, 0.0),
+    #         "num_buckets": 256,
+    #         "asset_cfg": SceneEntityCfg("receptive_object"),
+    #         "make_consistent": True,
+    #     },
+    # )
 
     table_material = EventTerm(
         func=task_mdp.randomize_rigid_body_material,  # type: ignore
@@ -191,17 +191,17 @@ class BaseEventCfg:
         },
     )
 
-    randomize_receptive_object_mass = EventTerm(
-        func=task_mdp.randomize_rigid_body_mass,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("receptive_object"),
-            "mass_distribution_params": (0.5, 1.5),
-            "operation": "scale",
-            "distribution": "uniform",
-            "recompute_inertia": True,
-        },
-    )
+    # randomize_receptive_object_mass = EventTerm(
+    #     func=task_mdp.randomize_rigid_body_mass,
+    #     mode="startup",
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("receptive_object"),
+    #         "mass_distribution_params": (0.5, 1.5),
+    #         "operation": "scale",
+    #         "distribution": "uniform",
+    #         "recompute_inertia": True,
+    #     },
+    # )
 
     randomize_table_mass = EventTerm(
         func=task_mdp.randomize_rigid_body_mass,
@@ -239,14 +239,14 @@ class TrainEventCfg(BaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"reset_state_datasets",
             "reset_types": [
                 "ObjectAnywhereEEAnywhere",
                 "ObjectRestingEEGrasped",
-                "ObjectAnywhereEEGrasped",
-                "ObjectPartiallyAssembledEEGrasped",
+                "ObjectAnywhereEEGrasped"
             ],
-            "probs": [0.25, 0.25, 0.25, 0.25],
+            # "probs": [0.25, 0.25, 0.25, 0.25],
+            "probs": [0.34, 0.33, 0.33],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
         },
     )
@@ -260,7 +260,7 @@ class TrainEvalEventCfg(BaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"reset_state_datasets",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -304,7 +304,7 @@ class FinetuneEvalEventCfg(BaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"reset_state_datasets",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -357,7 +357,7 @@ class CommandsCfg:
         asset_cfg=SceneEntityCfg("robot", body_names="body"),
         resampling_time_range=(1e6, 1e6),
         insertive_asset_cfg=SceneEntityCfg("insertive_object"),
-        receptive_asset_cfg=SceneEntityCfg("receptive_object"),
+        # receptive_asset_cfg=SceneEntityCfg("receptive_object"),
     )
 
 
@@ -391,23 +391,23 @@ class ObservationsCfg:
             },
         )
 
-        receptive_asset_pose = ObsTerm(
-            func=task_mdp.target_asset_pose_in_root_asset_frame,
-            params={
-                "target_asset_cfg": SceneEntityCfg("receptive_object"),
-                "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
-                "rotation_repr": "axis_angle",
-            },
-        )
+        # receptive_asset_pose = ObsTerm(
+        #     func=task_mdp.target_asset_pose_in_root_asset_frame,
+        #     params={
+        #         "target_asset_cfg": SceneEntityCfg("receptive_object"),
+        #         "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
+        #         "rotation_repr": "axis_angle",
+        #     },
+        # )
 
-        insertive_asset_in_receptive_asset_frame: ObsTerm = ObsTerm(
-            func=task_mdp.target_asset_pose_in_root_asset_frame,
-            params={
-                "target_asset_cfg": SceneEntityCfg("insertive_object"),
-                "root_asset_cfg": SceneEntityCfg("receptive_object"),
-                "rotation_repr": "axis_angle",
-            },
-        )
+        # insertive_asset_in_receptive_asset_frame: ObsTerm = ObsTerm(
+        #     func=task_mdp.target_asset_pose_in_root_asset_frame,
+        #     params={
+        #         "target_asset_cfg": SceneEntityCfg("insertive_object"),
+        #         "root_asset_cfg": SceneEntityCfg("receptive_object"),
+        #         "rotation_repr": "axis_angle",
+        #     },
+        # )
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -440,23 +440,23 @@ class ObservationsCfg:
             },
         )
 
-        receptive_asset_pose = ObsTerm(
-            func=task_mdp.target_asset_pose_in_root_asset_frame,
-            params={
-                "target_asset_cfg": SceneEntityCfg("receptive_object"),
-                "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
-                "rotation_repr": "axis_angle",
-            },
-        )
+        # receptive_asset_pose = ObsTerm(
+        #     func=task_mdp.target_asset_pose_in_root_asset_frame,
+        #     params={
+        #         "target_asset_cfg": SceneEntityCfg("receptive_object"),
+        #         "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
+        #         "rotation_repr": "axis_angle",
+        #     },
+        # )
 
-        insertive_asset_in_receptive_asset_frame: ObsTerm = ObsTerm(
-            func=task_mdp.target_asset_pose_in_root_asset_frame,
-            params={
-                "target_asset_cfg": SceneEntityCfg("insertive_object"),
-                "root_asset_cfg": SceneEntityCfg("receptive_object"),
-                "rotation_repr": "axis_angle",
-            },
-        )
+        # insertive_asset_in_receptive_asset_frame: ObsTerm = ObsTerm(
+        #     func=task_mdp.target_asset_pose_in_root_asset_frame,
+        #     params={
+        #         "target_asset_cfg": SceneEntityCfg("insertive_object"),
+        #         "root_asset_cfg": SceneEntityCfg("receptive_object"),
+        #         "rotation_repr": "axis_angle",
+        #     },
+        # )
 
         # privileged observations
         time_left = ObsTerm(func=task_mdp.time_left)
@@ -479,9 +479,9 @@ class ObservationsCfg:
             func=task_mdp.get_material_properties, params={"asset_cfg": SceneEntityCfg("insertive_object")}
         )
 
-        receptive_object_material_properties = ObsTerm(
-            func=task_mdp.get_material_properties, params={"asset_cfg": SceneEntityCfg("receptive_object")}
-        )
+        # receptive_object_material_properties = ObsTerm(
+        #     func=task_mdp.get_material_properties, params={"asset_cfg": SceneEntityCfg("receptive_object")}
+        # )
 
         table_material_properties = ObsTerm(
             func=task_mdp.get_material_properties, params={"asset_cfg": SceneEntityCfg("table")}
@@ -493,9 +493,9 @@ class ObservationsCfg:
             func=task_mdp.get_mass, params={"asset_cfg": SceneEntityCfg("insertive_object")}
         )
 
-        receptive_object_mass = ObsTerm(
-            func=task_mdp.get_mass, params={"asset_cfg": SceneEntityCfg("receptive_object")}
-        )
+        # receptive_object_mass = ObsTerm(
+        #     func=task_mdp.get_mass, params={"asset_cfg": SceneEntityCfg("receptive_object")}
+        # )
 
         table_mass = ObsTerm(func=task_mdp.get_mass, params={"asset_cfg": SceneEntityCfg("table")})
 
@@ -539,11 +539,11 @@ class RewardsCfg:
     # task rewards
 
     progress_context = RewTerm(
-        func=task_mdp.ProgressContext,  # type: ignore
+        func=task_mdp.ProgressContextPickOnly,  # type: ignore
         weight=0.1,
         params={
             "insertive_asset_cfg": SceneEntityCfg("insertive_object"),
-            "receptive_asset_cfg": SceneEntityCfg("receptive_object"),
+            # "receptive_asset_cfg": SceneEntityCfg("receptive_object"),
         },
     )
 
@@ -558,9 +558,9 @@ class RewardsCfg:
         },
     )
 
-    dense_success_reward = RewTerm(func=task_mdp.dense_success_reward, weight=0.1, params={"std": 1.0})
+    dense_success_reward = RewTerm(func=task_mdp.dense_success_reward_pick_only, weight=0.1, params={"std": 1.0})
 
-    success_reward = RewTerm(func=task_mdp.success_reward, weight=1.0)
+    success_reward = RewTerm(func=task_mdp.success_reward_pick_only, weight=1.0)
 
 
 @configclass
@@ -631,22 +631,22 @@ def make_insertive_object(usd_path: str):
     )
 
 
-def make_receptive_object(usd_path: str):
-    return RigidObjectCfg(
-        prim_path="{ENV_REGEX_NS}/ReceptiveObject",
-        spawn=sim_utils.UsdFileCfg(
-            usd_path=usd_path,
-            scale=(1, 1, 1),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                solver_position_iteration_count=4,
-                solver_velocity_iteration_count=0,
-                disable_gravity=False,
-                kinematic_enabled=True,
-            ),
-            mass_props=sim_utils.MassPropertiesCfg(mass=0.5),
-        ),
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, 0.0), rot=(1.0, 0.0, 0.0, 0.0)),
-    )
+# def make_receptive_object(usd_path: str):
+#     return RigidObjectCfg(
+#         prim_path="{ENV_REGEX_NS}/ReceptiveObject",
+#         spawn=sim_utils.UsdFileCfg(
+#             usd_path=usd_path,
+#             scale=(1, 1, 1),
+#             rigid_props=sim_utils.RigidBodyPropertiesCfg(
+#                 solver_position_iteration_count=4,
+#                 solver_velocity_iteration_count=0,
+#                 disable_gravity=False,
+#                 kinematic_enabled=True,
+#             ),
+#             mass_props=sim_utils.MassPropertiesCfg(mass=0.5),
+#         ),
+#         init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, 0.0), rot=(1.0, 0.0, 0.0, 0.0)),
+#     )
 
 
 variants = {
@@ -660,16 +660,18 @@ variants = {
         "cube": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/InsertiveCube/insertive_cube.usd"),
         "rectangle": make_insertive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Rectangle/rectangle.usd"),
     },
-    "scene.receptive_object": {
-        "fbtabletop": make_receptive_object(
-            f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/SquareTableTop/square_table_top.usd"
-        ),
-        "fbdrawerbox": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/DrawerBox/drawer_box.usd"),
-        "peghole": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/PegHole/peg_hole.usd"),
-        "plate": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Plate/plate.usd"),
-        "cube": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/ReceptiveCube/receptive_cube.usd"),
-        "wall": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Wall/wall.usd"),
-    },
+    # "scene.receptive_object": {
+    #     "fbtabletop": make_receptive_object(
+    #         f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/SquareTableTop/square_table_top.usd"
+    #     ),
+    #     "fbdrawerbox": make_receptive_object(
+    #         f"{UWLAB_CLOUD_ASSETS_DIR}/Props/FurnitureBench/DrawerBox/drawer_box.usd"
+    #     ),
+    #     "peghole": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/PegHole/peg_hole.usd"),
+    #     "plate": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Plate/plate.usd"),
+    #     "cube": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/ReceptiveCube/receptive_cube.usd"),
+    #     "wall": make_receptive_object(f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Wall/wall.usd"),
+    # },
 }
 
 

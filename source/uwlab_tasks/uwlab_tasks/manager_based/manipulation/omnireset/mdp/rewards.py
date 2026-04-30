@@ -82,6 +82,74 @@ class ee_asset_distance_tanh(ManagerTermBase):
 
         return 1 - torch.tanh(pos_distance / std)
 
+class ProgressContextPickOnly(ManagerTermBase):
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+        self.insertive_asset: Articulation | RigidObject = env.scene[cfg.params.get("insertive_asset_cfg").name]  # type: ignore
+        # self.receptive_asset: Articulation | RigidObject = env.scene[cfg.params.get("receptive_asset_cfg").name]  # type: ignore
+
+        insertive_meta = utils.read_metadata_from_usd_directory(self.insertive_asset.cfg.spawn.usd_path)
+        # receptive_meta = utils.read_metadata_from_usd_directory(self.receptive_asset.cfg.spawn.usd_path)
+        self.insertive_asset_offset = Offset(
+            pos=tuple(insertive_meta.get("assembled_offset").get("pos")),
+            quat=tuple(insertive_meta.get("assembled_offset").get("quat")),
+        )
+        # self.receptive_asset_offset = Offset(
+        #     pos=tuple(receptive_meta.get("assembled_offset").get("pos")),
+        #     quat=tuple(receptive_meta.get("assembled_offset").get("quat")),
+        # )
+
+        # self.orientation_aligned = torch.zeros((env.num_envs), dtype=torch.bool, device=env.device)
+        # self.position_aligned = torch.zeros((env.num_envs), dtype=torch.bool, device=env.device)
+        # self.euler_xy_distance = torch.zeros((env.num_envs), device=env.device)
+        # self.xyz_distance = torch.zeros((env.num_envs), device=env.device)
+        self.insertive_asset_z = torch.zeros((env.num_envs), device=env.device)
+        self.success = torch.zeros((self._env.num_envs), dtype=torch.bool, device=self._env.device)
+        self.continuous_success_counter = torch.zeros((self._env.num_envs), dtype=torch.int32, device=self._env.device)
+
+        success_monitor_cfg = SuccessMonitorCfg(monitored_history_len=100, num_monitored_data=1, device=env.device)
+        self.success_monitor = success_monitor_cfg.class_type(success_monitor_cfg)
+
+    def reset(self, env_ids: torch.Tensor | None = None) -> None:
+        super().reset(env_ids)
+        self.continuous_success_counter[:] = 0
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        insertive_asset_cfg: SceneEntityCfg,
+        # receptive_asset_cfg: SceneEntityCfg,
+        command_context: str = "task_command",
+        pick_height_threshold: float = 0.025,
+    ) -> torch.Tensor:
+        # Check if insertive object z-position is above threshold (picked up)
+        insertive_z_pos = self.insertive_asset.data.root_pos_w[:, 2]
+        self.insertive_asset_z[:] = insertive_z_pos
+        self.success[:] = insertive_z_pos > pick_height_threshold
+
+        # Update continuous success counter
+        self.continuous_success_counter[:] = torch.where(
+            self.success, self.continuous_success_counter + 1, torch.zeros_like(self.continuous_success_counter)
+        )
+
+        # Update success monitor
+        self.success_monitor.success_update(
+            torch.zeros(env.num_envs, dtype=torch.int32, device=env.device), self.success
+        )
+
+        return torch.zeros(env.num_envs, device=env.device)
+
+def dense_success_reward_pick_only(env: ManagerBasedRLEnv, std: float, context: str = "progress_context") -> torch.Tensor:
+    context_term: ManagerTermBase = env.reward_manager.get_term_cfg(context).func  # type: ignore
+    insertive_asset_z: torch.Tensor = getattr(context_term, "insertive_asset_z")
+    z_reward = torch.exp(-torch.clamp(0.1 - insertive_asset_z, min=0) / std)
+    return z_reward
+
+def success_reward_pick_only(env: ManagerBasedRLEnv, context: str = "progress_context") -> torch.Tensor:
+    context_term: ManagerTermBase = env.reward_manager.get_term_cfg(context).func  # type: ignore
+    success: torch.Tensor = getattr(context_term, "success")
+    return torch.where(success, 1.0, 0.0)
+
 
 class ProgressContext(ManagerTermBase):
     def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):

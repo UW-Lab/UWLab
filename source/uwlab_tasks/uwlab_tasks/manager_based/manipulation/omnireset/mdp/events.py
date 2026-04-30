@@ -891,8 +891,8 @@ class pose_logging_event(ManagerTermBase):
     def __init__(self, cfg: EventTermCfg, env: ManagerBasedEnv):
         super().__init__(cfg, env)
 
-        self.receptive_object_cfg = cfg.params.get("receptive_object_cfg")
-        self.receptive_object = env.scene[self.receptive_object_cfg.name]
+        # self.receptive_object_cfg = cfg.params.get("receptive_object_cfg")
+        # self.receptive_object = env.scene[self.receptive_object_cfg.name]
         self.insertive_object_cfg = cfg.params.get("insertive_object_cfg")
         self.insertive_object = env.scene[self.insertive_object_cfg.name]
 
@@ -906,24 +906,24 @@ class pose_logging_event(ManagerTermBase):
         """Collect pose data from all environments."""
 
         # Get object poses for all environments
-        receptive_pos = self.receptive_object.data.root_pos_w[env_ids]
-        receptive_quat = self.receptive_object.data.root_quat_w[env_ids]
+        # receptive_pos = self.receptive_object.data.root_pos_w[env_ids]
+        # receptive_quat = self.receptive_object.data.root_quat_w[env_ids]
         insertive_pos = self.insertive_object.data.root_pos_w[env_ids]
         insertive_quat = self.insertive_object.data.root_quat_w[env_ids]
 
         # Calculate relative transform
-        relative_pos, relative_quat = math_utils.subtract_frame_transforms(
-            receptive_pos, receptive_quat, insertive_pos, insertive_quat
-        )
+        # relative_pos, relative_quat = math_utils.subtract_frame_transforms(
+        #     receptive_pos, receptive_quat, insertive_pos, insertive_quat
+        # )
 
         # Store pose data for external access
         if "log" not in env.extras:
             env.extras["log"] = {}
         env.extras["log"]["current_pose_data"] = {
-            "relative_position": relative_pos,
-            "relative_orientation": relative_quat,
-            "relative_pose": torch.cat([relative_pos, relative_quat], dim=-1),
-            "receptive_object_pose": torch.cat([receptive_pos, receptive_quat], dim=-1),
+            # "relative_position": relative_pos,
+            # "relative_orientation": relative_quat,
+            # "relative_pose": torch.cat([relative_pos, relative_quat], dim=-1),
+            # "receptive_object_pose": torch.cat([receptive_pos, receptive_quat], dim=-1),
             "insertive_object_pose": torch.cat([insertive_pos, insertive_quat], dim=-1),
         }
 
@@ -1007,8 +1007,8 @@ class MultiResetManager(ManagerTermBase):
 
         # Derive pair directory from scene objects
         insertive_usd_path = env.scene["insertive_object"].cfg.spawn.usd_path
-        receptive_usd_path = env.scene["receptive_object"].cfg.spawn.usd_path
-        pair = utils.compute_pair_dir(insertive_usd_path, receptive_usd_path)
+        # receptive_usd_path = env.scene["receptive_object"].cfg.spawn.usd_path
+        pair = utils.compute_pair_dir(insertive_usd_path)
 
         # Generate dataset paths from pair directory and reset types
         dataset_files = []
