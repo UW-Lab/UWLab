@@ -195,12 +195,12 @@ class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
         mode="reset",
         params={
             "pose_range": {
-                "x": (0.3, 0.55),
-                "y": (0.0, 0.2),
-                "z": (0.0, 0.3),
-                "roll": (-np.pi, np.pi),
-                "pitch": (-np.pi, np.pi),
-                "yaw": (-np.pi, np.pi),
+                "x": (0.4, 0.5),
+                "y": (0.09, 0.11),
+                "z": (0.01, 0.03),
+                "roll": (0.0, 0.0),
+                "pitch": (np.pi/2, np.pi/2),
+                "yaw": (-np.pi /8, np.pi /8),
             },
             "velocity_range": {},
             "asset_cfgs": {"insertive_object": SceneEntityCfg("insertive_object")},
@@ -216,9 +216,9 @@ class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
             "fixed_asset_cfg": SceneEntityCfg("robot"),
             "fixed_asset_offset": None,
             "pose_range_b": {
-                "x": (0.38, 0.52),
-                "y": (0.1, 0.15),
-                "z": (0.0, 0.2),
+                "x": (0.49, 0.5),
+                "y": (0.145, 0.15),
+                "z": (0.2, 0.2),
                 "roll": (0.0, 0.0),
                 "pitch": (np.pi / 2, np.pi / 2),
                 "yaw": (np.pi, np.pi),
@@ -236,7 +236,7 @@ class ObjectRestingEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"reset_state_datasets/ObjectAnywhereEEAnywhereEval",
+            "dataset_dir": f"Datasets/OmniReset",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
         },
@@ -246,7 +246,7 @@ class ObjectRestingEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_end_effector_from_grasp_dataset,
         mode="reset",
         params={
-            "dataset_dir": f"grasp_datasets",
+            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
             "fixed_asset_cfg": SceneEntityCfg("insertive_object"),
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"
@@ -274,8 +274,8 @@ class ObjectAnywhereEEGraspedEventCfg(ResetStatesBaseEventCfg):
                 "x": (0.3, 0.55),
                 "y": (-0.1, 0.3),
                 "z": (0.0, 0.3),
-                "roll": (-np.pi, np.pi),
-                "pitch": (-np.pi, np.pi),
+                "roll": (0.0, 0.0),
+                "pitch": (np.pi / 2, np.pi / 2),
                 "yaw": (-np.pi, np.pi),
             },
             "velocity_range": {},

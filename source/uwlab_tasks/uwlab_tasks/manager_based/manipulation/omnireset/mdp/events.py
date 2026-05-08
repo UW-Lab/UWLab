@@ -2387,3 +2387,171 @@ class implicit_to_explicit_swap(ManagerTermBase):
             return {"actuator_swapped": False, "scale_progress": self._sysid_term.scale_progress}
 
         return self._do_swap(env)
+
+
+class randomize_env_cfg_unified(ManagerTermBase):
+    """
+    Domain randomization over arm joint dynamics, RelCartesianOSCAction Kp/Kd gains, and action scaling.
+    Ensures environment always lies in a tractable space (ex. high joint friction w/ low gains is unsolvable)
+
+    This is done by randomizing from [0, 1], and then mapping that to the range of dynamics randomizations.
+    By default, this is arm dynamics (friction, delays, etc) and OSC gains.
+    Action scaling is unrelated to task feasibility, so we randomize that independently.
+
+    Arm sysid range: [0, full sysid-randomized values]
+    delay range: [delay_min, delay_max]
+    OSC controller range: [action_cfg_defaults, terminal_kp/terminal_damping_ratio]
+    Action scaling range: [initial_scales, target_scales]
+    """
+
+    def __init__(self, cfg: EventTermCfg, env: ManagerBasedEnv):
+        super().__init__(cfg, env)
+        self.asset_cfg: SceneEntityCfg = cfg.params["asset_cfg"]
+        self.robot: Articulation = env.scene[self.asset_cfg.name]
+        self.joint_ids = self.robot.find_joints(cfg.params["joint_names"])[0]
+        self.actuator_name: str = cfg.params["actuator_name"]
+        self._action_name: str = cfg.params["action_name"]
+        self._action_term = None
+
+        metadata = utils.read_metadata_from_usd_directory(self.robot.cfg.spawn.usd_path)
+        sysid = metadata["sysid"]
+        self.armature = sysid["armature"]
+        self.static_friction = sysid["static_friction"]
+        self.dynamic_ratio = sysid["dynamic_ratio"]
+        self.viscous_friction = sysid["viscous_friction"]
+
+    def _resolve_action_term(self):
+        if self._action_term is not None:
+            return
+        from .actions.task_space_actions import RelCartesianOSCAction
+
+        action_term = self._env.action_manager._terms.get(self._action_name)
+        if action_term is None or not isinstance(action_term, RelCartesianOSCAction):
+            raise ValueError(f"Action term '{self._action_name}' is not a RelCartesianOSCAction.")
+        self._action_term = action_term
+
+    def __call__(
+        self,
+        env: ManagerBasedEnv,
+        env_ids: torch.Tensor,
+        asset_cfg: SceneEntityCfg,
+        joint_names: list[str],
+        actuator_name: str,
+        action_name: str,
+        arm_scale_range: tuple[float, float] = (0.8, 1.2),
+        delay_range: tuple[int, int] = (0, 1),
+        kp_scale_range: tuple[float, float] = (0.8, 1.2),
+        terminal_kp: tuple[float, ...] = (1000.0, 1000.0, 1000.0, 50.0, 50.0, 50.0),
+        terminal_damping_ratio: tuple[float, ...] = (1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        initial_scales: tuple[float, ...] = (0.02, 0.02, 0.02, 0.02, 0.02, 0.2),
+        target_scales: tuple[float, ...] = (0.01, 0.01, 0.002, 0.02, 0.02, 0.2),
+        coupled_progress_range: tuple[float, float] = (0.0, 1.0),
+        action_scale_progress_range: tuple[float, float] = (0.0, 1.0),
+    ) -> None:
+        self._resolve_action_term()
+
+        if env_ids is None:
+            env_ids = torch.arange(env.scene.num_envs, device=self.robot.device)
+
+        n = len(env_ids)
+        n_joints = len(self.joint_ids)
+        device = self.robot.device
+
+        c_lo, c_hi = coupled_progress_range
+        coupled_progress = c_lo + torch.rand(n, 1, device=device) * (c_hi - c_lo)
+
+        def _scale_sysid(nominal, scale_range):
+            lo, hi = scale_range
+            val = torch.as_tensor(nominal, device=device, dtype=torch.float32)
+            return val * (lo + torch.rand(n, n_joints, device=device) * (hi - lo))
+
+        arm_vals = _scale_sysid(self.armature, arm_scale_range) * coupled_progress
+        sfric_vals = _scale_sysid(self.static_friction, arm_scale_range) * coupled_progress
+        dratio_vals = _scale_sysid(self.dynamic_ratio, arm_scale_range) * coupled_progress
+        dfric_vals = torch.minimum(dratio_vals * sfric_vals, sfric_vals)
+        vfric_vals = _scale_sysid(self.viscous_friction, arm_scale_range) * coupled_progress
+
+        self.robot.write_joint_armature_to_sim(arm_vals, joint_ids=self.joint_ids, env_ids=env_ids)
+        self.robot.write_joint_friction_coefficient_to_sim(
+            sfric_vals,
+            joint_dynamic_friction_coeff=dfric_vals,
+            joint_viscous_friction_coeff=vfric_vals,
+            joint_ids=self.joint_ids,
+            env_ids=env_ids,
+        )
+
+        delay_lo, delay_hi = delay_range
+        if delay_hi > delay_lo:
+            actuator = self.robot.actuators[self.actuator_name]
+            if hasattr(actuator, "positions_delay_buffer"):
+                max_delay = delay_lo + torch.round(
+                    coupled_progress.squeeze(-1) * float(delay_hi - delay_lo)
+                ).to(dtype=torch.int32)
+                min_delay = torch.full_like(max_delay, fill_value=delay_lo)
+                span = (max_delay - min_delay + 1).clamp(min=1)
+                # Vectorized integer sampling with per-env bounds in [min_delay, max_delay].
+                delays = min_delay + torch.floor(torch.rand(n, device=device) * span.to(torch.float32)).to(torch.int32)
+                actuator.positions_delay_buffer.set_time_lag(delays, env_ids)
+                actuator.velocities_delay_buffer.set_time_lag(delays, env_ids)
+                actuator.efforts_delay_buffer.set_time_lag(delays, env_ids)
+
+        k_lo, k_hi = kp_scale_range
+        s_xyz = k_lo + torch.rand(n, 1, device=device) * (k_hi - k_lo)
+        s_rpy = k_lo + torch.rand(n, 1, device=device) * (k_hi - k_lo)
+        s_dr_xyz = k_lo + torch.rand(n, 1, device=device) * (k_hi - k_lo)
+        s_dr_rpy = k_lo + torch.rand(n, 1, device=device) * (k_hi - k_lo)
+
+        kp_default = self._action_term._kp_default
+        dr_default = self._action_term._damping_ratio_default
+        kp_term = torch.tensor(terminal_kp, device=device, dtype=torch.float32).unsqueeze(0).repeat(n, 1)
+        dr_term = torch.tensor(terminal_damping_ratio, device=device, dtype=torch.float32).unsqueeze(0).repeat(n, 1)
+        kp_term[:, :3] *= s_xyz
+        kp_term[:, 3:] *= s_rpy
+        dr_term[:, :3] *= s_dr_xyz
+        dr_term[:, 3:] *= s_dr_rpy
+
+        new_kp = kp_default.unsqueeze(0) + coupled_progress * (kp_term - kp_default.unsqueeze(0))
+        new_dr = dr_default.unsqueeze(0) + coupled_progress * (dr_term - dr_default.unsqueeze(0))
+        self._action_term._kp[env_ids] = new_kp
+        self._action_term._kd[env_ids] = 2.0 * torch.sqrt(new_kp) * new_dr
+
+        a_lo, a_hi = action_scale_progress_range
+        action_progress = a_lo + torch.rand(n, 1, device=device) * (a_hi - a_lo)
+        initial = torch.tensor(initial_scales, device=device, dtype=torch.float32).unsqueeze(0)
+        target = torch.tensor(target_scales, device=device, dtype=torch.float32).unsqueeze(0)
+        self._action_term._scale[env_ids] = initial + action_progress * (target - initial)
+
+
+class randomize_gripper_pos_affine(ManagerTermBase):
+    """Per-env affine noise on the ``gripper_pos`` observation: ``pos -> pos * scale + offset``.
+
+    Stores ``(num_envs,)`` ``scale`` and ``offset`` tensors that the
+    ``gripper_pos_normalized`` obs term reads via
+    ``env.event_manager.get_term_cfg(<term_name>).func`` and applies. Both are
+    resampled per env at each reset, fixed within an episode.
+
+    Use this to make the policy robust to calibration / encoder drift on the
+    real Robotiq's POS register so it can't latch onto an absolute threshold
+    like ``pos > 0.93`` to detect grasp — the threshold the policy learns has
+    to tolerate the training-time affine band.
+    """
+
+    def __init__(self, cfg: EventTermCfg, env: ManagerBasedEnv):
+        super().__init__(cfg, env)
+        self.scale = torch.ones(env.num_envs, device=env.device)
+        self.offset = torch.zeros(env.num_envs, device=env.device)
+
+    def __call__(
+        self,
+        env: ManagerBasedEnv,
+        env_ids,
+        scale_range: tuple[float, float] = (0.75, 1.25),
+        offset_range: tuple[float, float] = (-0.1, 0.1),
+    ) -> None:
+        if env_ids is None:
+            env_ids = torch.arange(env.num_envs, device=env.device)
+        n = env_ids.shape[0]
+        s_lo, s_hi = scale_range
+        o_lo, o_hi = offset_range
+        self.scale[env_ids] = s_lo + torch.rand(n, device=env.device) * (s_hi - s_lo)
+        self.offset[env_ids] = o_lo + torch.rand(n, device=env.device) * (o_hi - o_lo)

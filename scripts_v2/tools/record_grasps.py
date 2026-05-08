@@ -33,6 +33,39 @@ args_cli, remaining_args = parser.parse_known_args()
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 
+# Drop Isaac Sim's pip_prebundle so conda env's trimesh/rtree win on later imports.
+# Two layers: omni.ext.FastFinder resolves trimesh directly to the prebundle (bypassing
+# sys.path), and the prebundle's rtree fails to load libspatialindex_c. Patch the
+# FastFinder so it ignores trimesh/rtree, drop prebundle paths from sys.path, and
+# evict any prebundle-sourced trimesh/rtree already in sys.modules.
+import sys as _sys
+try:
+    from omni.ext._impl.fast_importer import FastFinder as _FastFinder
+    _orig_find_spec = _FastFinder.find_spec
+    def _patched_find_spec(*args, **kwargs):
+        fullname = kwargs.get("fullname")
+        if fullname is None:
+            for a in args:
+                if isinstance(a, str):
+                    fullname = a
+                    break
+        if isinstance(fullname, str):
+            root = fullname.split(".", 1)[0]
+            if root in {"trimesh", "rtree"}:
+                return None
+        return _orig_find_spec(*args, **kwargs)
+    _FastFinder.find_spec = _patched_find_spec
+except Exception:
+    pass
+_sys.path[:] = [p for p in _sys.path if "pip_prebundle" not in p]
+for _mod_name in list(_sys.modules):
+    if _mod_name == "trimesh" or _mod_name.startswith("trimesh.") or \
+       _mod_name == "rtree" or _mod_name.startswith("rtree."):
+        _mod = _sys.modules.get(_mod_name)
+        _mod_file = getattr(_mod, "__file__", None) or ""
+        if "pip_prebundle" in _mod_file:
+            del _sys.modules[_mod_name]
+
 """Rest everything else."""
 
 import gymnasium as gym

@@ -146,10 +146,19 @@ class TactileEventCfg(FinetuneEvalEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"logs/reset_state_datasets",
+            "dataset_dir": f"reset_states_dataset_small",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
+        },
+    )
+
+    randomize_gripper_pos_affine = EventTerm(
+        func=task_mdp.randomize_gripper_pos_affine,
+        mode="reset",
+        params={
+            "scale_range": (0.75, 1.25),
+            "offset_range": (-0.05, 0.05),
         },
     )
 
@@ -192,7 +201,10 @@ class TactileCommandCfg:
 class TactileObservationsCfg:
     @configclass
     class TactilePolicyCfg(ObsGroup):
-        """Observations for policy group (with processed images for evaluation)."""
+        """Student (diffusion) policy obs — dict-form, keys must match
+        diffusion_policy/config/task/tactile_lowdim.yaml's shape_meta so the
+        student receives the same observation layout it was trained on.
+        """
 
         last_gripper_action = ObsTerm(
             func=task_mdp.last_action,
@@ -224,33 +236,17 @@ class TactileObservationsCfg:
             },
         )
 
-        gripper_joint_pos = ObsTerm(
-            func=task_mdp.joint_pos,
+        gripper_pos = ObsTerm(
+            func=task_mdp.gripper_pos_normalized,
             params={
                 "asset_cfg": SceneEntityCfg(
                     "robot",
-                    joint_names=[".*_inner_finger_knuckle_joint"],
+                    joint_names=["left_inner_finger_knuckle_joint"],
                 ),
-            }
+                "scale_event_name": "randomize_gripper_pos_affine",
+                "jitter_std": 0.01,
+            },
         )
-
-        # right_inner_finger_contact_force = ObsTerm(
-        #     func=task_mdp.fingertip_contact_force_b,
-        #     params={
-        #         "contact_sensor_name": "right_inner_finger_contact_sensor",
-        #         "root_asset_cfg": SceneEntityCfg("robot"),
-        #         "root_body_name": "robotiq_base_link",
-        #     },
-        # )
-
-        # left_inner_finger_contact_force = ObsTerm(
-        #     func=task_mdp.fingertip_contact_force_b,
-        #     params={
-        #         "contact_sensor_name": "left_inner_finger_contact_sensor",
-        #         "root_asset_cfg": SceneEntityCfg("robot"),
-        #         "root_body_name": "robotiq_base_link",
-        #     },
-        # )
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -300,15 +296,27 @@ class TactileObservationsCfg:
             }
         )
 
-        # Additional observations
-        binary_contact = ObsTerm(
-            func=task_mdp.binary_force_contact,
+        gripper_pos = ObsTerm(
+            func=task_mdp.gripper_pos_normalized,
             params={
-                "asset_cfg": SceneEntityCfg("robot"),
-                "body_name": "wrist_3_link",
-                "force_threshold": 25.0,
+                "asset_cfg": SceneEntityCfg(
+                    "robot",
+                    joint_names=["left_inner_finger_knuckle_joint"],
+                ),
+                "scale_event_name": "randomize_gripper_pos_affine",
+                "jitter_std": 0.01,
             },
         )
+
+        # Additional observations
+        # binary_contact = ObsTerm(
+        #     func=task_mdp.binary_force_contact,
+        #     params={
+        #         "asset_cfg": SceneEntityCfg("robot"),
+        #         "body_name": "wrist_3_link",
+        #         "force_threshold": 25.0,
+        #     },
+        # )
 
         # insertive_asset_pose = ObsTerm(
         #     func=task_mdp.target_asset_pose_in_root_asset_frame,
@@ -359,9 +367,45 @@ class TactileObservationsCfg:
             self.enable_corruption = True
             self.concatenate_terms = False
 
+    @configclass
+    class TactileExpertObsCfg(ObsGroup):
+        """Privileged state observations consumed by the JIT-loaded state expert
+        during BC supervision. Mirrors rl_state_cfg.ObservationsCfg.PolicyCfg
+        exactly so the state-trained policy.pt sees the same input distribution
+        it was trained on. Read by my_experts_observation_func via
+        env.unwrapped.obs_buf["expert_obs"]."""
+
+        prev_actions = ObsTerm(func=task_mdp.last_action)
+
+        joint_pos = ObsTerm(func=task_mdp.joint_pos)
+
+        end_effector_pose = ObsTerm(
+            func=task_mdp.target_asset_pose_in_root_asset_frame,
+            params={
+                "target_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
+                "root_asset_cfg": SceneEntityCfg("robot"),
+                "rotation_repr": "axis_angle",
+            },
+        )
+
+        insertive_asset_pose = ObsTerm(
+            func=task_mdp.target_asset_pose_in_root_asset_frame,
+            params={
+                "target_asset_cfg": SceneEntityCfg("insertive_object"),
+                "root_asset_cfg": SceneEntityCfg("robot", body_names="wrist_3_link"),
+                "rotation_repr": "axis_angle",
+            },
+        )
+
+        def __post_init__(self):
+            self.enable_corruption = True
+            self.concatenate_terms = True
+            self.history_length = 5
+
     # observation groups
     policy: TactilePolicyCfg = TactilePolicyCfg()
     data_collection: TactileDataCollectionCfg = TactileDataCollectionCfg()
+    expert_obs: TactileExpertObsCfg = TactileExpertObsCfg()
 
 
 @configclass
@@ -401,7 +445,7 @@ class Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
     def __post_init__(self):
         super().__post_init__()
 
-        self.episode_length_s = 16.0
+        self.episode_length_s = 10.0
 
         # Render settings
         # self.sim.render.enable_dlssg = False

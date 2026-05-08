@@ -8,6 +8,41 @@
 """Launch Isaac Sim Simulator first."""
 
 import argparse
+import os
+import sys
+
+# Shim rsl_rl: lti env's editable install points at UWLab-ICL's fork (dict obs);
+# UWLab uses the UW-Lab/rsl_rl fork (Tensor obs).
+_UWLAB_RSL_RL = "/mnt/storage/lti/UWLab/.uwlab_rsl_rl"
+if os.path.isdir(_UWLAB_RSL_RL):
+    sys.meta_path[:] = [
+        f for f in sys.meta_path
+        if not (isinstance(f, type) and getattr(f, "__module__", "").startswith("__editable___rsl_rl"))
+    ]
+    if _UWLAB_RSL_RL not in sys.path:
+        sys.path.insert(0, _UWLAB_RSL_RL)
+    for _mod_name in list(sys.modules):
+        if _mod_name == "rsl_rl" or _mod_name.startswith("rsl_rl."):
+            del sys.modules[_mod_name]
+
+# Shim diffusion_policy: lti env's editable install points at UWLab-ICL's fork
+# (which wraps mean_head/log_std_head inside an OutputHead). UWLab's submodule
+# uses flat mean_head/log_std_head, and train.py wrote checkpoints in that
+# format because it ran from inside UWLab/diffusion_policy/ where sys.path[0]
+# beats the editable finder. eval_distilled_policy.py runs from a different
+# cwd, so without this shim it loads UWLab-ICL's class and fails on state-dict
+# key mismatch when loading the ckpt.
+_UWLAB_DP = "/mnt/storage/lti/UWLab/diffusion_policy"
+if os.path.isdir(os.path.join(_UWLAB_DP, "diffusion_policy")):
+    sys.meta_path[:] = [
+        f for f in sys.meta_path
+        if not (isinstance(f, type) and getattr(f, "__module__", "").startswith("__editable___diffusion_policy"))
+    ]
+    if _UWLAB_DP not in sys.path:
+        sys.path.insert(0, _UWLAB_DP)
+    for _mod_name in list(sys.modules):
+        if _mod_name == "diffusion_policy" or _mod_name.startswith("diffusion_policy."):
+            del sys.modules[_mod_name]
 
 from isaaclab.app import AppLauncher
 
@@ -36,6 +71,34 @@ args_cli, remaining_args = parser.parse_known_args()
 # launch omniverse app
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
+
+# Drop Isaac Sim's pip_prebundle so conda env's trimesh/rtree win on later imports.
+try:
+    from omni.ext._impl.fast_importer import FastFinder as _FastFinder
+    _orig_find_spec = _FastFinder.find_spec
+    def _patched_find_spec(*args, **kwargs):
+        fullname = kwargs.get("fullname")
+        if fullname is None:
+            for a in args:
+                if isinstance(a, str):
+                    fullname = a
+                    break
+        if isinstance(fullname, str):
+            root = fullname.split(".", 1)[0]
+            if root in {"trimesh", "rtree"}:
+                return None
+        return _orig_find_spec(*args, **kwargs)
+    _FastFinder.find_spec = _patched_find_spec
+except Exception:
+    pass
+sys.path[:] = [p for p in sys.path if "pip_prebundle" not in p]
+for _mod_name in list(sys.modules):
+    if _mod_name == "trimesh" or _mod_name.startswith("trimesh.") or \
+       _mod_name == "rtree" or _mod_name.startswith("rtree."):
+        _mod = sys.modules.get(_mod_name)
+        _mod_file = getattr(_mod, "__file__", None) or ""
+        if "pip_prebundle" in _mod_file:
+            del sys.modules[_mod_name]
 
 """Rest everything follows."""
 

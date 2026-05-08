@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import math
+
 import torch
 import torch.nn.functional as F
 
@@ -271,6 +273,72 @@ def process_image(
     # plt.savefig('saved_image_3.png', dpi=300, bbox_inches='tight')
 
     return images
+
+
+def gripper_pos_normalized(
+    env: ManagerBasedEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg(
+        "robot", joint_names=["left_inner_finger_knuckle_joint"],
+    ),
+    full_close_angle: float = -math.pi / 4,
+    scale_event_name: str | None = None,
+    jitter_std: float = 0.0,
+) -> torch.Tensor:
+    """Robotiq 2F-85 gripper position as a [0, 1] scalar (0 = open, 1 = closed).
+
+    Mirrors the real-world Robotiq POS register exposed by
+    `diffusion_policy/real_world/robotiq_gripper.py:get_current_position`,
+    just normalized to [0, 1] instead of the firmware's 0-255.
+
+    Inverts the sim-side mapping `inner_finger_knuckle_joint_angle = full_close_angle * pos`,
+    where `full_close_angle` is the joint angle at fully-closed (negative on the
+    UWLab URDF: ~-pi/4). For multi-joint asset_cfg the mean angle is used; the
+    2F-85's left/right knuckles are mimic-coupled so they track each other.
+
+    Args:
+        env: The environment.
+        asset_cfg: Scene entity + joint(s) to read. Defaults to the left
+            inner_finger_knuckle joint.
+        full_close_angle: Joint angle at fully closed (radians, signed). Default
+            -pi/4 matches UWLab's 2F-85 URDF convention; pass +pi/4 (or use a
+            different joint) if your robot's joint axis is the opposite sign.
+
+    Returns:
+        Tensor of shape (num_envs, 1) in [0.0, 1.0].
+    """
+    robot: Articulation = env.scene[asset_cfg.name]
+    joint_ids = asset_cfg.joint_ids if asset_cfg.joint_ids is not None else slice(None)
+    angle = robot.data.joint_pos[:, joint_ids]
+    if angle.dim() > 1 and angle.shape[-1] > 1:
+        angle = angle.mean(dim=-1, keepdim=True)
+    elif angle.dim() == 1:
+        angle = angle.unsqueeze(-1)
+    pos = (angle / full_close_angle).clamp(0.0, 1.0)
+    if scale_event_name is not None:
+        # EventManager stores term cfgs by mode; get_term_cfg() resolves by name.
+        # For class-based terms (ManagerTermBase subclasses) cfg.func is the
+        # instantiated object after _prepare_terms.
+        try:
+            scale_term = env.event_manager.get_term_cfg(scale_event_name).func
+        except ValueError as e:
+            raise RuntimeError(
+                f"gripper_pos_normalized: event term '{scale_event_name}' not "
+                f"registered on event_manager."
+            ) from e
+        if not hasattr(scale_term, "scale"):
+            raise RuntimeError(
+                f"gripper_pos_normalized: event term '{scale_event_name}' "
+                f"has no .scale attr (got {type(scale_term).__name__})."
+            )
+        # scale / offset: (num_envs,) -> (num_envs, 1) for broadcast.
+        pos = pos * scale_term.scale.unsqueeze(-1)
+        if hasattr(scale_term, "offset"):
+            pos = pos + scale_term.offset.unsqueeze(-1)
+    if jitter_std > 0.0:
+        # Per-step Gaussian jitter, freshly sampled each call; NOT persistent across
+        # an episode. Stacks on top of the per-episode affine (scale, offset).
+        pos = pos + torch.randn_like(pos) * jitter_std
+    return pos.to(torch.float32)
 
 
 def binary_force_contact(

@@ -10,6 +10,7 @@
 import argparse
 import contextlib
 import os
+import sys
 import gymnasium as gym
 import torch
 from tqdm import tqdm
@@ -17,6 +18,36 @@ from functools import partial
 from typing import Sequence
 import random
 import numpy as np
+
+# # Shim rsl_rl: lti env's editable install points at UWLab-ICL's fork (dict obs);
+# # UWLab uses the UW-Lab/rsl_rl fork (Tensor obs).
+# _UWLAB_RSL_RL = "/mnt/storage/lti/UWLab/.uwlab_rsl_rl"
+# if os.path.isdir(_UWLAB_RSL_RL):
+#     sys.meta_path[:] = [
+#         f for f in sys.meta_path
+#         if not (isinstance(f, type) and getattr(f, "__module__", "").startswith("__editable___rsl_rl"))
+#     ]
+#     if _UWLAB_RSL_RL not in sys.path:
+#         sys.path.insert(0, _UWLAB_RSL_RL)
+#     for _mod_name in list(sys.modules):
+#         if _mod_name == "rsl_rl" or _mod_name.startswith("rsl_rl."):
+#             del sys.modules[_mod_name]
+
+# # Shim diffusion_policy: lti env's editable install points at UWLab-ICL's fork
+# # (OutputHead-wrapped). UWLab's submodule uses flat mean_head/log_std_head and
+# # train.py wrote the iter-0 checkpoint that way. Without this shim,
+# # load_exploration_policy crashes on state-dict key mismatch when iter>=1.
+# _UWLAB_DP = "/mnt/storage/lti/UWLab/diffusion_policy"
+# if os.path.isdir(os.path.join(_UWLAB_DP, "diffusion_policy")):
+#     sys.meta_path[:] = [
+#         f for f in sys.meta_path
+#         if not (isinstance(f, type) and getattr(f, "__module__", "").startswith("__editable___diffusion_policy"))
+#     ]
+#     if _UWLAB_DP not in sys.path:
+#         sys.path.insert(0, _UWLAB_DP)
+#     for _mod_name in list(sys.modules):
+#         if _mod_name == "diffusion_policy" or _mod_name.startswith("diffusion_policy."):
+#             del sys.modules[_mod_name]
 
 from isaaclab.app import AppLauncher
 
@@ -47,14 +78,52 @@ parser.add_argument("--expert_noise", type=float, default=0.0, help="Noise level
 
 parser.add_argument("--render", action="store_true", help="Whether to render the environment.")
 parser.add_argument("--seed", type=int, default=0, help="Random seed for environment.")
+parser.add_argument("--video", action="store_true", default=False, help="Record video of env 0 during collection.")
+parser.add_argument("--video_length", type=int, default=400, help="Video length in env steps (only used when --video).")
+parser.add_argument("--video_interval", type=int, default=0,
+                    help="Restart video recording every N env steps. 0 (default) = single video at step 0.")
+parser.add_argument("--video_dir", type=str, default=None,
+                    help="Directory to write videos. Defaults to <dataset_file>_dir/videos.")
 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 args_cli, remaining_args = parser.parse_known_args()
 
+# Mirror play.py: cameras must be enabled for the RecordVideo wrapper to render.
+if args_cli.video:
+    args_cli.enable_cameras = True
+
 # launch omniverse app
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
+
+# Drop Isaac Sim's pip_prebundle so conda env's trimesh/rtree win on later imports.
+try:
+    from omni.ext._impl.fast_importer import FastFinder as _FastFinder
+    _orig_find_spec = _FastFinder.find_spec
+    def _patched_find_spec(*args, **kwargs):
+        fullname = kwargs.get("fullname")
+        if fullname is None:
+            for a in args:
+                if isinstance(a, str):
+                    fullname = a
+                    break
+        if isinstance(fullname, str):
+            root = fullname.split(".", 1)[0]
+            if root in {"trimesh", "rtree"}:
+                return None
+        return _orig_find_spec(*args, **kwargs)
+    _FastFinder.find_spec = _patched_find_spec
+except Exception:
+    pass
+sys.path[:] = [p for p in sys.path if "pip_prebundle" not in p]
+for _mod_name in list(sys.modules):
+    if _mod_name == "trimesh" or _mod_name.startswith("trimesh.") or \
+       _mod_name == "rtree" or _mod_name.startswith("rtree."):
+        _mod = sys.modules.get(_mod_name)
+        _mod_file = getattr(_mod, "__file__", None) or ""
+        if "pip_prebundle" in _mod_file:
+            del sys.modules[_mod_name]
 
 """Rest everything follows."""
 
@@ -238,6 +307,32 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array")
 
+    # Optional video recording (mirrors scripts/reinforcement_learning/rsl_rl/play.py).
+    # Wrapping must happen *before* RslRlVecEnvWrapper so RecordVideo sees env.step()
+    # at the right level. RecordVideo only renders env 0 of the vec env.
+    if args_cli.video:
+        if args_cli.video_dir is None:
+            args_cli.video_dir = os.path.join(
+                os.path.dirname(args_cli.dataset_file), "videos"
+            )
+        os.makedirs(args_cli.video_dir, exist_ok=True)
+        if args_cli.video_interval and args_cli.video_interval > 0:
+            video_kwargs = {
+                "video_folder": args_cli.video_dir,
+                "step_trigger": lambda step: step % args_cli.video_interval == 0,
+                "video_length": args_cli.video_length,
+                "disable_logger": True,
+            }
+        else:
+            video_kwargs = {
+                "video_folder": args_cli.video_dir,
+                "step_trigger": lambda step: step == 0,
+                "video_length": args_cli.video_length,
+                "disable_logger": True,
+            }
+        print(f"[collect_demos] Recording video to {args_cli.video_dir}")
+        env = gym.wrappers.RecordVideo(env, **video_kwargs)
+
     # wrap around environment for rsl-rl
     env = RslRlVecEnvWrapper(env)
     num_envs = env.num_envs
@@ -285,6 +380,33 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     rendered_frames = []
     # simulate environment -- run everything in inference mode
     current_recorded_demo_count = 0
+    # ---- debug instrumentation ----
+    import time as _time_dbg
+    _dbg_step = 0
+    _dbg_last_demo_count = 0
+    _dbg_last_demo_step = 0
+    _dbg_last_demo_wall = _time_dbg.time()
+    _dbg_step_times: list[float] = []  # rolling step latencies
+    _dbg_total_dones = 0
+    _dbg_total_successes = 0
+    _dbg_window_steps = 0
+    _dbg_window_dones = 0
+    _dbg_window_successes = 0
+    _dbg_window_wall = _time_dbg.time()
+    DBG_PRINT_EVERY = 50  # env steps
+    DBG_NO_PROGRESS_S = 30.0  # alert when no new demo for this many seconds
+    # ---- stall recovery (auto-retry inside this process) ----
+    STALL_RESET_AFTER_S = 90.0   # full env.reset() if no demo progress for this long
+    STALL_GIVEUP_AFTER = 3       # break after this many resets in a row that don't help
+    _stall_reset_count = 0
+    _last_stall_reset_demo_count = 0
+    _last_stall_reset_step = 0
+    # CSV trace of action stats per dbg interval — offline-plottable.
+    _dbg_action_csv = os.path.join(
+        os.path.dirname(args_cli.dataset_file), "action_stats.csv"
+    )
+    _dbg_csv_header_written = False
+    # --------------------------------
     with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
         pbar = tqdm(total=args_cli.num_demos, desc="Recording Demonstrations", unit="demo")
 
@@ -332,7 +454,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
             expert_mask_recorder.set_mask(expert_mask)
 
             # env stepping
+            _dbg_t0 = _time_dbg.time()
             obs_dict, _, dones, _ = env.step(actions)
+            _dbg_step_dt = _time_dbg.time() - _dbg_t0
+            _dbg_step_times.append(_dbg_step_dt)
+            if len(_dbg_step_times) > 100:
+                _dbg_step_times = _dbg_step_times[-100:]
 
             # handle resets
             if dones.any():
@@ -343,7 +470,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
                 )
                 if exploration_policy is not None:
                     exploration_policy.reset(reset_ids)
-                
+
                 exploration_lengths[reset_ids] = 0
                 # expert_mask_recorder.set_exploration_horizon(exploration_horizons)
 
@@ -352,7 +479,134 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
             if new_count > current_recorded_demo_count:
                 increment = new_count - current_recorded_demo_count
                 current_recorded_demo_count = new_count
+                _dbg_window_successes += increment
+                _dbg_last_demo_step = _dbg_step
+                _dbg_last_demo_wall = _time_dbg.time()
                 pbar.update(increment)
+
+            # ---- debug telemetry ----
+            _dbg_step += 1
+            _dbg_window_steps += 1
+            _dbg_n_dones = int(dones.sum().item())
+            _dbg_window_dones += _dbg_n_dones
+            _dbg_total_dones += _dbg_n_dones
+
+            if _dbg_step % DBG_PRINT_EVERY == 0:
+                _now = _time_dbg.time()
+                wall_dt = max(_now - _dbg_window_wall, 1e-9)
+                ep_lens = env.unwrapped.episode_length_buf
+                ep_min, ep_max, ep_mean = (
+                    int(ep_lens.min().item()),
+                    int(ep_lens.max().item()),
+                    float(ep_lens.float().mean().item()),
+                )
+                # time_out_buf / terminated_buf if available
+                tm = env.unwrapped.termination_manager
+                _to = int(tm.time_outs.sum().item()) if hasattr(tm, "time_outs") else -1
+                _term = int(tm.dones.sum().item()) if hasattr(tm, "dones") else -1
+                step_med = sorted(_dbg_step_times)[len(_dbg_step_times) // 2] if _dbg_step_times else 0.0
+                step_max = max(_dbg_step_times) if _dbg_step_times else 0.0
+                no_progress_s = _now - _dbg_last_demo_wall
+                rate = _dbg_window_successes / wall_dt
+                done_rate = _dbg_window_dones / wall_dt
+                # action stats — track per-dim mean / std / saturation.
+                _act_dim = actions.shape[-1]
+                _act_mean = actions.mean(dim=0).detach().cpu().tolist()
+                _act_std = actions.std(dim=0).detach().cpu().tolist()
+                _act_norm = actions.norm(dim=-1).detach().cpu()
+                _act_norm_med = float(_act_norm.median().item())
+                _act_norm_max = float(_act_norm.max().item())
+                # how often does any action dim hit ±1 (the typical clip bound)?
+                _act_saturated_frac = float(((actions.abs() >= 0.999).any(dim=-1)).float().mean().item())
+                print(
+                    f"[dbg] step={_dbg_step} demos={current_recorded_demo_count} "
+                    f"window: dones={_dbg_window_dones} successes={_dbg_window_successes} "
+                    f"({done_rate:.1f} dones/s, {rate:.2f} success/s) | "
+                    f"ep_len min/mean/max={ep_min}/{ep_mean:.1f}/{ep_max} | "
+                    f"step_dt med/max={step_med*1000:.0f}/{step_max*1000:.0f}ms | "
+                    f"this-step time_outs={_to} dones_in_buf={_term} | "
+                    f"act |a| med/max={_act_norm_med:.3f}/{_act_norm_max:.3f} sat={_act_saturated_frac:.2f} | "
+                    f"no_progress={no_progress_s:.0f}s",
+                    flush=True,
+                )
+                # CSV row: step,demos,no_progress_s,act_mean[0..D],act_std[0..D],act_norm_median,act_saturated_frac
+                try:
+                    if not _dbg_csv_header_written:
+                        os.makedirs(os.path.dirname(_dbg_action_csv), exist_ok=True)
+                        with open(_dbg_action_csv, "w") as _f:
+                            cols = (
+                                ["step", "demos", "no_progress_s"]
+                                + [f"act_mean_{i}" for i in range(_act_dim)]
+                                + [f"act_std_{i}" for i in range(_act_dim)]
+                                + ["act_norm_med", "act_norm_max", "act_sat_frac"]
+                            )
+                            _f.write(",".join(cols) + "\n")
+                        _dbg_csv_header_written = True
+                    with open(_dbg_action_csv, "a") as _f:
+                        row = (
+                            [str(_dbg_step), str(current_recorded_demo_count), f"{no_progress_s:.1f}"]
+                            + [f"{x:.5f}" for x in _act_mean]
+                            + [f"{x:.5f}" for x in _act_std]
+                            + [f"{_act_norm_med:.5f}", f"{_act_norm_max:.5f}", f"{_act_saturated_frac:.4f}"]
+                        )
+                        _f.write(",".join(row) + "\n")
+                except Exception as _e:
+                    print(f"[dbg] CSV write failed: {_e}", flush=True)
+                if no_progress_s > DBG_NO_PROGRESS_S:
+                    # diagnose stall: split between physics-step-stuck vs success-rate=0
+                    if step_max > 5.0:
+                        print(f"[dbg] STALL CAUSE: step latency exploded ({step_max*1000:.0f} ms). "
+                              "physx solver likely hung on at least one env.", flush=True)
+                    elif _dbg_window_dones == 0 and ep_max > 0:
+                        print(f"[dbg] STALL CAUSE: env steps fast ({step_med*1000:.0f} ms median) "
+                              "but ZERO terminations in window. time_out / abnormal / success "
+                              "all stopped firing — termination buffers may be stuck.", flush=True)
+                    elif _dbg_window_dones > 0 and _dbg_window_successes == 0:
+                        print(f"[dbg] STALL CAUSE: episodes terminating ({_dbg_window_dones} in window) "
+                              "but zero successes — all attempts failing. EXPORT_SUCCEEDED_ONLY "
+                              "drops failures so demo count can't advance.", flush=True)
+                    else:
+                        print(f"[dbg] STALL CAUSE: indeterminate. step_med={step_med*1000:.0f}ms "
+                              f"dones_window={_dbg_window_dones} successes_window={_dbg_window_successes}",
+                              flush=True)
+                _dbg_window_steps = 0
+                _dbg_window_dones = 0
+                _dbg_window_successes = 0
+                _dbg_window_wall = _now
+
+                # ---- stall recovery: full env.reset() to clear physx state and
+                #      re-sample reset states; break only if multiple consecutive
+                #      resets fail to unstick collection.
+                if no_progress_s > STALL_RESET_AFTER_S:
+                    if current_recorded_demo_count > _last_stall_reset_demo_count:
+                        # last reset DID help (we got new demos since); reset counter
+                        _stall_reset_count = 0
+                    _stall_reset_count += 1
+                    if _stall_reset_count > STALL_GIVEUP_AFTER:
+                        print(
+                            f"[dbg] STALL GIVEUP: {_stall_reset_count} consecutive "
+                            f"force-resets did not unstick collection. Saving "
+                            f"{current_recorded_demo_count} demos and exiting cleanly.",
+                            flush=True,
+                        )
+                        break
+                    print(
+                        f"[dbg] STALL RECOVERY: forcing env.reset() (attempt "
+                        f"{_stall_reset_count}/{STALL_GIVEUP_AFTER}) at "
+                        f"{current_recorded_demo_count} demos to clear physx state.",
+                        flush=True,
+                    )
+                    obs_dict, _ = env.reset()
+                    if exploration_policy is not None:
+                        exploration_policy.reset(torch.arange(num_envs, device=device))
+                    exploration_lengths.zero_()
+                    exploration_horizons[:] = sample_exploration_horizons(
+                        num_envs, min_exploration_horizon, max_exploration_horizon, device
+                    )
+                    _last_stall_reset_demo_count = current_recorded_demo_count
+                    _last_stall_reset_step = _dbg_step
+                    _dbg_last_demo_wall = _time_dbg.time()  # don't immediately re-trigger
+            # -------------------------
 
             if args_cli.num_demos > 0 and new_count >= args_cli.num_demos:
                 print(f"All {args_cli.num_demos} demonstrations recorded. Exiting the app.")

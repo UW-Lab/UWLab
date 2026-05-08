@@ -44,8 +44,8 @@ class RlStateSceneCfg(InteractiveSceneCfg):
             usd_path=f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Custom/Peg/peg.usd",
             scale=(1, 1, 1),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                solver_position_iteration_count=4,
-                solver_velocity_iteration_count=0,
+                solver_position_iteration_count=16,
+                solver_velocity_iteration_count=2,
                 disable_gravity=False,
                 kinematic_enabled=False,
             ),
@@ -239,7 +239,7 @@ class TrainEventCfg(BaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"reset_state_datasets",
+            "dataset_dir": f"reset_state_datasets_sriyash",
             "reset_types": [
                 "ObjectAnywhereEEAnywhere",
                 "ObjectRestingEEGrasped",
@@ -248,6 +248,33 @@ class TrainEventCfg(BaseEventCfg):
             # "probs": [0.25, 0.25, 0.25, 0.25],
             "probs": [0.34, 0.33, 0.33],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
+        },
+    )
+
+    randomize_env_cfg_unified = EventTerm(
+        func=task_mdp.randomize_env_cfg_unified,
+        mode="reset",
+        params={
+            "asset_cfg": SceneEntityCfg("robot"),
+            "joint_names": [
+                "shoulder_pan_joint",
+                "shoulder_lift_joint",
+                "elbow_joint",
+                "wrist_1_joint",
+                "wrist_2_joint",
+                "wrist_3_joint",
+            ],
+            "actuator_name": "arm",
+            "action_name": "arm",
+            "arm_scale_range": (0.8, 1.2),
+            "delay_range": (0, 1),
+            "kp_scale_range": (0.8, 1.2),
+            "terminal_kp": (1000.0, 1000.0, 1000.0, 50.0, 50.0, 50.0),
+            "terminal_damping_ratio": (1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+            "initial_scales": (0.02, 0.02, 0.02, 0.02, 0.02, 0.2),
+            "target_scales": (0.01, 0.01, 0.002, 0.02, 0.02, 0.2),
+            "coupled_progress_range": (0.0, 1.5),
+            "action_scale_progress_range": (0.0, 1.5),
         },
     )
 
@@ -620,8 +647,8 @@ def make_insertive_object(usd_path: str):
             usd_path=usd_path,
             scale=(1, 1, 1),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                solver_position_iteration_count=4,
-                solver_velocity_iteration_count=0,
+                solver_position_iteration_count=16,
+                solver_velocity_iteration_count=2,
                 disable_gravity=False,
                 kinematic_enabled=False,
             ),

@@ -97,13 +97,13 @@ class TorchDatasetFileHandler(DatasetFileHandlerBase):
         raise NotImplementedError("Load episode not supported for preprocessed format")
 
     def flush(self):
-        """Flush any pending data to disk."""
-        if self._file_path and self._episode_data:
-            torch.save(self._episode_data, self._file_path)
+        # No-op: defer writes until close() to avoid O(N) re-serialization on every episode.
+        pass
 
     def close(self):
-        """Close the dataset file handler."""
-        self.flush()
+        """Close the dataset file handler — actually writes the file here."""
+        if self._file_path and self._episode_data:
+            torch.save(self._episode_data, self._file_path)
         self._episode_data = {}
         self._file_path = None
 

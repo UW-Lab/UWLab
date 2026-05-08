@@ -1,7 +1,48 @@
 import argparse
-import os
-import subprocess
 import datetime
+import glob
+import os
+import re
+import subprocess
+
+
+_STEP_CKPT_RE = re.compile(r"step_(\d+)\.ckpt$")
+
+
+def _expected_train_checkpoint(output_dir: str, step: int = 20_000) -> str:
+    """Resolve the checkpoint path produced by a training iteration.
+
+    Selection order (ported from UWLab-ICL/run_incontext_exploration.py):
+      1. ``step_{step:07d}.ckpt`` for the requested step.
+      2. The highest-numbered ``step_*.ckpt`` in the checkpoints dir.
+      3. ``latest.ckpt`` — the final-state snapshot written by the workspace.
+    """
+    ckpt_dir = os.path.join(output_dir, "checkpoints")
+
+    preferred = os.path.join(ckpt_dir, f"step_{step:07d}.ckpt")
+    if os.path.exists(preferred):
+        return preferred
+
+    candidates: list[tuple[int, str]] = []
+    for path in glob.glob(os.path.join(ckpt_dir, "step_*.ckpt")):
+        m = _STEP_CKPT_RE.search(os.path.basename(path))
+        if m is not None:
+            candidates.append((int(m.group(1)), path))
+    if candidates:
+        candidates.sort(key=lambda x: x[0])
+        best_step, best_path = candidates[-1]
+        print(
+            f"[orchestrator] step_{step:07d}.ckpt missing under {ckpt_dir}; "
+            f"falling back to {os.path.basename(best_path)} (step {best_step})."
+        )
+        return best_path
+
+    latest = os.path.join(ckpt_dir, "latest.ckpt")
+    if os.path.exists(latest):
+        print(f"[orchestrator] no step_*.ckpt under {ckpt_dir}; falling back to latest.ckpt.")
+        return latest
+
+    return preferred
 
 def collect_demos(
         task: str,
@@ -197,9 +238,9 @@ if __name__ == "__main__":
     and path to initial dataset
     """
     parser.add_argument(
-        "--data_task", type=str, default="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-DataCollection-v0", help="Data collection task name"
+        "--data_task", type=str, default="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0", help="Data collection task name"
     )
-    parser.add_argument("--eval_task", type=str, default="OmniReset-Ur5eRobotiq2f85-RelCartesianOSCScaled-RGB-Play-v0", help="Evaluation task name")
+    parser.add_argument("--eval_task", type=str, default="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0", help="Evaluation task name")
     parser.add_argument(
         "--expert_policy_checkpoint", default="logs/policy_cube_final_v4.pt", help="Path to expert policy checkpoint"
     )
@@ -333,14 +374,18 @@ if __name__ == "__main__":
     ]
 
     horizons = [
+        # (0.1, 0.3),
         (0.2, 0.5),
+        # (0.15, 0.5),
         (0.3, 0.8),
+        # (0.3, 0.7)
         (0.4, 0.9)
     ]
     episode_length_s = [
-        5.0,
+        # 5.0,
         7.0,
-        8.0
+        9.0,
+        11.0
     ]
     if args.schedule == "fixed":
         episode_length_s = [8.0, 8.0, 8.0, 8.0, 8.0]
@@ -384,8 +429,8 @@ if __name__ == "__main__":
         args.initial_dataset_path = os.path.join(
             base_output_dir, f"dataset-iteration-{args.start_iteration}"
         )
-        exploration_checkpoint = os.path.join(
-            base_output_dir, f"iteration_{args.start_iteration - 1}", "checkpoints", "step_0040000.ckpt"
+        exploration_checkpoint = _expected_train_checkpoint(
+            os.path.join(base_output_dir, f"iteration_{args.start_iteration - 1}")
         )
         # collect demos using the provided checkpoint for this iteration
         dataset_path = os.path.join(base_output_dir, f"dataset-iteration-{args.start_iteration}")
@@ -441,9 +486,12 @@ if __name__ == "__main__":
                     exp_name=exp_name,
                     iteration=0,
                 )
-            dataset_paths = [args.initial_dataset_path]
-            iteration_checkpoint = None
-            start_iteration = 0
+        # Whether the dataset was collected fresh or pointed to with
+        # --initial_dataset_path, kick off training from iter 0 with that single
+        # dataset and no prior student checkpoint.
+        dataset_paths = [args.initial_dataset_path]
+        iteration_checkpoint = None
+        start_iteration = 0
 
     for iteration in range(start_iteration, args.max_iterations):
         print(f"Starting iteration {iteration}...")
@@ -468,8 +516,8 @@ if __name__ == "__main__":
         )
 
         # evaluate the trained policy
-        iteration_checkpoint = os.path.join(
-            base_output_dir, f"iteration_{iteration}", "checkpoints", "step_0040000.ckpt"
+        iteration_checkpoint = _expected_train_checkpoint(
+            os.path.join(base_output_dir, f"iteration_{iteration}")
         )
         eval_policy(
             task=args.eval_task,
