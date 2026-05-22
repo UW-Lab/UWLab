@@ -239,7 +239,7 @@ class TrainEventCfg(BaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"reset_state_datasets_sriyash",
+            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
             "reset_types": [
                 "ObjectAnywhereEEAnywhere",
                 "ObjectRestingEEGrasped",
