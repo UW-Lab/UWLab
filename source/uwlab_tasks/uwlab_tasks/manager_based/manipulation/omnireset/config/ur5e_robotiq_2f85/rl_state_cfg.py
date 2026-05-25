@@ -331,7 +331,7 @@ class FinetuneEvalEventCfg(BaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"reset_state_datasets",
+            "dataset_dir": f"./Datasets/CubePick",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -736,10 +736,15 @@ class Ur5eRobotiq2f85RlStateCfg(ManagerBasedRLEnvCfg):
         self.sim.physx.gpu_collision_stack_size = 2**31
 
         # Render settings
-        self.sim.render.enable_dlssg = True
-        self.sim.render.enable_ambient_occlusion = True
-        self.sim.render.enable_reflections = True
-        self.sim.render.enable_dl_denoiser = True
+        self.sim.render.enable_dlssg = False
+        self.sim.render.enable_ambient_occlusion = False
+        self.sim.render.enable_reflections = False
+        self.sim.render.enable_dl_denoiser = False
+        self.sim.render.antialiasing_mode = "DLAA"
+        # self.sim.render.enable_dlssg = True
+        # self.sim.render.enable_ambient_occlusion = True
+        # self.sim.render.enable_reflections = True
+        # self.sim.render.enable_dl_denoiser = True
 
 
 # Training configuration (Stage 1: no curriculum, implicit actuator, no sysid DR)

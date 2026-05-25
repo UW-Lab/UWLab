@@ -216,12 +216,12 @@ class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
             "fixed_asset_cfg": SceneEntityCfg("robot"),
             "fixed_asset_offset": None,
             "pose_range_b": {
-                "x": (0.49, 0.5),
-                "y": (0.145, 0.15),
-                "z": (0.2, 0.2),
+                "x": (0.3, 0.7),
+                "y": (-0.4, 0.4),
+                "z": (0.0, 0.5),
                 "roll": (0.0, 0.0),
-                "pitch": (np.pi / 2, np.pi / 2),
-                "yaw": (np.pi, np.pi),
+                "pitch": (np.pi / 4, 3 * np.pi / 4),
+                "yaw": (np.pi / 2, 3 * np.pi / 2),
             },
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"
@@ -236,7 +236,7 @@ class ObjectRestingEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"Datasets/OmniReset",
+            "dataset_dir": f"Datasets/CubePick",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
         },
@@ -246,7 +246,7 @@ class ObjectRestingEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_end_effector_from_grasp_dataset,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"Datasets/CubePick",
             "fixed_asset_cfg": SceneEntityCfg("insertive_object"),
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"
@@ -274,8 +274,8 @@ class ObjectAnywhereEEGraspedEventCfg(ResetStatesBaseEventCfg):
                 "x": (0.3, 0.55),
                 "y": (-0.1, 0.3),
                 "z": (0.0, 0.3),
-                "roll": (0.0, 0.0),
-                "pitch": (np.pi / 2, np.pi / 2),
+                "roll": (-np.pi, np.pi),
+                "pitch": (-np.pi, np.pi),
                 "yaw": (-np.pi, np.pi),
             },
             "velocity_range": {},
@@ -289,7 +289,7 @@ class ObjectAnywhereEEGraspedEventCfg(ResetStatesBaseEventCfg):
         func=task_mdp.reset_end_effector_from_grasp_dataset,
         mode="reset",
         params={
-            "dataset_dir": f"grasp_datasets",
+            "dataset_dir": f"Datasets/CubePick",
             "fixed_asset_cfg": SceneEntityCfg("insertive_object"),
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"

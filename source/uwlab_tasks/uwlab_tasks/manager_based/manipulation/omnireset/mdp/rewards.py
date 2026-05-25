@@ -120,7 +120,7 @@ class ProgressContextPickOnly(ManagerTermBase):
         insertive_asset_cfg: SceneEntityCfg,
         # receptive_asset_cfg: SceneEntityCfg,
         command_context: str = "task_command",
-        pick_height_threshold: float = 0.025,
+        pick_height_threshold: float = 0.4,
     ) -> torch.Tensor:
         # Check if insertive object z-position is above threshold (picked up)
         insertive_z_pos = self.insertive_asset.data.root_pos_w[:, 2]
@@ -142,7 +142,7 @@ class ProgressContextPickOnly(ManagerTermBase):
 def dense_success_reward_pick_only(env: ManagerBasedRLEnv, std: float, context: str = "progress_context") -> torch.Tensor:
     context_term: ManagerTermBase = env.reward_manager.get_term_cfg(context).func  # type: ignore
     insertive_asset_z: torch.Tensor = getattr(context_term, "insertive_asset_z")
-    z_reward = torch.exp(-torch.clamp(0.1 - insertive_asset_z, min=0) / std)
+    z_reward = torch.exp(-torch.clamp(0.4 - insertive_asset_z, min=0) / std)
     return z_reward
 
 def success_reward_pick_only(env: ManagerBasedRLEnv, context: str = "progress_context") -> torch.Tensor:
