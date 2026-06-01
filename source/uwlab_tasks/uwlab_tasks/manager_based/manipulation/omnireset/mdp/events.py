@@ -1005,10 +1005,26 @@ class MultiResetManager(ManagerTermBase):
         if len(reset_types) != len(probabilities):
             raise ValueError("Number of reset_types must match number of probabilities")
 
-        # Derive pair directory from scene objects
+        # Derive pair directory from scene objects.
+        #
+        # The reset datasets on the asset hub are keyed by the *object pair* directory
+        # (e.g. ``InsertiveCube__ReceptiveCube``) even though pick-only tasks spawn only
+        # the insertive object. The receptive counterpart is fixed per insertive object,
+        # so we recover the pair name from this mapping rather than from the scene (which
+        # has no ``receptive_object``). The stored receptive pose is harmless: ``_reset_to``
+        # only applies state for assets that actually exist in the scene.
+        _INSERTIVE_TO_RECEPTIVE = {
+            "InsertiveCube": "ReceptiveCube",
+            "Peg": "PegHole",
+            "CupCake": "Plate",
+            "Rectangle": "Wall",
+            "DrawerBottom": "DrawerBox",
+            "SquareLeg": "SquareTableTop",
+        }
         insertive_usd_path = env.scene["insertive_object"].cfg.spawn.usd_path
-        # receptive_usd_path = env.scene["receptive_object"].cfg.spawn.usd_path
-        pair = utils.compute_pair_dir(insertive_usd_path)
+        insertive_name = utils.object_name_from_usd(insertive_usd_path)
+        receptive_name = _INSERTIVE_TO_RECEPTIVE.get(insertive_name)
+        pair = "__".join(sorted([insertive_name, receptive_name])) if receptive_name else insertive_name
 
         # Generate dataset paths from pair directory and reset types
         dataset_files = []

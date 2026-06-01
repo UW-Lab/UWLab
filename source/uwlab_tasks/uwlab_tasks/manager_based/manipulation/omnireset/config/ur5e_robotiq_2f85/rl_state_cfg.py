@@ -27,6 +27,7 @@ from uwlab_assets.robots.ur5e_robotiq_gripper import EXPLICIT_UR5E_ROBOTIQ_2F85,
 from uwlab_tasks.manager_based.manipulation.omnireset.config.ur5e_robotiq_2f85.actions import (
     Ur5eRobotiq2f85RelativeOSCAction,
     Ur5eRobotiq2f85RelativeOSCEvalAction,
+    Ur5eRobotiq2f85RelativeOSCPositionAction,
 )
 
 from ... import mdp as task_mdp
@@ -287,7 +288,7 @@ class TrainEvalEventCfg(BaseEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"reset_state_datasets",
+            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -752,7 +753,8 @@ class Ur5eRobotiq2f85RlStateCfg(ManagerBasedRLEnvCfg):
 class Ur5eRobotiq2f85RelCartesianOSCTrainCfg(Ur5eRobotiq2f85RlStateCfg):
 
     events: TrainEventCfg = TrainEventCfg()
-    actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+    # actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+    actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
 
 
 # Finetune configuration (Stage 2: explicit actuator, curriculum ramps sysid + gains + scales)
@@ -775,7 +777,8 @@ class Ur5eRobotiq2f85RelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
     """Eval after Stage 1: implicit actuator, soft gains, large action scale, no sysid DR."""
 
     events: TrainEvalEventCfg = TrainEvalEventCfg()
-    actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+    actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
+    # actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
 
 
 # Evaluation configuration (after Stage 2: explicit actuator, stiff gains, fixed sysid)
