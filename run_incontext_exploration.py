@@ -361,12 +361,13 @@ if __name__ == "__main__":
         (0.2, 0.3, 0.5),
         (0.1, 0.2, 0.3, 0.4),
         (0.05, 0.1, 0.2, 0.25, 0.4),
-        ((0.05, 0.1, 0.15, 0.15, 0.2, 0.45),)
+        (0.05, 0.1, 0.15, 0.15, 0.2, 0.45,)
         # (0.4, 0.3, 0.2, 0.1),
     ]
 
     lrs = [
         1e-4,
+        1e-5,
         1e-5,
         1e-5,
         1e-5,
@@ -388,7 +389,7 @@ if __name__ == "__main__":
         11.0
     ]
     if args.schedule == "fixed":
-        episode_length_s = [8.0, 8.0, 8.0, 8.0, 8.0]
+        episode_length_s = [10.0, 10.0, 10.0, 10.0, 10.0]
         horizons = [
             (0.2, 0.5),
             (0.3, 0.7),
@@ -466,7 +467,7 @@ if __name__ == "__main__":
                 num_demos=args.num_demos,
                 min_exploration_horizon=0.0,
                 max_exploration_horizon=0.0,
-                episode_length_s=5.0,
+                episode_length_s=10.0,
                 expert_path=args.expert_policy_checkpoint,
                 insertive_object=args.insertive_object,
                 receptive_object=args.receptive_object,

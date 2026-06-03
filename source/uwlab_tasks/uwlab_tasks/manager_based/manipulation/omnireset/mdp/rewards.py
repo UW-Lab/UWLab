@@ -120,7 +120,7 @@ class ProgressContextPickOnly(ManagerTermBase):
         insertive_asset_cfg: SceneEntityCfg,
         # receptive_asset_cfg: SceneEntityCfg,
         command_context: str = "task_command",
-        pick_height_threshold: float = 0.4,
+        pick_height_threshold: float = 0.02,
     ) -> torch.Tensor:
         # Check if insertive object z-position is above threshold (picked up)
         insertive_z_pos = self.insertive_asset.data.root_pos_w[:, 2]

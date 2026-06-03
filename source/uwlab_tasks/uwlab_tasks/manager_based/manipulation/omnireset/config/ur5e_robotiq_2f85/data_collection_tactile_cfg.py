@@ -21,7 +21,7 @@ from isaaclab.utils import configclass
 from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 from ... import mdp as task_mdp
-from .actions import Ur5eRobotiq2f85RelativeOSCEvalAction
+from .actions import Ur5eRobotiq2f85RelativeOSCPositionAction
 from .rl_state_cfg import FinetuneEvalEventCfg, RlStateSceneCfg, Ur5eRobotiq2f85RlStateCfg
 
 
@@ -146,7 +146,7 @@ class TactileEventCfg(FinetuneEvalEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"reset_states_dataset_small",
+            "dataset_dir": f"Datasets/CubePick",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -421,12 +421,12 @@ class DataCollectionTactileTerminationsCfg:
     # )
 
     early_success = DoneTerm(
-        func=task_mdp.early_success_termination, params={"num_consecutive_successes": 5, "min_episode_length": 10}
+        func=task_mdp.early_success_termination, params={"num_consecutive_successes": 4, "min_episode_length": 10}
     )
 
     success = DoneTerm(
         func=task_mdp.consecutive_success_state_with_min_length,
-        params={"num_consecutive_successes": 5, "min_episode_length": 10},
+        params={"num_consecutive_successes": 4, "min_episode_length": 10},
     )
 
 
@@ -434,7 +434,7 @@ class DataCollectionTactileTerminationsCfg:
 class Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
     """Tactile base config: fixed sysid + Tactile scene/obs/terminations/render."""
 
-    actions: Ur5eRobotiq2f85RelativeOSCEvalAction = Ur5eRobotiq2f85RelativeOSCEvalAction()
+    actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
     scene: DataCollectionTactileObjectSceneCfg = DataCollectionTactileObjectSceneCfg(
         num_envs=32, env_spacing=1.5, replicate_physics=False
     )
