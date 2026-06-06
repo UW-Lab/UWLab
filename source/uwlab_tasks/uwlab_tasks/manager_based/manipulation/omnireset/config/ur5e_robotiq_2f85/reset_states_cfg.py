@@ -191,21 +191,23 @@ class ResetStatesBaseEventCfg:
 @configclass
 class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
     reset_insertive_object_pose = EventTerm(
-        func=task_mdp.reset_root_states_uniform,
+        func=task_mdp.reset_root_states_discrete_grid,
         mode="reset",
         params={
             "pose_range": {
-                "x": (0.4, 0.5),
-                "y": (0.09, 0.11),
-                "z": (0.01, 0.03),
+                "x": (0.35, 0.55),
+                "y": (0.0, 0.2),
+                "z": (0.01, 0.02),
                 "roll": (0, 0),
                 "pitch": (0, 0),
-                "yaw": (-np.pi / 8, np.pi / 8),
+                "yaw": (-np.pi / 4, np.pi / 4),
             },
             "velocity_range": {},
             "asset_cfgs": {"insertive_object": SceneEntityCfg("insertive_object")},
             "offset_asset_cfg": SceneEntityCfg("ur5_metal_support"),
             "use_bottom_offset": True,
+            "grid_shape": (3, 3),
+            "xy_noise_range": (-0.01, 0.01),
         },
     )
 

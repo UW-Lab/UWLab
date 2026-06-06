@@ -1320,6 +1320,119 @@ class reset_root_states_uniform(ManagerTermBase):
             asset.write_root_velocity_to_sim(velocities, env_ids=env_ids)
 
 
+class reset_root_states_discrete_grid(ManagerTermBase):
+    """Reset root states by sampling x/y around discrete grid centers.
+
+    X/Y centers are generated from the configured pose range using
+    ``grid_shape``. Each reset samples one center per env, applies small
+    uniform x/y jitter, then samples the remaining pose dimensions uniformly
+    from ``pose_range``.
+    """
+
+    def __init__(self, cfg: EventTermCfg, env: ManagerBasedEnv):
+        super().__init__(cfg, env)
+
+        pose_range_dict = cfg.params.get("pose_range")
+        velocity_range_dict = cfg.params.get("velocity_range")
+
+        self.pose_range = torch.tensor(
+            [pose_range_dict.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]],
+            device=env.device,
+        )
+        self.velocity_range = torch.tensor(
+            [velocity_range_dict.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]],
+            device=env.device,
+        )
+        self.asset_cfgs = list(cfg.params.get("asset_cfgs", dict()).values())
+        self.offset_asset_cfg = cfg.params.get("offset_asset_cfg")
+        self.use_bottom_offset = cfg.params.get("use_bottom_offset", False)
+
+        grid_shape = cfg.params.get("grid_shape", (3, 3))
+        if len(grid_shape) != 2:
+            raise ValueError("grid_shape must be a 2-tuple, e.g. (3, 3)")
+        num_x, num_y = grid_shape
+        x_centers = torch.linspace(self.pose_range[0, 0], self.pose_range[0, 1], num_x, device=env.device)
+        y_centers = torch.linspace(self.pose_range[1, 0], self.pose_range[1, 1], num_y, device=env.device)
+        grid_x, grid_y = torch.meshgrid(x_centers, y_centers, indexing="ij")
+        self.xy_grid = torch.stack([grid_x.reshape(-1), grid_y.reshape(-1)], dim=-1)
+
+        self.xy_noise_range = torch.tensor(cfg.params.get("xy_noise_range", (-0.01, 0.01)), device=env.device)
+
+        if self.use_bottom_offset:
+            self.bottom_offset_positions = dict()
+            for asset_cfg in self.asset_cfgs:
+                asset: RigidObject | Articulation = env.scene[asset_cfg.name]
+                usd_path = asset.cfg.spawn.usd_path
+                metadata = utils.read_metadata_from_usd_directory(usd_path)
+                bottom_offset = metadata.get("bottom_offset")
+                self.bottom_offset_positions[asset_cfg.name] = (
+                    torch.tensor(bottom_offset.get("pos"), device=env.device).unsqueeze(0).repeat(env.num_envs, 1)
+                )
+                assert tuple(bottom_offset.get("quat")) == (
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                ), "Bottom offset rotation must be (1.0, 0.0, 0.0, 0.0)"
+
+    def __call__(
+        self,
+        env: ManagerBasedEnv,
+        env_ids: torch.Tensor,
+        pose_range: dict[str, tuple[float, float]],
+        velocity_range: dict[str, tuple[float, float]],
+        asset_cfgs: dict[str, SceneEntityCfg] = dict(),
+        offset_asset_cfg: SceneEntityCfg = None,
+        use_bottom_offset: bool = False,
+        grid_shape: tuple[int, int] = (3, 3),
+        xy_noise_range: tuple[float, float] = (-0.01, 0.01),
+    ) -> None:
+        if env_ids is None:
+            env_ids = torch.arange(env.scene.num_envs, device=env.device)
+
+        num_envs = len(env_ids)
+        rand_pose_samples = math_utils.sample_uniform(
+            self.pose_range[:, 0], self.pose_range[:, 1], (num_envs, 6), device=env.device
+        )
+
+        grid_ids = torch.randint(0, self.xy_grid.shape[0], (num_envs,), device=env.device)
+        xy = self.xy_grid[grid_ids]
+        xy_noise = math_utils.sample_uniform(
+            self.xy_noise_range[0], self.xy_noise_range[1], (num_envs, 2), device=env.device
+        )
+        rand_pose_samples[:, 0:2] = (xy + xy_noise).clamp(
+            min=self.pose_range[0:2, 0],
+            max=self.pose_range[0:2, 1],
+        )
+
+        orientations_delta = math_utils.quat_from_euler_xyz(
+            rand_pose_samples[:, 3], rand_pose_samples[:, 4], rand_pose_samples[:, 5]
+        )
+        rand_vel_samples = math_utils.sample_uniform(
+            self.velocity_range[:, 0], self.velocity_range[:, 1], (num_envs, 6), device=env.device
+        )
+
+        for asset_cfg in self.asset_cfgs:
+            asset: RigidObject | Articulation = env.scene[asset_cfg.name]
+            root_states = asset.data.default_root_state[env_ids].clone()
+            positions = root_states[:, 0:3] + env.scene.env_origins[env_ids] + rand_pose_samples[:, 0:3]
+
+            if self.offset_asset_cfg:
+                offset_asset: RigidObject | Articulation = env.scene[self.offset_asset_cfg.name]
+                offset_positions = offset_asset.data.default_root_state[env_ids].clone()
+                positions += offset_positions[:, 0:3]
+
+            if self.use_bottom_offset:
+                bottom_offset_position = self.bottom_offset_positions[asset_cfg.name]
+                positions -= bottom_offset_position[env_ids, 0:3]
+
+            orientations = math_utils.quat_mul(root_states[:, 3:7], orientations_delta)
+            velocities = root_states[:, 7:13] + rand_vel_samples
+
+            asset.write_root_pose_to_sim(torch.cat([positions, orientations], dim=-1), env_ids=env_ids)
+            asset.write_root_velocity_to_sim(velocities, env_ids=env_ids)
+
+
 class randomize_hdri(ManagerTermBase):
     """Randomizes the HDRI texture, intensity, and rotation.
 
