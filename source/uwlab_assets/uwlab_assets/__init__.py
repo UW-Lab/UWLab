@@ -21,8 +21,8 @@ UWLAB_ASSETS_DATA_DIR = os.path.join(UWLAB_ASSETS_EXT_DIR, "data")
 UWLAB_ASSETS_METADATA = toml.load(os.path.join(UWLAB_ASSETS_EXT_DIR, "config", "extension.toml"))
 """Extension metadata dictionary parsed from the extension.toml file."""
 
-UWLAB_CLOUD_ASSETS_DIR = "https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main"
-
+# UWLAB_CLOUD_ASSETS_DIR = "https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main"
+UWLAB_CLOUD_ASSETS_DIR = "https://huggingface.co/datasets/yandabao/uwlab-assets/resolve/main"
 
 def _extract_relative_path(url: str) -> str:
     """Strip the HuggingFace resolve-URL prefix, returning the repo-relative path.

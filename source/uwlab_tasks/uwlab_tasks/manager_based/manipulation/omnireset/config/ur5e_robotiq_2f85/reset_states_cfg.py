@@ -187,7 +187,12 @@ class ResetStatesBaseEventCfg:
     #     },
     # )
 
-
+# "x": (0.4, 0.5),
+# "y": (0.09, 0.11),
+# "z": (0.01, 0.03),
+# "roll": (0, 0),
+# "pitch": (0, 0),
+# "yaw": (-np.pi / 8, np.pi / 8),
 @configclass
 class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
     reset_insertive_object_pose = EventTerm(
@@ -195,12 +200,12 @@ class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
         mode="reset",
         params={
             "pose_range": {
-                "x": (0.35, 0.55),
-                "y": (0.0, 0.2),
-                "z": (0.01, 0.02),
+                "x": (0.38, 0.52),
+                "y": (0.05, 0.15),
+                "z": (0.01, 0.015),
                 "roll": (0, 0),
                 "pitch": (0, 0),
-                "yaw": (-np.pi / 4, np.pi / 4),
+                "yaw": (-np.pi / 6, np.pi / 6),
             },
             "velocity_range": {},
             "asset_cfgs": {"insertive_object": SceneEntityCfg("insertive_object")},
@@ -218,9 +223,9 @@ class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
             "fixed_asset_cfg": SceneEntityCfg("robot"),
             "fixed_asset_offset": None,
             "pose_range_b": {
-                "x": (0.38, 0.52),
-                "y": (0.1, 0.15),
-                "z": (0.0, 0.2),
+                "x": (0.42, 0.48),
+                "y": (0.08, 0.12),
+                "z": (0.18, 0.22),
                 "roll": (0.0, 0.0),
                 "pitch": (np.pi / 2, np.pi / 2),
                 "yaw": (np.pi, np.pi),

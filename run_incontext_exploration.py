@@ -355,13 +355,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # CONSTANTS / CURRICULUM SETTINGS
+    collection_episode_length_s = 8.0
+    eval_episode_length_s = 10.0
     sampling_ratio_curriculum = [
         (1.0, ),
         (0.25, 0.75),
         (0.2, 0.3, 0.5),
         (0.1, 0.2, 0.3, 0.4),
         (0.05, 0.1, 0.2, 0.25, 0.4),
-        (0.05, 0.1, 0.15, 0.15, 0.2, 0.45,)
+        (0.05, 0.1, 0.15, 0.15, 0.2, 0.35),
         # (0.4, 0.3, 0.2, 0.1),
     ]
 
@@ -389,13 +391,13 @@ if __name__ == "__main__":
         11.0
     ]
     if args.schedule == "fixed":
-        episode_length_s = [10.0, 10.0, 10.0, 10.0, 10.0]
+        episode_length_s = [collection_episode_length_s] * 5
         horizons = [
-            (0.2, 0.5),
-            (0.3, 0.7),
-            (0.4, 0.9),
-            (0.5, 0.95),
-            (0.6, 0.95)
+            (0.20, 0.50),
+            (0.30, 0.70),
+            (0.40, 0.90),
+            (0.50, 0.95),
+            (0.60, 0.95),
         ]
     elif args.schedule == "fixed2":
         episode_length_s = [8.0, 8.0, 8.0]
@@ -417,14 +419,18 @@ if __name__ == "__main__":
     exp_name = args.exp_name
     wandb_project = args.wandb_project
 
+    assert len(sampling_ratio_curriculum) >= args.max_iterations, "sampling_ratio_curriculum length must be >= max_iterations"
+    assert len(lrs) >= args.max_iterations, "lrs length must be >= max_iterations"
+    assert len(horizons) >= args.max_iterations - 1, "horizons length must be >= max_iterations - 1"
+    assert len(episode_length_s) >= args.max_iterations - 1, "episode_length_s length must be >= max_iterations - 1"
+    for i, ratios in enumerate(sampling_ratio_curriculum[:args.max_iterations]):
+        assert len(ratios) == i + 1, f"sampling_ratio_curriculum[{i}] must have {i + 1} entries"
+        assert abs(sum(ratios) - 1.0) < 1e-6, f"sampling ratios for iteration {i} must sum to 1.0"
+
     if args.start_iteration is not None:
         assert args.checkpoint_dir is not None, "If start_iteration is provided, checkpoint_dir must also be provided"
         assert args.start_iteration > 0, "start_iteration must be greater than 0"
         assert args.start_iteration < args.max_iterations, "start_iteration must be less than max_iterations"
-        assert len(sampling_ratio_curriculum) >= args.max_iterations, "sampling_ratio_curriculum length must be >= max_iterations"
-        assert len(lrs) >= args.max_iterations, "lrs length must be >= max_iterations"
-        assert len(horizons) >= args.max_iterations - 1, "horizons length must be >= max_iterations - 1"
-        assert len(episode_length_s) >= args.max_iterations - 1, "episode_length_s length must be >= max_iterations - 1"
 
         base_output_dir = args.checkpoint_dir
         args.initial_dataset_path = os.path.join(
@@ -440,9 +446,9 @@ if __name__ == "__main__":
             dataset_file=os.path.join(dataset_path, "data.zarr"),
             num_envs=args.num_data_envs,
             num_demos=args.num_demos,
-            min_exploration_horizon=0.4,
-            max_exploration_horizon=0.9,
-            episode_length_s=8.0,
+            min_exploration_horizon=horizons[args.start_iteration - 1][0],
+            max_exploration_horizon=horizons[args.start_iteration - 1][1],
+            episode_length_s=episode_length_s[args.start_iteration - 1],
             expert_path=args.expert_policy_checkpoint,
             exploration_checkpoint=exploration_checkpoint,
             insertive_object=args.insertive_object,
@@ -467,7 +473,7 @@ if __name__ == "__main__":
                 num_demos=args.num_demos,
                 min_exploration_horizon=0.0,
                 max_exploration_horizon=0.0,
-                episode_length_s=10.0,
+                episode_length_s=collection_episode_length_s,
                 expert_path=args.expert_policy_checkpoint,
                 insertive_object=args.insertive_object,
                 receptive_object=args.receptive_object,
@@ -528,7 +534,7 @@ if __name__ == "__main__":
             exp_name=exp_name,
             wandb_project=wandb_project,
             wandb_group="eval",
-            episode_length_s=10.0,
+            episode_length_s=eval_episode_length_s,
             insertive_object=args.insertive_object,
             receptive_object=args.receptive_object,
             no_video=args.no_video,
