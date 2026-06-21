@@ -21,7 +21,7 @@ from isaaclab.utils import configclass
 from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 from ... import mdp as task_mdp
-from .actions import Ur5eRobotiq2f85RelativeOSCPositionAction
+from .actions import Ur5eRobotiq2f85RelativeOSCPositionAction, Ur5eRobotiq2f85RelativeOSCEvalPositionAction
 from .rl_state_cfg import FinetuneEvalEventCfg, RlStateSceneCfg, Ur5eRobotiq2f85RlStateCfg
 
 
@@ -464,6 +464,7 @@ class Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
 @configclass
 class Ur5eRobotiq2f85DataCollectionTactileRelCartesianOSCCfg(Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg):
     events: TactileEventCfg = TactileEventCfg()
+    actions: Ur5eRobotiq2f85RelativeOSCEvalPositionAction = Ur5eRobotiq2f85RelativeOSCEvalPositionAction()
 
 
 @configclass

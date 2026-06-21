@@ -65,6 +65,15 @@ UR5E_ROBOTIQ_2F85_RELATIVE_OSC_POSONLY = RelCartesianOSCPositionActionCfg(
     torque_limit=(150.0, 150.0, 150.0, 28.0, 28.0, 28.0),
 )
 
+UR5E_ROBOTIQ_2F85_RELATIVE_OSC_EVAL_POSONLY = RelCartesianOSCPositionActionCfg(
+    asset_name="robot",
+    joint_names=["shoulder.*", "elbow.*", "wrist.*"],
+    body_name="wrist_3_link",
+    scale_xyz_axisangle=(0.01, 0.01, 0.002, 0.02, 0.02, 0.2),
+    motion_stiffness=(1000.0, 1000.0, 1000.0, 50.0, 50.0, 50.0),
+    motion_damping_ratio=(1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+    torque_limit=(150.0, 150.0, 150.0, 28.0, 28.0, 28.0),
+)
 
 @configclass
 class Ur5eRobotiq2f85RelativeOSCPositionAction:
@@ -76,6 +85,18 @@ class Ur5eRobotiq2f85RelativeOSCPositionAction:
     """
 
     arm = UR5E_ROBOTIQ_2F85_RELATIVE_OSC_POSONLY
+    gripper = ROBOTIQ_GRIPPER_BINARY_ACTIONS
+
+@configclass
+class Ur5eRobotiq2f85RelativeOSCEvalPositionAction:
+    """Position-only action: 3-DOF Cartesian (x, y, z) arm + binary gripper.
+
+    The policy cannot command wrist rotation -- only translate and open/close
+    the gripper. Orientation is left uncommanded, so the wrist is free to rotate
+    under collisions. Total action dim is 4 (3 arm + 1 gripper).
+    """
+
+    arm = UR5E_ROBOTIQ_2F85_RELATIVE_OSC_EVAL_POSONLY
     gripper = ROBOTIQ_GRIPPER_BINARY_ACTIONS
 
 
