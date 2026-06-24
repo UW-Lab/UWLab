@@ -71,3 +71,10 @@ tests/
 
 # Docker history
 .uw-lab-docker-history
+
+# random stuff
+episodes/
+plots/
+Datasets/
+experts/
+reset_state_datasets/
