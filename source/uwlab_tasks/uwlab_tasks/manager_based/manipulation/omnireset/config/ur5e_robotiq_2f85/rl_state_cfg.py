@@ -555,11 +555,11 @@ class RewardsCfg:
 
     action_magnitude = RewTerm(func=task_mdp.action_l2_clamped, weight=-1e-4)
 
-    action_rate = RewTerm(func=task_mdp.action_rate_l2_clamped, weight=-1e-3)
+    action_rate = RewTerm(func=task_mdp.action_rate_l2_clamped, weight=-1e-4)
 
     joint_vel = RewTerm(
         func=task_mdp.joint_vel_l2_clamped,
-        weight=-1e-2,
+        weight=-1e-3,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"])},
     )
 
@@ -572,6 +572,10 @@ class RewardsCfg:
         weight=0.1,
         params={
             "insertive_asset_cfg": SceneEntityCfg("insertive_object"),
+            "robot_asset_cfg": SceneEntityCfg("robot", body_names="robotiq_base_link"),
+            # success additionally requires the gripper pointing vertically down (approach axis
+            # aligned with world -z within ~25 deg). Raise toward 1.0 to demand a stricter vertical.
+            "gripper_down_dot_threshold": 0.9,
             # "receptive_asset_cfg": SceneEntityCfg("receptive_object"),
         },
     )
@@ -754,8 +758,8 @@ class Ur5eRobotiq2f85RlStateCfg(ManagerBasedRLEnvCfg):
 class Ur5eRobotiq2f85RelCartesianOSCTrainCfg(Ur5eRobotiq2f85RlStateCfg):
 
     events: TrainEventCfg = TrainEventCfg()
-    # actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
-    actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
+    actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+    # actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
 
 
 # Finetune configuration (Stage 2: explicit actuator, curriculum ramps sysid + gains + scales)
@@ -778,8 +782,8 @@ class Ur5eRobotiq2f85RelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
     """Eval after Stage 1: implicit actuator, soft gains, large action scale, no sysid DR."""
 
     events: TrainEvalEventCfg = TrainEvalEventCfg()
-    actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
-    # actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+    # actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
+    actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
 
 
 # Evaluation configuration (after Stage 2: explicit actuator, stiff gains, fixed sysid)

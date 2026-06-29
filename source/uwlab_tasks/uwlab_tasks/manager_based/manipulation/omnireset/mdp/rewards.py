@@ -94,6 +94,17 @@ class ProgressContextPickOnly(ManagerTermBase):
             pos=tuple(insertive_meta.get("assembled_offset").get("pos")),
             quat=tuple(insertive_meta.get("assembled_offset").get("quat")),
         )
+
+        # Gripper orientation tracking: success additionally requires the gripper to point
+        # vertically down. The gripper's approach axis is the local axis given by
+        # ``gripper_approach_direction`` in the robot metadata (local +x for the Robotiq 2f85);
+        # "pointing down" means that axis, expressed in world frame, aligns with world -z.
+        self.robot: Articulation = env.scene[cfg.params.get("robot_asset_cfg").name]  # type: ignore
+        robot_meta = utils.read_metadata_from_usd_directory(self.robot.cfg.spawn.usd_path)
+        approach_dir = robot_meta.get("gripper_approach_direction", [1.0, 0.0, 0.0])
+        self.gripper_approach_dir = torch.tensor(approach_dir, dtype=torch.float32, device=env.device).view(1, 3)
+        self.gripper_body_id = self.robot.find_bodies(cfg.params.get("robot_asset_cfg").body_names)[0][0]
+        self.gripper_pointing_down = torch.zeros((env.num_envs), dtype=torch.bool, device=env.device)
         # self.receptive_asset_offset = Offset(
         #     pos=tuple(receptive_meta.get("assembled_offset").get("pos")),
         #     quat=tuple(receptive_meta.get("assembled_offset").get("quat")),
@@ -118,14 +129,27 @@ class ProgressContextPickOnly(ManagerTermBase):
         self,
         env: ManagerBasedRLEnv,
         insertive_asset_cfg: SceneEntityCfg,
+        robot_asset_cfg: SceneEntityCfg,
         # receptive_asset_cfg: SceneEntityCfg,
         command_context: str = "task_command",
         pick_height_threshold: float = 0.02,
+        gripper_down_dot_threshold: float = 0.9,
     ) -> torch.Tensor:
         # Check if insertive object z-position is above threshold (picked up)
         insertive_z_pos = self.insertive_asset.data.root_pos_w[:, 2]
         self.insertive_asset_z[:] = insertive_z_pos
-        self.success[:] = insertive_z_pos > pick_height_threshold
+
+        # Check the gripper is pointing vertically down: rotate the local approach axis into
+        # world frame and require its z-component to be close to -1 (i.e. aligned with -z).
+        # A threshold of -1.0 disables the constraint entirely (any orientation passes).
+        if gripper_down_dot_threshold <= -1.0:
+            self.gripper_pointing_down[:] = True
+        else:
+            gripper_quat_w = self.robot.data.body_link_quat_w[:, self.gripper_body_id]
+            approach_w = math_utils.quat_apply(gripper_quat_w, self.gripper_approach_dir.expand(env.num_envs, 3))
+            self.gripper_pointing_down[:] = (-approach_w[:, 2]) >= gripper_down_dot_threshold
+
+        self.success[:] = (insertive_z_pos > pick_height_threshold) & self.gripper_pointing_down
 
         # Update continuous success counter
         self.continuous_success_counter[:] = torch.where(
