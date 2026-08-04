@@ -175,11 +175,31 @@ gym.register(
 )
 
 gym.register(
+    id="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-DataCollection-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.data_collection_tactile_cfg:Ur5eRobotiq2f85DataCollectionFinetuneTactileRelCartesianOSCCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_cfg:Base_DAggerRunnerCfg",
+    },
+)
+# Ur5eRobotiq2f85DataCollectionEvalTactileRelCartesianOSCCfg
+gym.register(
     id="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": f"{__name__}.data_collection_tactile_cfg:Ur5eRobotiq2f85EvalTactileRelCartesianOSCCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_cfg:Base_DAggerRunnerCfg",
+    },
+)
+
+gym.register(
+    id="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.data_collection_tactile_cfg:Ur5eRobotiq2f85EvalFinetuneTactileRelCartesianOSCCfg",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_cfg:Base_DAggerRunnerCfg",
     },
 )

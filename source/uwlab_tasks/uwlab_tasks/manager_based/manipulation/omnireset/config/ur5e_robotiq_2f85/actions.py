@@ -22,6 +22,16 @@ UR5E_ROBOTIQ_2F85_RELATIVE_OSC = RelCartesianOSCActionCfg(
     torque_limit=(150.0, 150.0, 150.0, 28.0, 28.0, 28.0),
 )
 
+# UR5E_ROBOTIQ_2F85_RELATIVE_OSC = RelCartesianOSCActionCfg(
+#     asset_name="robot",
+#     joint_names=["shoulder.*", "elbow.*", "wrist.*"],
+#     body_name="wrist_3_link",
+#     scale_xyz_axisangle=(0.02, 0.02, 0.02, 0.02, 0.02, 0.2),
+#     motion_stiffness=(1000.0, 1000.0, 1000.0, 50.0, 50.0, 50.0),
+#     motion_damping_ratio=(1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+#     torque_limit=(150.0, 150.0, 150.0, 28.0, 28.0, 28.0),
+# )
+
 # Eval / sim2real gains (high Kp matched to sysid friction, end-of-curriculum values)
 UR5E_ROBOTIQ_2F85_RELATIVE_OSC_EVAL = RelCartesianOSCActionCfg(
     asset_name="robot",

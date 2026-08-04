@@ -186,7 +186,7 @@ class BaseEventCfg:
             "asset_cfg": SceneEntityCfg("insertive_object"),
             # we assume insertive object is somewhere between 20g and 200g
             # "mass_distribution_params": (0.02, 0.2),
-            "mass_distribution_params": (0.05, 0.2),
+            "mass_distribution_params": (0.02, 0.1),
             "operation": "abs",
             "distribution": "uniform",
             "recompute_inertia": True,
@@ -774,6 +774,38 @@ class Ur5eRobotiq2f85RelCartesianOSCFinetuneCfg(Ur5eRobotiq2f85RlStateCfg):
     def __post_init__(self):
         super().__post_init__()
         self.scene.robot = EXPLICIT_UR5E_ROBOTIQ_2F85.replace(prim_path="{ENV_REGEX_NS}/Robot")
+
+# # Training configuration (Stage 1: no curriculum, implicit actuator, no sysid DR)
+# @configclass
+# class Ur5eRobotiq2f85RelCartesianOSCTrainCfg(Ur5eRobotiq2f85RlStateCfg):
+#     # events: TrainEventCfg = TrainEventCfg()
+#     events: FinetuneEventCfg = FinetuneEventCfg()
+#     actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+#     # actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
+#     def __post_init__(self):
+#         super().__post_init__()
+#         self.scene.robot = EXPLICIT_UR5E_ROBOTIQ_2F85.replace(prim_path="{ENV_REGEX_NS}/Robot")
+
+# @configclass
+# class Ur5eRobotiq2f85RelCartesianOSCFinetuneCfg(Ur5eRobotiq2f85RlStateCfg):
+#     events: FinetuneEventCfg = FinetuneEventCfg()
+#     actions: Ur5eRobotiq2f85RelativeOSCEvalAction = Ur5eRobotiq2f85RelativeOSCEvalAction()
+
+#     def __post_init__(self):
+#         super().__post_init__()
+#         self.scene.robot = EXPLICIT_UR5E_ROBOTIQ_2F85.replace(prim_path="{ENV_REGEX_NS}/Robot")
+# # Finetune configuration (Stage 2: explicit actuator, curriculum ramps sysid + gains + scales)
+# @configclass
+# class Ur5eRobotiq2f85RelCartesianOSCFinetuneCfg(Ur5eRobotiq2f85RlStateCfg):
+#     """Finetune config: loads converged Stage 1 policy, explicit actuator from start, curriculum ramps DR."""
+
+#     events: FinetuneEventCfg = FinetuneEventCfg()
+#     actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+#     curriculum: FinetuneCurriculumsCfg = FinetuneCurriculumsCfg()
+
+#     def __post_init__(self):
+#         super().__post_init__()
+#         self.scene.robot = EXPLICIT_UR5E_ROBOTIQ_2F85.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
 
 # Evaluation configuration (after Stage 1: implicit actuator, soft gains, no sysid DR)

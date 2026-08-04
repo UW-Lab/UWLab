@@ -9,7 +9,7 @@ import subprocess
 _STEP_CKPT_RE = re.compile(r"step_(\d+)\.ckpt$")
 
 
-def _expected_train_checkpoint(output_dir: str, step: int = 20_000) -> str:
+def _expected_train_checkpoint(output_dir: str, step: int = 40_000) -> str:
     """Resolve the checkpoint path produced by a training iteration.
 
     Selection order (ported from UWLab-ICL/run_incontext_exploration.py):
@@ -376,45 +376,85 @@ if __name__ == "__main__":
         1e-5
     ]
 
+    # horizons = [
+    #     # (0.1, 0.3),
+    #     (0.2, 0.5),
+    #     # (0.15, 0.5),
+    #     (0.3, 0.8),
+    #     # (0.3, 0.7)
+    #     (0.4, 0.9)
+    # ]
+    # episode_length_s = [
+    #     # 5.0,
+    #     7.0,
+    #     9.0,
+    #     11.0
+    # ]
+    # if args.schedule == "fixed":
+    #     episode_length_s = [collection_episode_length_s] * 5
+    #     horizons = [
+    #         (0.20, 0.50),
+    #         (0.30, 0.70),
+    #         (0.40, 0.90),
+    #         (0.50, 0.95),
+    #         (0.60, 0.95),
+    #     ]
+    # elif args.schedule == "fixed2":
+    #     episode_length_s = [8.0, 8.0, 8.0]
+    #     horizons = [
+    #         (0.2, 0.2),
+    #         (0.5, 0.5),
+    #         (0.8, 0.8)
+    #     ]
+    # elif args.schedule == "fixed3":
+    #     # episode_length_s = [8.0, 8.0, 8.0]
+    #     horizons = [
+    #         (0.5, 0.5),
+    #         (0.5, 0.5),
+    #         (0.5, 0.5),
+    #     ]
+    episode_length_s = [collection_episode_length_s] * 5
+    # horizons = [
+    #     (0.20, 0.50),
+    #     (0.30, 0.70),
+    #     (0.40, 0.90),
+    #     (0.50, 0.95),
+    #     (0.60, 0.95),
+    # ]
+    # horizons = [
+    #   (0.10, 0.25),  # 1.2s - 3.0s
+    #   (0.15, 0.35),  # 1.8s - 4.2s
+    #   (0.20, 0.50),  # 2.4s - 6.0s
+    #   (0.30, 0.65),  # 3.6s - 7.8s
+    #   (0.40, 0.80),  # 4.8s - 9.6s
+    # ]
+#     horizons = [
+#       (0.00, 0.00),  # expert only
+#       (0.17, 0.35),  # 2.0s - 4.2s
+#       (0.43, 0.61),  # 5.1s - 7.3s
+#       (0.60, 0.74),  # 7.2s - 8.9s, clipped to preserve rescue time
+#   ]
+# horizons = [
+#     #         (0.20, 0.50),
+#     #         (0.30, 0.70),
+#     #         (0.40, 0.90),
+#     #         (0.50, 0.95),
+#     #         (0.60, 0.95),
+#     #     ]
+    # horizons = [
+    #     (0.2, 0.35),
+    #     (0.3, 0.5),
+    #     (0.4, 0.6),
+    #     (0.5, 0.75),
+    #     (0.6, 0.95),
+    # ]
     horizons = [
-        # (0.1, 0.3),
-        (0.2, 0.5),
-        # (0.15, 0.5),
-        (0.3, 0.8),
-        # (0.3, 0.7)
-        (0.4, 0.9)
+        (0.20, 0.50), # 3.2s - 8.0s
+        (0.30, 0.70),
+        (0.40, 0.90),
+        (0.50, 0.95),
+        (0.60, 0.95),
     ]
-    episode_length_s = [
-        # 5.0,
-        7.0,
-        9.0,
-        11.0
-    ]
-    if args.schedule == "fixed":
-        episode_length_s = [collection_episode_length_s] * 5
-        horizons = [
-            (0.20, 0.50),
-            (0.30, 0.70),
-            (0.40, 0.90),
-            (0.50, 0.95),
-            (0.60, 0.95),
-        ]
-    elif args.schedule == "fixed2":
-        episode_length_s = [8.0, 8.0, 8.0]
-        horizons = [
-            (0.2, 0.2),
-            (0.5, 0.5),
-            (0.8, 0.8)
-        ]
-    elif args.schedule == "fixed3":
-        # episode_length_s = [8.0, 8.0, 8.0]
-        horizons = [
-            (0.5, 0.5),
-            (0.5, 0.5),
-            (0.5, 0.5),
-        ]
-
-    
 
     exp_name = args.exp_name
     wandb_project = args.wandb_project
@@ -426,6 +466,11 @@ if __name__ == "__main__":
     for i, ratios in enumerate(sampling_ratio_curriculum[:args.max_iterations]):
         assert len(ratios) == i + 1, f"sampling_ratio_curriculum[{i}] must have {i + 1} entries"
         assert abs(sum(ratios) - 1.0) < 1e-6, f"sampling ratios for iteration {i} must sum to 1.0"
+
+    ## print all arguments that are important for the run
+    print("Arguments:")
+    for arg in vars(args):
+        print(f"{arg}: {getattr(args, arg)}")
 
     if args.start_iteration is not None:
         assert args.checkpoint_dir is not None, "If start_iteration is provided, checkpoint_dir must also be provided"

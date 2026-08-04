@@ -1023,8 +1023,9 @@ class MultiResetManager(ManagerTermBase):
         }
         insertive_usd_path = env.scene["insertive_object"].cfg.spawn.usd_path
         insertive_name = utils.object_name_from_usd(insertive_usd_path)
-        receptive_name = _INSERTIVE_TO_RECEPTIVE.get(insertive_name)
-        pair = "__".join(sorted([insertive_name, receptive_name])) if receptive_name else insertive_name
+        # receptive_name = _INSERTIVE_TO_RECEPTIVE.get(insertive_name)
+        # pair = "__".join(sorted([insertive_name, receptive_name])) if receptive_name else insertive_name
+        pair = insertive_name
 
         # Generate dataset paths from pair directory and reset types
         dataset_files = []

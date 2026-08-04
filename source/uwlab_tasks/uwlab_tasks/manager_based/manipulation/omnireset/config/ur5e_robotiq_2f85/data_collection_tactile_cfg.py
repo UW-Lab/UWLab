@@ -21,7 +21,7 @@ from isaaclab.utils import configclass
 from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
 from ... import mdp as task_mdp
-from .actions import Ur5eRobotiq2f85RelativeOSCPositionAction, Ur5eRobotiq2f85RelativeOSCEvalPositionAction
+from .actions import Ur5eRobotiq2f85RelativeOSCEvalAction, Ur5eRobotiq2f85RelativeOSCAction
 from .rl_state_cfg import FinetuneEvalEventCfg, RlStateSceneCfg, Ur5eRobotiq2f85RlStateCfg
 
 
@@ -157,8 +157,8 @@ class TactileEventCfg(FinetuneEvalEventCfg):
         func=task_mdp.randomize_gripper_pos_affine,
         mode="reset",
         params={
-            "scale_range": (0.75, 1.25),
-            "offset_range": (-0.05, 0.05),
+            "scale_range": (0.9, 1.1),
+            "offset_range": (-0.03, 0.03),
         },
     )
 
@@ -421,12 +421,12 @@ class DataCollectionTactileTerminationsCfg:
     # )
 
     early_success = DoneTerm(
-        func=task_mdp.early_success_termination, params={"num_consecutive_successes": 4, "min_episode_length": 10}
+        func=task_mdp.early_success_termination, params={"num_consecutive_successes": 10, "min_episode_length": 10}
     )
 
     success = DoneTerm(
         func=task_mdp.consecutive_success_state_with_min_length,
-        params={"num_consecutive_successes": 4, "min_episode_length": 10},
+        params={"num_consecutive_successes": 10, "min_episode_length": 10},
     )
 
 
@@ -434,7 +434,7 @@ class DataCollectionTactileTerminationsCfg:
 class Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
     """Tactile base config: fixed sysid + Tactile scene/obs/terminations/render."""
 
-    actions: Ur5eRobotiq2f85RelativeOSCPositionAction = Ur5eRobotiq2f85RelativeOSCPositionAction()
+    actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
     scene: DataCollectionTactileObjectSceneCfg = DataCollectionTactileObjectSceneCfg(
         num_envs=32, env_spacing=1.5, replicate_physics=False
     )
@@ -464,7 +464,14 @@ class Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
 @configclass
 class Ur5eRobotiq2f85DataCollectionTactileRelCartesianOSCCfg(Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg):
     events: TactileEventCfg = TactileEventCfg()
-    actions: Ur5eRobotiq2f85RelativeOSCEvalPositionAction = Ur5eRobotiq2f85RelativeOSCEvalPositionAction()
+    # actions: Ur5eRobotiq2f85RelativeOSCEvalPositionAction = Ur5eRobotiq2f85RelativeOSCEvalPositionAction()
+    actions: Ur5eRobotiq2f85RelativeOSCAction = Ur5eRobotiq2f85RelativeOSCAction()
+
+@configclass
+class Ur5eRobotiq2f85DataCollectionFinetuneTactileRelCartesianOSCCfg(Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg):
+    events: TactileEventCfg = TactileEventCfg()
+    # actions: Ur5eRobotiq2f85RelativeOSCEvalPositionAction = Ur5eRobotiq2f85RelativeOSCEvalPositionAction()
+    actions: Ur5eRobotiq2f85RelativeOSCEvalAction = Ur5eRobotiq2f85RelativeOSCEvalAction()
 
 
 @configclass
@@ -472,6 +479,25 @@ class Ur5eRobotiq2f85EvalTactileRelCartesianOSCCfg(Ur5eRobotiq2f85TactileRelCart
     """Evaluation config for Cartesian OSC delta actions."""
     scene: EvalTactileObjectSceneCfg = EvalTactileObjectSceneCfg(num_envs=32, env_spacing=1.5, replicate_physics=False)
     events: TactileEventCfg = TactileEventCfg()
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.observations.policy.front_rgb = ObsTerm(
+            func=task_mdp.process_image,
+            params={
+                "sensor_cfg": SceneEntityCfg("front_camera"),
+                "data_type": "rgb",
+                "process_image": True,
+                "output_size": (1080, 1920)
+            },
+        )
+
+@configclass
+class Ur5eRobotiq2f85EvalFinetuneTactileRelCartesianOSCCfg(Ur5eRobotiq2f85TactileRelCartesianOSCEvalCfg):
+    """Evaluation config for Cartesian OSC delta actions."""
+    scene: EvalTactileObjectSceneCfg = EvalTactileObjectSceneCfg(num_envs=32, env_spacing=1.5, replicate_physics=False)
+    events: TactileEventCfg = TactileEventCfg()
+    actions: Ur5eRobotiq2f85RelativeOSCEvalAction = Ur5eRobotiq2f85RelativeOSCEvalAction()
 
     def __post_init__(self):
         super().__post_init__()

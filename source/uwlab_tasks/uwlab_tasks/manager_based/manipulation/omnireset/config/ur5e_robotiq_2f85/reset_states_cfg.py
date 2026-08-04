@@ -196,23 +196,30 @@ class ResetStatesBaseEventCfg:
 @configclass
 class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
     reset_insertive_object_pose = EventTerm(
-        func=task_mdp.reset_root_states_discrete_grid,
+        # func=task_mdp.reset_root_states_discrete_grid,
+        func=task_mdp.reset_root_states_uniform,
         mode="reset",
         params={
             "pose_range": {
-                "x": (0.38, 0.52),
+                # "x": (0.38, 0.52),
+                # "y": (0.05, 0.15),
+                # "z": (0.01, 0.015),
+                # "roll": (0, 0),
+                # "pitch": (0, 0),
+                # "yaw": (-np.pi / 6, np.pi / 6),
+                "x": (0.4, 0.5),
                 "y": (0.05, 0.15),
-                "z": (0.01, 0.015),
+                "z": (0.01, 0.02),
                 "roll": (0, 0),
                 "pitch": (0, 0),
-                "yaw": (-np.pi / 6, np.pi / 6),
+                "yaw": (-np.pi / 8, np.pi / 8),
             },
             "velocity_range": {},
             "asset_cfgs": {"insertive_object": SceneEntityCfg("insertive_object")},
             "offset_asset_cfg": SceneEntityCfg("ur5_metal_support"),
             "use_bottom_offset": True,
-            "grid_shape": (3, 3),
-            "xy_noise_range": (-0.01, 0.01),
+            # "grid_shape": (3, 3),
+            # "xy_noise_range": (-0.01, 0.01),
         },
     )
 
@@ -223,12 +230,18 @@ class ObjectAnywhereEEAnywhereEventCfg(ResetStatesBaseEventCfg):
             "fixed_asset_cfg": SceneEntityCfg("robot"),
             "fixed_asset_offset": None,
             "pose_range_b": {
-                "x": (0.42, 0.48),
-                "y": (0.08, 0.12),
-                "z": (0.18, 0.22),
+                "x": (0.44, 0.46),
+                # "y": (0.08, 0.12),
+                # "z": (0.18, 0.22),
+                # "roll": (0.0, 0.0),
+                # "pitch": (np.pi / 2, np.pi / 2),
+                # "yaw": (np.pi, np.pi),
+                # "x": (0.38, 0.52),
+                "y": (0.09, 0.11),
+                "z": (0.18, 0.2),
                 "roll": (0.0, 0.0),
-                "pitch": (np.pi / 2, np.pi / 2),
-                "yaw": (np.pi, np.pi),
+                "pitch": (np.pi / 2 - 0.1, np.pi / 2 + 0.1),
+                "yaw": (np.pi - 0.1, np.pi + 0.1),
             },
             "robot_ik_cfg": SceneEntityCfg(
                 "robot", joint_names=["shoulder.*", "elbow.*", "wrist.*"], body_names="robotiq_base_link"
