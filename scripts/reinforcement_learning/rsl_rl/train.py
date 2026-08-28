@@ -38,6 +38,26 @@ parser.add_argument(
 parser.add_argument(
     "--ray-proc-id", "-rid", type=int, default=None, help="Automatically configured by Ray integration, otherwise None."
 )
+# --- null-space preference critic -------------------------------------------------------------
+parser.add_argument("--beta", type=float, default=None, help="Preference step budget. 0 == baseline PPO.")
+parser.add_argument(
+    "--pref_source", type=str, default=None, choices=["zero", "noise", "terms"],
+    help="Preference reward stream: zero (sanity A), noise (sanity B), terms (scripted predicates).",
+)
+parser.add_argument("--pref_noise_std", type=float, default=None, help="Std for --pref_source=noise.")
+parser.add_argument(
+    "--pref_terms", type=str, default=None,
+    help="Comma-separated RewardManager term names for --pref_source=terms.",
+)
+parser.add_argument(
+    "--critic_arch", type=str, default=None, choices=["shared", "separate"],
+    help="Second value head as a widened shared trunk, or an independent critic MLP.",
+)
+parser.add_argument("--gamma_pref", type=float, default=None, help="Discount for the preference return.")
+parser.add_argument(
+    "--projection_mode", type=str, default=None, choices=["gradient", "advantage", "sum"],
+    help="gradient = faithful null-space projection; advantage/sum = ablations.",
+)
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -87,6 +107,14 @@ from datetime import datetime
 
 from rsl_rl.runners import DistillationRunner, OnPolicyRunner
 
+from uwlab_rl.rsl_rl.nullspace import (
+    DualCriticOnPolicyRunner,
+    DualRewardVecEnvWrapper,
+    GaussianNoisePreference,
+    RewardManagerTermsPreference,
+    ZeroPreference,
+)
+
 from isaaclab.envs import (
     DirectMARLEnv,
     DirectMARLEnvCfg,
@@ -125,6 +153,24 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     agent_cfg.max_iterations = (
         args_cli.max_iterations if args_cli.max_iterations is not None else agent_cfg.max_iterations
     )
+
+    # --- null-space preference critic CLI overrides ---
+    # Applied before sanitize_rsl_rl_cfg, which only strips keys for algorithm classes it can
+    # resolve inside rsl_rl.algorithms; NullspacePPO lives in uwlab_rl, so these survive.
+    if args_cli.beta is not None:
+        agent_cfg.algorithm.beta = args_cli.beta
+    if args_cli.gamma_pref is not None:
+        agent_cfg.algorithm.gamma_pref = args_cli.gamma_pref
+    if args_cli.projection_mode is not None:
+        agent_cfg.algorithm.projection_mode = args_cli.projection_mode
+    if args_cli.critic_arch is not None:
+        agent_cfg.policy.critic_arch = args_cli.critic_arch
+    if args_cli.pref_source is not None:
+        agent_cfg.pref_source = args_cli.pref_source
+    if args_cli.pref_noise_std is not None:
+        agent_cfg.pref_noise_std = args_cli.pref_noise_std
+    if args_cli.pref_terms is not None:
+        agent_cfg.pref_term_names = tuple(n.strip() for n in args_cli.pref_terms.split(",") if n.strip())
 
     # make config compatible with installed rsl-rl version
     agent_cfg = cli_args.sanitize_rsl_rl_cfg(agent_cfg)
@@ -200,13 +246,38 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
 
     # wrap around environment for rsl-rl
-    env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
+    if agent_cfg.class_name == "DualCriticOnPolicyRunner":
+        # The dual-critic path needs a second reward stream. DualRewardVecEnvWrapper reads the
+        # RewardManager's already-materialised per-term buffer rather than restructuring the
+        # manager -- OmniReset's `progress_context` term returns zeros but caches state that the
+        # reward, terminations, reset curriculum and data-collection configs all read back, so
+        # splitting or reweighting the manager silently corrupts the reward.
+        source_name = getattr(agent_cfg, "pref_source", "zero")
+        if source_name == "zero":
+            pref_source = ZeroPreference()
+        elif source_name == "noise":
+            pref_source = GaussianNoisePreference(
+                std=getattr(agent_cfg, "pref_noise_std", 1.0), seed=agent_cfg.seed
+            )
+        elif source_name == "terms":
+            term_names = list(getattr(agent_cfg, "pref_term_names", ()))
+            if not term_names:
+                raise ValueError("--pref_source=terms requires --pref_terms=<comma,separated,names>")
+            pref_source = RewardManagerTermsPreference(term_names)
+        else:
+            raise ValueError(f"Unknown pref_source: {source_name}")
+        print(f"[INFO] Preference reward source: {source_name}")
+        env = DualRewardVecEnvWrapper(env, pref_source=pref_source, clip_actions=agent_cfg.clip_actions)
+    else:
+        env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
     # create runner from rsl-rl
     if agent_cfg.class_name == "OnPolicyRunner":
         runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
     elif agent_cfg.class_name == "DistillationRunner":
         runner = DistillationRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
+    elif agent_cfg.class_name == "DualCriticOnPolicyRunner":
+        runner = DualCriticOnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
     else:
         raise ValueError(f"Unsupported runner class: {agent_cfg.class_name}")
     # write git state to logs

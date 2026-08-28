@@ -326,7 +326,10 @@ def get_temp_dir(rank: int | None = None) -> str:
     uid = os.getuid()
     job_id = os.getenv("SLURM_JOB_ID") or os.getenv("PBS_JOBID") or "local"
 
-    download_dir = os.path.join("/tmp", "uwlab", str(uid), str(job_id), f"rank_{rank}")
+    # Base is overridable via UWLAB_TMP_DIR: on shared boxes /tmp/uwlab may be owned by another
+    # user (unwritable), so point this at a writable workspace dir instead.
+    base = os.getenv("UWLAB_TMP_DIR") or os.path.join("/tmp", "uwlab")
+    download_dir = os.path.join(base, str(uid), str(job_id), f"rank_{rank}")
     os.makedirs(download_dir, mode=0o700, exist_ok=True)
 
     return download_dir
