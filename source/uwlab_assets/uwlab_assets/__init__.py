@@ -65,7 +65,12 @@ def resolve_cloud_path(path: str) -> str:
         return path
 
     rel = _extract_relative_path(path)
-    cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "uwlab", "assets")
+    # Overridable via UWLAB_ASSET_CACHE_DIR. On a cluster ``$HOME`` is ephemeral, so the default
+    # would re-download ~7 GB of USD assets on every job; pointing this at a persistent (writable)
+    # mount makes the first job populate the cache and every later job hit it.
+    cache_dir = os.getenv("UWLAB_ASSET_CACHE_DIR") or os.path.join(
+        os.path.expanduser("~"), ".cache", "uwlab", "assets"
+    )
     local = os.path.join(cache_dir, rel)
 
     if os.path.isfile(local):
