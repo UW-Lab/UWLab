@@ -2,7 +2,7 @@
 single observation term from the `data_collection` group every step, and save a
 matplotlib plot.
 
-Mirrors play.py's preamble (FastFinder + rsl_rl shims, AppLauncher boot, ckpt
+Mirrors play.py's preamble (AppLauncher boot, ckpt
 load via OnPolicyRunner) but reads obs via the env's ObservationManager so we
 can pull from any group, not just the wrapped policy obs.
 """
@@ -11,22 +11,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-
-# rsl_rl shim: lti env's editable install points at UWLab-ICL's fork (dict obs);
-# UWLab uses the UW-Lab fork (Tensor obs). Force the UW-Lab clone before
-# anything imports rsl_rl.
-import os as _os
-_UWLAB_RSL_RL = "/mnt/storage/lti/UWLab/.uwlab_rsl_rl"
-if _os.path.isdir(_UWLAB_RSL_RL):
-    sys.meta_path[:] = [
-        f for f in sys.meta_path
-        if not (isinstance(f, type) and getattr(f, "__module__", "").startswith("__editable___rsl_rl"))
-    ]
-    if _UWLAB_RSL_RL not in sys.path:
-        sys.path.insert(0, _UWLAB_RSL_RL)
-    for _mod_name in list(sys.modules):
-        if _mod_name == "rsl_rl" or _mod_name.startswith("rsl_rl."):
-            del sys.modules[_mod_name]
 
 from isaaclab.app import AppLauncher
 
@@ -61,35 +45,6 @@ sys.argv = [sys.argv[0]] + hydra_args
 
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
-
-# Drop Isaac Sim's pip_prebundle so conda env's trimesh/rtree win on later imports.
-import sys as _sys  # noqa: E402
-try:
-    from omni.ext._impl.fast_importer import FastFinder as _FastFinder
-    _orig_find_spec = _FastFinder.find_spec
-    def _patched_find_spec(*args, **kwargs):
-        fullname = kwargs.get("fullname")
-        if fullname is None:
-            for a in args:
-                if isinstance(a, str):
-                    fullname = a
-                    break
-        if isinstance(fullname, str):
-            root = fullname.split(".", 1)[0]
-            if root in {"trimesh", "rtree"}:
-                return None
-        return _orig_find_spec(*args, **kwargs)
-    _FastFinder.find_spec = _patched_find_spec
-except Exception:
-    pass
-_sys.path[:] = [p for p in _sys.path if "pip_prebundle" not in p]
-for _mod_name in list(_sys.modules):
-    if _mod_name == "trimesh" or _mod_name.startswith("trimesh.") or \
-       _mod_name == "rtree" or _mod_name.startswith("rtree."):
-        _mod = _sys.modules.get(_mod_name)
-        _mod_file = getattr(_mod, "__file__", None) or ""
-        if "pip_prebundle" in _mod_file:
-            del _sys.modules[_mod_name]
 
 import gymnasium as gym  # noqa: E402
 import os  # noqa: E402

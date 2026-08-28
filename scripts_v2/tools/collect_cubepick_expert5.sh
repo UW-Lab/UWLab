@@ -17,7 +17,7 @@ envs=(
 for i in "${!ckpts[@]}"; do
     ckpt="${ckpts[$i]}"
     env="${envs[$i]}"
-    python scripts_v2/tools/collect_demos.py \
+    python scripts_v2/tools/collect_demos_asteroid.py \
         --task $env \
         --dataset_file "logs/debug/dataset-iteration-0-$ckpt/data.zarr" \
         --num_envs 1 \
@@ -34,7 +34,7 @@ for i in "${!ckpts[@]}"; do
         env.scene.insertive_object=cube \
         agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path=["logs/$ckpt/exported/policy.pt"]
 done
-# python scripts_v2/tools/collect_demos.py \
+# python scripts_v2/tools/collect_demos_asteroid.py \
 #     --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0 \
 #     --dataset_file "logs/dataset-iteration-0-debug/data.zarr" \
 #     --num_envs 1 \
