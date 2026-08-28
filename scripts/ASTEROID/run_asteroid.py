@@ -12,7 +12,7 @@ _STEP_CKPT_RE = re.compile(r"step_(\d+)\.ckpt$")
 def _expected_train_checkpoint(output_dir: str, step: int = 40_000) -> str:
     """Resolve the checkpoint path produced by a training iteration.
 
-    Selection order (ported from UWLab-ICL/run_incontext_exploration.py):
+    Selection order (ported from UWLab-ICL/run_asteroid.py):
       1. ``step_{step:07d}.ckpt`` for the requested step.
       2. The highest-numbered ``step_*.ckpt`` in the checkpoints dir.
       3. ``latest.ckpt`` — the final-state snapshot written by the workspace.
