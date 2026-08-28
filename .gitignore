@@ -78,8 +78,3 @@ plots/
 Datasets/
 experts/
 reset_state_datasets/
-
-# local dev cruft
-.claude_logs/
-.claude_*.sh
-.claude_*.py
