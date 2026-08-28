@@ -72,4 +72,14 @@ tests/
 # Docker history
 .uw-lab-docker-history
 
-Datasets
+# random stuff
+episodes/
+plots/
+Datasets/
+experts/
+reset_state_datasets/
+
+# local dev cruft
+.claude_logs/
+.claude_*.sh
+.claude_*.py
