@@ -21,7 +21,7 @@ Example usage:
 import argparse
 import subprocess
 
-from test_settings import UWLAB_PATH, TEST_RL_ENVS
+from test_settings import TEST_RL_ENVS, UWLAB_PATH
 
 
 def parse_args() -> argparse.Namespace:

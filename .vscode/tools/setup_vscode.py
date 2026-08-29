@@ -221,9 +221,7 @@ def main():
         with open(uwlab_vscode_template_launch_filename) as f:
             uwlab_template_launch_settings = f.read()
         # add header
-        header_message = header_message.replace(
-            uwlab_vscode_template_filename, uwlab_vscode_template_launch_filename
-        )
+        header_message = header_message.replace(uwlab_vscode_template_filename, uwlab_vscode_template_launch_filename)
         uwlab_launch_settings = header_message + uwlab_template_launch_settings
         # write the Isaac Lab launch settings file
         with open(uwlab_vscode_launch_filename, "w") as f:
