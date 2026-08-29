@@ -130,6 +130,34 @@ class DualCriticActorCritic(ActorCritic):
         """Mean realised action std of the current distribution (the exploration-leak canary)."""
         return self.action_std.mean().detach()
 
+    @torch.no_grad()
+    def noise_decomposition(self, obs: TensorDict) -> tuple[float, float]:
+        """Split realised noise into its two multiplicative factors.
+
+        gSDE variance is ``mm(f(obs)**2, exp(log_std)**2)`` with ``f = actor[:-1]``, so
+
+            log(realised std)  ≈  log‖f(obs)‖  +  log σ
+                                   trunk path      direct path
+                                   (Layer 2)       (Layer 1)
+
+        Layer 1 masks **only the second factor**, so an aggregate fall in realised noise cannot
+        distinguish "the trunk reshaped its features" from "sigma shrank". Reporting them
+        separately makes the Layer 2 decision mechanical:
+
+          sigma flat, ‖f‖ flat        -> no leak
+          sigma flat, ‖f‖ collapsing  -> trunk path, Layer 2 indicated
+          sigma moving at all         -> Layer 1 implementation bug (it is excluded from g_pref
+                                         by construction, so nothing else can move it)
+
+        Returns ``(mean ‖f(obs)‖, mean sigma)``.
+        """
+        if self.noise_std_type != "gsde":
+            std = self.std if self.noise_std_type == "scalar" else torch.exp(self.log_std)
+            return 1.0, float(std.mean())
+        x = self.actor_obs_normalizer(self.get_actor_obs(obs))
+        feat = self.actor[:-1](x)
+        return float(feat.norm(dim=-1).mean()), float(torch.exp(self.log_std).mean())
+
     # -- value heads ---------------------------------------------------------------------------
 
     def _critic_features(self, obs: TensorDict) -> torch.Tensor:

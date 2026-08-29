@@ -205,6 +205,10 @@ class NullspacePPO(PPO):
             # is only visible as drift *relative to the beta=0 reference*.
             "guard_entropy": 0.0,
             "guard_noise_std": 0.0,
+            # Decomposition of realised noise into its two multiplicative factors. Layer 1 masks
+            # only `sigma`; a fall in the aggregate cannot say which path moved.
+            "guard_feat_norm": 0.0,
+            "guard_sigma": 0.0,
         }
         diag_sums: dict[str, float] = {}
 
@@ -312,6 +316,9 @@ class NullspacePPO(PPO):
             stats["entropy"] += entropy_batch.mean().item()
             stats["guard_entropy"] += entropy_batch.mean().item()
             stats["guard_noise_std"] += self.policy.noise_magnitude().item()
+            fnorm, sigma = self.policy.noise_decomposition(obs_batch)
+            stats["guard_feat_norm"] += fnorm
+            stats["guard_sigma"] += sigma
             for k, v in diag.items():
                 diag_sums[k] = diag_sums.get(k, 0.0) + v
 
@@ -404,7 +411,37 @@ class NullspacePPO(PPO):
             # Unmasked: the known-degenerate configuration. Kept runnable on purpose so the
             # exploration collapse can be demonstrated once rather than argued about.
             return project_nullspace(g_task, g_pref, self.beta)
-        return project_nullspace_masked(g_task, g_pref, self.beta, allowed)
+
+        combined, diag = project_nullspace_masked(g_task, g_pref, self.beta, allowed)
+        self._assert_noise_params_untouched(combined, g_task, allowed)
+        return combined, diag
+
+    def _assert_noise_params_untouched(
+        self, combined: torch.Tensor, g_task: torch.Tensor, allowed: torch.Tensor
+    ) -> None:
+        """Layer 1's claim, checked directly: preference contributes EXACTLY zero to noise params.
+
+        Under Layer 1 masking, ``sigma`` is excluded from ``g_pref`` by construction, so nothing
+        in the preference path can move it. If it moves, that is an implementation bug -- not a
+        leak -- and the two must never be confused when reading the guard metrics. Asserting it
+        here is stronger than inferring flatness from a cross-run plot.
+        """
+        if getattr(self, "_mask_checked", False):
+            return
+        self._mask_checked = True
+        excluded = ~allowed
+        if excluded.any() and not torch.equal(combined[excluded], g_task[excluded]):
+            d = (combined[excluded] - g_task[excluded]).abs().max().item()
+            raise RuntimeError(
+                f"Layer 1 masking violated: preference moved the noise parameters "
+                f"(max |diff| {d:.3e}). The projection must be *restricted* to the mean-action "
+                "subspace, not applied to a zero-padded g_pref."
+            )
+        n_excluded = int(excluded.sum())
+        print(
+            f"[NullspacePPO] Layer 1 active: {n_excluded} noise params "
+            f"({100 * n_excluded / excluded.numel():.2f}% of actor) excluded from g_pref; verified untouched."
+        )
 
     def _assert_ratio_equivalence(self, ratio: torch.Tensor, ratio_pref: torch.Tensor) -> None:
         """Check once that Layer 2 changed only the gradient path, not the objective's value.
