@@ -41,7 +41,7 @@ parser.add_argument(
 # --- null-space preference critic -------------------------------------------------------------
 parser.add_argument("--beta", type=float, default=None, help="Preference step budget. 0 == baseline PPO.")
 parser.add_argument(
-    "--pref_source", type=str, default=None, choices=["zero", "noise", "action_rate", "terms"],
+    "--pref_source", type=str, default=None, choices=["zero", "noise", "action_rate", "ee_height", "terms"],
     help="Preference stream: zero (sanity A), noise (sanity B), action_rate (noise-bait probe), "
          "terms (scripted predicates).",
 )
@@ -119,6 +119,7 @@ from rsl_rl.runners import DistillationRunner, OnPolicyRunner
 from uwlab_rl.rsl_rl.nullspace import (
     ActionRatePreference,
     DualCriticOnPolicyRunner,
+    EndEffectorHeightPreference,
     DualRewardVecEnvWrapper,
     GaussianNoisePreference,
     RewardManagerTermsPreference,
@@ -276,6 +277,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         elif source_name == "action_rate":
             # Noise-bait probe: a preference maximally satisfiable by shrinking exploration.
             pref_source = ActionRatePreference()
+        elif source_name == "ee_height":
+            # High-conflict preference: fights the lift the task requires.
+            pref_source = EndEffectorHeightPreference()
         elif source_name == "terms":
             term_names = list(getattr(agent_cfg, "pref_term_names", ()))
             if not term_names:

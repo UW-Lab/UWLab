@@ -10,6 +10,7 @@ from .projection import project_nullspace, project_nullspace_masked
 from .reward_split import (
     ActionRatePreference,
     DualRewardVecEnvWrapper,
+    EndEffectorHeightPreference,
     GaussianNoisePreference,
     PreferenceRewardSource,
     RewardManagerTermsPreference,
@@ -23,6 +24,7 @@ __all__ = [
     "DualCriticOnPolicyRunner",
     "DualRewardVecEnvWrapper",
     "DualRolloutStorage",
+    "EndEffectorHeightPreference",
     "GaussianNoisePreference",
     "NullspacePPO",
     "PreferenceRewardSource",

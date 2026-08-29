@@ -104,6 +104,42 @@ class ActionRatePreference(PreferenceRewardSource):
         return -torch.clamp(torch.sum(torch.square(am.action - am.prev_action), dim=1), 0, 1e4)
 
 
+class EndEffectorHeightPreference(PreferenceRewardSource):
+    """**High-conflict** preference: keep the end-effector low.
+
+    Deliberately fights the task. Cupcake-on-plate requires lifting the object and placing it on
+    a raised receptacle, so "stay low" cannot be satisfied without giving up task success.
+
+    Why the Phase 2 set needs at least one of these: the action-rate bait measured
+    ``pref_removed_frac ~ 1e-3`` -- i.e. ~99.9% of the preference gradient survives projection.
+    In a parameter space of a few hundred thousand dimensions near-orthogonality is the default,
+    so for such preferences the projected arm is numerically almost identical to the unprojected
+    one, and the Pareto plot cannot separate them **by construction**. The projection can only
+    demonstrate its value on preferences that genuinely conflict.
+
+    Use ``pref_removed_frac`` to screen candidates before committing the Phase 2 matrix, and pick
+    a set that spans a range rather than clustering near zero.
+    """
+
+    def __init__(self, body_name: str = "wrist_3_link") -> None:
+        self.body_name = body_name
+        self._body_id: int | None = None
+
+    def initialize(self, env) -> None:  # noqa: ANN001
+        robot = env.unwrapped.scene["robot"]
+        ids, names = robot.find_bodies(self.body_name)
+        if not ids:
+            raise ValueError(f"body {self.body_name!r} not found on the robot")
+        self._body_id = ids[0]
+        print(f"[pref] end-effector height preference on body {names[0]!r}")
+
+    def compute(self, env, total_reward: torch.Tensor) -> torch.Tensor:  # noqa: ANN001
+        robot = env.unwrapped.scene["robot"]
+        z_w = robot.data.body_pos_w[:, self._body_id, 2]
+        # Height above this env's own origin, so the signal is identical across the env grid.
+        return -(z_w - env.unwrapped.scene.env_origins[:, 2])
+
+
 class RewardManagerTermsPreference(PreferenceRewardSource):
     """Preference reward = the sum of named RewardManager terms (Phase 2 scripted predicates).
 

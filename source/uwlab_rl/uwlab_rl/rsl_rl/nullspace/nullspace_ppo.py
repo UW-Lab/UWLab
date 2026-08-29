@@ -51,6 +51,7 @@ class NullspacePPO(PPO):
         pref_value_loss_coef: float | None = None,
         pref_mask_noise: bool = True,
         pref_detach_noise_features: bool = False,
+        log_pref_alignment: bool = True,
         **kwargs,
     ) -> None:
         # IsaacLab's RslRlPpoAlgorithmCfg carries fields that only exist in rsl-rl >= 4.x
@@ -101,6 +102,9 @@ class NullspacePPO(PPO):
         self.pref_mask_noise = pref_mask_noise  # Layer 1: exclude noise params from g_pref
         self.pref_detach_noise_features = pref_detach_noise_features  # Layer 2: cut the trunk path
         self._pref_allowed: torch.Tensor | None = None  # lazily built flat subspace mask
+        # pref_removed_frac is the screening instrument for preference/task conflict, so it is
+        # logged in EVERY arm as a time series -- including beta=0, where nothing is applied.
+        self.log_pref_alignment = log_pref_alignment
 
         self.transition = DualRolloutStorage.Transition()
         self._diag: dict[str, float] = {}
@@ -277,13 +281,23 @@ class NullspacePPO(PPO):
                 loss_rest.backward()
                 for p, g in zip(actor_params, unflatten_to(actor_grad, actor_params)):
                     p.grad = g.clone() if p.grad is None else p.grad + g
-            else:
-                # Ablations: combine the scalar objectives instead of their gradients.
-                # "sum" is the weighted-sum baseline (arm B); "advantage" is the cheap
-                # approximation of the projection that drops the first-order guarantee.
-                combined = surrogate_task + self.beta * surrogate_pref
-                (combined + loss_rest).backward()
-                diag = {}
+            elif self.projection_mode == "sum":
+                # ---- Arm B′: dual critic, separately normalised advantages, NO projection ----
+                # This isolates the two contributions the design claims separately: scale
+                # invariance (from per-stream advantage normalisation) and the projection itself.
+                # Without B′ the Pareto plot cannot tell them apart -- if C ties B′, the
+                # contribution is scale-free preference control and the projection is a safety
+                # belt, which is a different claim from the one currently drafted.
+                # Diagnostics are still computed so pref_removed_frac remains comparable.
+                diag = self._alignment_diagnostics(surrogate_task, surrogate_pref, actor_params)
+                (surrogate_task + self.beta * surrogate_pref + loss_rest).backward()
+            else:  # "advantage"
+                # Cheap approximation: combine the per-sample advantages *before* the surrogate.
+                # This is a per-sample reweighting and does NOT satisfy the first-order guarantee.
+                adv = torch.squeeze(advantages_batch) + self.beta * torch.squeeze(advantages_pref_batch)
+                surrogate_combined = self._surrogate(adv.unsqueeze(-1), ratio)
+                diag = self._alignment_diagnostics(surrogate_task, surrogate_pref, actor_params)
+                (surrogate_combined + loss_rest).backward()
 
             if self.is_multi_gpu:
                 self.reduce_parameters()
@@ -331,6 +345,37 @@ class NullspacePPO(PPO):
             self._pref_allowed = ~flat_mask(actor_params, noise_flags)
         return self._pref_allowed
 
+    def _alignment_diagnostics(
+        self, surrogate_task: torch.Tensor, surrogate_pref: torch.Tensor, actor_params: list
+    ) -> dict[str, float]:
+        """Measure task/preference gradient alignment **without applying** the preference.
+
+        Logged in every arm -- including β=0 and the unprojected ablations -- because
+        ``pref_removed_frac`` is the screening instrument for whether a preference genuinely
+        conflicts with the task, and it must be a *time series*: alignment moves over training,
+        and the late-training regime (g_task → 0, projector → identity) is where the
+        self-scheduling argument lives. A single converged number is not evidence for that.
+
+        Costs one extra backward (~1% of iteration wall-clock, since collection dominates ~99%).
+        The gradient actually applied is unaffected.
+        """
+        if not self.log_pref_alignment:
+            return {}
+        g_task = flatten_grads(
+            torch.autograd.grad(surrogate_task, actor_params, retain_graph=True, allow_unused=True),
+            actor_params,
+        )
+        g_pref = flatten_grads(
+            torch.autograd.grad(surrogate_pref, actor_params, retain_graph=True, allow_unused=True),
+            actor_params,
+        )
+        allowed = self._preference_subspace(actor_params)
+        if allowed is not None:
+            g_task, g_pref = g_task[allowed], g_pref[allowed]
+        # beta=1 purely to read out the geometry; nothing is applied.
+        _, diag = project_nullspace(g_task, g_pref, beta=1.0)
+        return diag
+
     def _projected_actor_grad(
         self, surrogate_task: torch.Tensor, surrogate_pref: torch.Tensor, actor_params: list
     ) -> tuple[torch.Tensor, dict[str, float]]:
@@ -340,9 +385,14 @@ class NullspacePPO(PPO):
             actor_params,
         )
         if self.beta == 0.0:
-            # Skip the second backward entirely: at β=0 the projection is the identity, so this
-            # path is exactly baseline PPO plus an untouched second critic head.
-            return g_task, {"g_task_norm": torch.linalg.vector_norm(g_task).item()}
+            # At β=0 the projection is the identity, so the APPLIED gradient is exactly baseline
+            # PPO plus an untouched second critic head. The alignment read-out is still taken
+            # (extra backward, nothing applied) so the β=0 reference has the same time series as
+            # every other arm -- otherwise there is nothing to compare the others against.
+            diag = self._alignment_diagnostics(surrogate_task, surrogate_pref, actor_params)
+            diag.setdefault("g_task_norm", torch.linalg.vector_norm(g_task).item())
+            diag["pref_contrib_ratio"] = 0.0
+            return g_task, diag
 
         g_pref = flatten_grads(
             torch.autograd.grad(surrogate_pref, actor_params, retain_graph=True, allow_unused=True),
