@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.13.9 (2026-03-26)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* updated OmniReset RelCartesianOSCAction to use the cached UR5e analytical Jacobian path
+
+
 0.13.8 (2025-10-24)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
