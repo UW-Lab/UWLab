@@ -82,9 +82,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from pxr import Gf, UsdGeom  # noqa: E402
 
 import uwlab_tasks  # noqa: F401
-from uwlab_tasks.manager_based.manipulation.omnireset.config.ur5e_robotiq_2f85.camera_align_cfg import (
-    CameraAlignEnvCfg,
-)
+from uwlab_tasks.manager_based.manipulation.omnireset.config.ur5e_robotiq_2f85.camera_align_cfg import CameraAlignEnvCfg
 
 # ---- RGB key lookup ----
 CAMERA_TO_RGB = {

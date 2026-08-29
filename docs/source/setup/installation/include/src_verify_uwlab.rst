@@ -92,4 +92,3 @@ We recommend adding ``--headless`` for faster training.
       .. code:: batch
 
          uwlab.bat -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Velocity-Rough-Anymal-C-v0 --headless
-

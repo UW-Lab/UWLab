@@ -32,7 +32,7 @@ from pathlib import Path
 from prettytable import PrettyTable
 
 # Local imports
-from test_settings import DEFAULT_TIMEOUT, UWLAB_PATH, PER_TEST_TIMEOUTS, TESTS_TO_SKIP
+from test_settings import DEFAULT_TIMEOUT, PER_TEST_TIMEOUTS, TESTS_TO_SKIP, UWLAB_PATH
 
 
 def parse_args() -> argparse.Namespace:
