@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/twemoji.css" />
-    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
@@ -50,7 +50,7 @@
     <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
     <script src="../../../_static/twemoji.js"></script>
-    <script src="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="../../../_static/clipboard.min.js"></script>
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
@@ -64,7 +64,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Mar 25, 2026"/>
+    <meta name="docbuild:last-update" content="Aug 29, 2026"/>
   </head>
   
   
@@ -534,17 +534,17 @@ that are loaded into Omniverse when the extension is enabled using the
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">omni.ext</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MyExt</span><span class="p">(</span><span class="n">omni</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">IExt</span><span class="p">):</span>
-<span class="w">   </span><span class="sd">&quot;&quot;&quot;My extension application.&quot;&quot;&quot;</span>
+<span class="w">   </span><span class="sd">"""My extension application."""</span>
 
    <span class="k">def</span><span class="w"> </span><span class="nf">on_startup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext_id</span><span class="p">):</span>
-<span class="w">      </span><span class="sd">&quot;&quot;&quot;Called when the extension is loaded.&quot;&quot;&quot;</span>
+<span class="w">      </span><span class="sd">"""Called when the extension is loaded."""</span>
       <span class="k">pass</span>
 
    <span class="k">def</span><span class="w"> </span><span class="nf">on_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">      </span><span class="sd">&quot;&quot;&quot;Called when the extension is unloaded.</span>
+<span class="w">      </span><span class="sd">"""Called when the extension is unloaded.</span>
 
 <span class="sd">      It releases all references to the extension and cleans up any resources.</span>
-<span class="sd">      &quot;&quot;&quot;</span>
+<span class="sd">      """</span>
       <span class="k">pass</span>
 </pre></div>
 </div>
@@ -583,18 +583,18 @@ the <a class="reference external" href="https://docs.ros.org/en/humble/Tutorials
 <p>As an example, the following <code class="docutils literal notranslate"><span class="pre">extension.toml</span></code> file specifies the dependencies for the extension:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[isaac_lab_settings]</span>
 <span class="c1"># apt dependencies</span>
-<span class="n">apt_deps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;libboost-all-dev&quot;</span><span class="p">]</span>
+<span class="n">apt_deps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"libboost-all-dev"</span><span class="p">]</span>
 
 <span class="c1"># ROS workspace</span>
-<span class="c1"># note: if this path is relative, it is relative to the extension directory&#39;s root</span>
-<span class="n">ros_ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/home/user/catkin_ws&quot;</span>
+<span class="c1"># note: if this path is relative, it is relative to the extension directory's root</span>
+<span class="n">ros_ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"/home/user/catkin_ws"</span>
 </pre></div>
 </div>
 <p>These dependencies are installed using the <code class="docutils literal notranslate"><span class="pre">install_deps.py</span></code> script provided in the <code class="docutils literal notranslate"><span class="pre">tools</span></code> directory.
 To install all dependencies for all extensions, run the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># execute from the root of the repository</span>
 <span class="c1"># the script expects the type of dependencies to install and the path to the extensions directory</span>
-<span class="c1"># available types are: &#39;apt&#39;, &#39;rosdep&#39; and &#39;all&#39;</span>
+<span class="c1"># available types are: 'apt', 'rosdep' and 'all'</span>
 python<span class="w"> </span>tools/install_deps.py<span class="w"> </span>all<span class="w"> </span><span class="si">${</span><span class="nv">UWLAB_PATH</span><span class="si">}</span>/source
 </pre></div>
 </div>
@@ -614,7 +614,7 @@ and when things update instead of asynchronously waiting for the result. In
 such cases, we require direct control of the simulation, and so it is necessary to write a standalone application. These applications are functionally similar in that they launch the simulator using the <code class="xref py py-class docutils literal notranslate"><span class="pre">AppLauncher</span></code> and
 then control the simulation directly through the <code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationContext</span></code>. In these cases, python modules from extensions <strong>must</strong> be imported after the app is launched.  Doing so before the app is launched will cause missing module errors.</p>
 <p>The following snippet shows how to write a standalone application:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Launch Isaac Sim Simulator first.&quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Launch Isaac Sim Simulator first."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">isaaclab.app</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLauncher</span>
 
@@ -623,11 +623,11 @@ then control the simulation directly through the <code class="xref py py-class d
 <span class="n">simulation_app</span> <span class="o">=</span> <span class="n">app_launcher</span><span class="o">.</span><span class="n">app</span>
 
 
-<span class="sd">&quot;&quot;&quot;Rest everything follows.&quot;&quot;&quot;</span>
+<span class="sd">"""Rest everything follows."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">isaaclab.sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationContext</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
    <span class="c1"># get simulation context</span>
    <span class="n">simulation_context</span> <span class="o">=</span> <span class="n">SimulationContext</span><span class="p">()</span>
    <span class="c1"># reset and play simulation</span>
@@ -727,7 +727,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 25, 2026.
+  Last updated on Aug 29, 2026.
   <br/>
 </p>
   </div>

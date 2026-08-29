@@ -947,6 +947,28 @@ Reproduce our training results from scratch.
 
 ----
 
+Modifying RSL-RL
+^^^^^^^^^^^^^^^^
+
+If you want to modify the RSL-RL algorithm (e.g. custom loss functions, network architectures, or training loops), you can install a local editable copy. Clone it as a sibling of UWLab:
+
+.. code::
+
+   parent_dir/
+   ├── UWLab/
+   └── rsl_rl/
+
+.. code:: bash
+
+   git clone https://github.com/UW-Lab/rsl_rl.git
+   cd rsl_rl
+   pip uninstall rsl-rl-lib
+   pip install -e .
+
+Any changes you make to the cloned ``rsl_rl/`` directory will take effect immediately without reinstalling.
+
+----
+
 Next Steps
 ^^^^^^^^^^
 

@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/twemoji.css" />
-    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
@@ -50,7 +50,7 @@
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
     <script src="../../_static/twemoji.js"></script>
-    <script src="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
@@ -64,7 +64,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Mar 25, 2026"/>
+    <meta name="docbuild:last-update" content="Aug 29, 2026"/>
   </head>
   
   
@@ -651,7 +651,7 @@ the time limit. For more information, please check the <a class="reference exter
 <span class="linenos">15</span><span class="c1">#SBATCH --mem-per-cpu=4048</span>
 <span class="linenos">16</span><span class="c1">#SBATCH --mail-type=END</span>
 <span class="linenos">17</span><span class="c1">#SBATCH --mail-user=name@mail</span>
-<span class="linenos">18</span><span class="c1">#SBATCH --job-name=&quot;training-$(date +&quot;%Y-%m-%dT%H:%M&quot;)&quot;</span>
+<span class="linenos">18</span><span class="c1">#SBATCH --job-name="training-$(date +"%Y-%m-%dT%H:%M")"</span>
 </pre></div>
 </div>
 <p>An essential requirement for the cluster is that the compute node has access to the internet at all times.
@@ -675,7 +675,7 @@ information, please check the <a class="reference external" href="https://openpb
 <span class="linenos">13</span><span class="c1">#PBS -j oe</span>
 <span class="linenos">14</span><span class="c1">#PBS -q gpu</span>
 <span class="linenos">15</span><span class="c1">#PBS -N uwlab</span>
-<span class="linenos">16</span><span class="c1">#PBS -m bea -M &quot;user@mail&quot;</span>
+<span class="linenos">16</span><span class="c1">#PBS -m bea -M "user@mail"</span>
 </pre></div>
 </div>
 </section>
@@ -683,7 +683,7 @@ information, please check the <a class="reference external" href="https://openpb
 <section id="submitting-a-job">
 <h2>Submitting a job<a class="headerlink" href="#submitting-a-job" title="Permalink to this heading">#</a></h2>
 <p>To submit a job on the cluster, the following command can be used:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./docker/cluster/cluster_interface.sh<span class="w"> </span>job<span class="w"> </span><span class="o">[</span>profile<span class="o">]</span><span class="w"> </span><span class="s2">&quot;argument1&quot;</span><span class="w"> </span><span class="s2">&quot;argument2&quot;</span><span class="w"> </span>...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./docker/cluster/cluster_interface.sh<span class="w"> </span>job<span class="w"> </span><span class="o">[</span>profile<span class="o">]</span><span class="w"> </span><span class="s2">"argument1"</span><span class="w"> </span><span class="s2">"argument2"</span><span class="w"> </span>...
 </pre></div>
 </div>
 <p>This command will copy the latest changes in your code to the cluster and submit a job. Please ensure that
@@ -792,7 +792,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 25, 2026.
+  Last updated on Aug 29, 2026.
   <br/>
 </p>
   </div>

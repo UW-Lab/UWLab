@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/twemoji.css" />
-    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
@@ -50,7 +50,7 @@
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
     <script src="../../_static/twemoji.js"></script>
-    <script src="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
@@ -64,7 +64,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Mar 25, 2026"/>
+    <meta name="docbuild:last-update" content="Aug 29, 2026"/>
   </head>
   
   
@@ -596,7 +596,7 @@ volumes respectively, to the <code class="docutils literal notranslate"><span cl
 </ul>
 <p>The following shows how to launch the container in a detached state and enter it:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Launch the container in detached mode</span>
-<span class="c1"># We don&#39;t pass an image extension arg, so it defaults to &#39;base&#39;</span>
+<span class="c1"># We don't pass an image extension arg, so it defaults to 'base'</span>
 ./docker/container.py<span class="w"> </span>start
 
 <span class="c1"># If we want to add .env or .yaml files to customize our compose config,</span>
@@ -604,7 +604,7 @@ volumes respectively, to the <code class="docutils literal notranslate"><span cl
 <span class="c1"># ./docker/container.py start --file my-compose.yaml --env-file .env.my-vars</span>
 
 <span class="c1"># Enter the container</span>
-<span class="c1"># We pass &#39;base&#39; explicitly, but if we hadn&#39;t it would default to &#39;base&#39;</span>
+<span class="c1"># We pass 'base' explicitly, but if we hadn't it would default to 'base'</span>
 ./docker/container.py<span class="w"> </span>enter<span class="w"> </span>base
 </pre></div>
 </div>
@@ -790,9 +790,9 @@ including variables defining the <a class="reference external" href="https://doc
 <span class="nv">FASTRTPS_DEFAULT_PROFILES_FILE</span><span class="o">=</span><span class="si">${</span><span class="nv">DOCKER_USER_HOME</span><span class="si">}</span>/.ros/fastdds.xml
 <span class="c1"># Path to cyclonedds.xml file to use (only needed when using cyclonedds)</span>
 <span class="nv">CYCLONEDDS_URI</span><span class="o">=</span><span class="si">${</span><span class="nv">DOCKER_USER_HOME</span><span class="si">}</span>/.ros/cyclonedds.xml
-<span class="c1"># Docker image and container name suffix (default &quot;&quot;, set by the container_interface.py script)</span>
-<span class="c1"># Example: &quot;-custom&quot;</span>
-<span class="nv">DOCKER_NAME_SUFFIX</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="c1"># Docker image and container name suffix (default "", set by the container_interface.py script)</span>
+<span class="c1"># Example: "-custom"</span>
+<span class="nv">DOCKER_NAME_SUFFIX</span><span class="o">=</span><span class="s2">""</span>
 </pre></div>
 </div>
 </div>
@@ -818,8 +818,8 @@ In the future, we will provide docker images for every minor release of UW Lab.<
 </pre></div>
 </div>
 <p>To run the UW Lab container with an interactive bash session, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>uw-lab<span class="w"> </span>--entrypoint<span class="w"> </span>bash<span class="w"> </span>-it<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;ACCEPT_EULA=Y&quot;</span><span class="w"> </span>--rm<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
-<span class="w">   </span>-e<span class="w"> </span><span class="s2">&quot;PRIVACY_CONSENT=Y&quot;</span><span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>uw-lab<span class="w"> </span>--entrypoint<span class="w"> </span>bash<span class="w"> </span>-it<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="s2">"ACCEPT_EULA=Y"</span><span class="w"> </span>--rm<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-e<span class="w"> </span><span class="s2">"PRIVACY_CONSENT=Y"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">   </span>-v<span class="w"> </span>~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw<span class="w"> </span><span class="se">\</span>
 <span class="w">   </span>-v<span class="w"> </span>~/docker/isaac-sim/cache/ov:/root/.cache/ov:rw<span class="w"> </span><span class="se">\</span>
 <span class="w">   </span>-v<span class="w"> </span>~/docker/isaac-sim/cache/pip:/root/.cache/pip:rw<span class="w"> </span><span class="se">\</span>
@@ -833,8 +833,8 @@ In the future, we will provide docker images for every minor release of UW Lab.<
 </div>
 <p>To enable rendering through X11 forwarding, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>xhost<span class="w"> </span>+
-docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>uw-lab<span class="w"> </span>--entrypoint<span class="w"> </span>bash<span class="w"> </span>-it<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;ACCEPT_EULA=Y&quot;</span><span class="w"> </span>--rm<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
-<span class="w">   </span>-e<span class="w"> </span><span class="s2">&quot;PRIVACY_CONSENT=Y&quot;</span><span class="w"> </span><span class="se">\</span>
+docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>uw-lab<span class="w"> </span>--entrypoint<span class="w"> </span>bash<span class="w"> </span>-it<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="s2">"ACCEPT_EULA=Y"</span><span class="w"> </span>--rm<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-e<span class="w"> </span><span class="s2">"PRIVACY_CONSENT=Y"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">   </span>-e<span class="w"> </span>DISPLAY<span class="w"> </span><span class="se">\</span>
 <span class="w">   </span>-v<span class="w"> </span><span class="nv">$HOME</span>/.Xauthority:/root/.Xauthority<span class="w"> </span><span class="se">\</span>
 <span class="w">   </span>-v<span class="w"> </span>~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw<span class="w"> </span><span class="se">\</span>
@@ -951,7 +951,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 25, 2026.
+  Last updated on Aug 29, 2026.
   <br/>
 </p>
   </div>

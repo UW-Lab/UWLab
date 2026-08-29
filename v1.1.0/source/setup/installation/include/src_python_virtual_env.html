@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/twemoji.css" />
-    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
@@ -50,7 +50,7 @@
     <script src="../../../../_static/sphinx_highlight.js"></script>
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
     <script src="../../../../_static/twemoji.js"></script>
-    <script src="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="../../../../_static/clipboard.min.js"></script>
     <script src="../../../../_static/copybutton.js"></script>
     <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Mar 25, 2026"/>
+    <meta name="docbuild:last-update" content="Aug 29, 2026"/>
   </head>
   
   
@@ -525,14 +525,14 @@ You can create the UW Lab environment using the following commands:</p>
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-2">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name &#39;env_uwlab&#39;</span>
-./uwlab.sh<span class="w"> </span>--uv<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -u&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name 'env_uwlab'</span>
+./uwlab.sh<span class="w"> </span>--uv<span class="w">  </span><span class="c1"># or "./uwlab.sh -u"</span>
 <span class="c1"># Option 2: Custom name</span>
-./uwlab.sh<span class="w"> </span>--uv<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -u my_env&quot;</span>
+./uwlab.sh<span class="w"> </span>--uv<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or "./uwlab.sh -u my_env"</span>
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activate environment</span>
-<span class="nb">source</span><span class="w"> </span>./env_uwlab/bin/activate<span class="w">  </span><span class="c1"># or &quot;source ./my_env/bin/activate&quot;</span>
+<span class="nb">source</span><span class="w"> </span>./env_uwlab/bin/activate<span class="w">  </span><span class="c1"># or "source ./my_env/bin/activate"</span>
 </pre></div>
 </div>
 </div>
@@ -558,28 +558,28 @@ since it is light-weight and resource-efficient environment management system.</
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-4">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name &#39;env_uwlab&#39;</span>
-./uwlab.sh<span class="w"> </span>--conda<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -c&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name 'env_uwlab'</span>
+./uwlab.sh<span class="w"> </span>--conda<span class="w">  </span><span class="c1"># or "./uwlab.sh -c"</span>
 <span class="c1"># Option 2: Custom name</span>
-./uwlab.sh<span class="w"> </span>--conda<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -c my_env&quot;</span>
+./uwlab.sh<span class="w"> </span>--conda<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or "./uwlab.sh -c my_env"</span>
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activate environment</span>
-conda<span class="w"> </span>activate<span class="w"> </span>env_uwlab<span class="w">  </span><span class="c1"># or &quot;conda activate my_env&quot;</span>
+conda<span class="w"> </span>activate<span class="w"> </span>env_uwlab<span class="w">  </span><span class="c1"># or "conda activate my_env"</span>
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-5">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Option 1: Default environment name &#39;env_uwlab&#39;</span>
-uwlab.bat --conda  :: or <span class="s2">&quot;uwlab.bat -c&quot;</span>
+<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Option 1: Default environment name 'env_uwlab'</span>
+uwlab.bat --conda  :: or <span class="s2">"uwlab.bat -c"</span>
 <span class="p">:</span><span class="c1">: Option 2: Custom name</span>
-uwlab.bat --conda my_env  :: or <span class="s2">&quot;uwlab.bat -c my_env&quot;</span>
+uwlab.bat --conda my_env  :: or <span class="s2">"uwlab.bat -c my_env"</span>
 </pre></div>
 </div>
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Activate environment</span>
-conda activate env_uwlab  # or <span class="s2">&quot;conda activate my_env&quot;</span>
+conda activate env_uwlab  # or <span class="s2">"conda activate my_env"</span>
 </pre></div>
 </div>
 </div>
@@ -638,7 +638,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 25, 2026.
+  Last updated on Aug 29, 2026.
   <br/>
 </p>
   </div>

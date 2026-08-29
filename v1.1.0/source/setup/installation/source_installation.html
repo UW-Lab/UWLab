@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/twemoji.css" />
-    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
@@ -50,7 +50,7 @@
     <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
     <script src="../../../_static/twemoji.js"></script>
-    <script src="/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/sphinxcontrib/icon/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="../../../_static/clipboard.min.js"></script>
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
@@ -64,7 +64,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Mar 25, 2026"/>
+    <meta name="docbuild:last-update" content="Aug 29, 2026"/>
   </head>
   
   
@@ -570,9 +570,9 @@ variables to your terminal for the remaining of the installation instructions:</
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-2">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Isaac Sim root directory</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">ISAACSIM_PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">pwd</span><span class="si">}</span><span class="s2">/_build/linux-x86_64/release&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ISAACSIM_PATH</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">pwd</span><span class="si">}</span><span class="s2">/_build/linux-x86_64/release"</span>
 <span class="c1"># Isaac Sim python executable</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">ISAACSIM_PYTHON_EXE</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ISAACSIM_PATH</span><span class="si">}</span><span class="s2">/python.sh&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ISAACSIM_PYTHON_EXE</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">ISAACSIM_PATH</span><span class="si">}</span><span class="s2">/python.sh"</span>
 </pre></div>
 </div>
 </div>
@@ -580,9 +580,9 @@ variables to your terminal for the remaining of the installation instructions:</
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-3">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Isaac Sim root directory</span>
-<span class="k">set</span> <span class="nv">ISAACSIM_PATH</span><span class="p">=</span><span class="s2">&quot;</span><span class="nv">%cd%</span><span class="s2">\_build\windows-x86_64\release&quot;</span>
+<span class="k">set</span> <span class="nv">ISAACSIM_PATH</span><span class="p">=</span><span class="s2">"</span><span class="nv">%cd%</span><span class="s2">\_build\windows-x86_64\release"</span>
 <span class="p">:</span><span class="c1">: Isaac Sim python executable</span>
-<span class="k">set</span> <span class="nv">ISAACSIM_PYTHON_EXE</span><span class="p">=</span><span class="s2">&quot;</span><span class="nv">%ISAACSIM_PATH:&quot;=%</span><span class="s2">\python.bat&quot;</span>
+<span class="k">set</span> <span class="nv">ISAACSIM_PYTHON_EXE</span><span class="p">=</span><span class="s2">"</span><span class="nv">%ISAACSIM_PATH:"=%</span><span class="s2">\python.bat"</span>
 </pre></div>
 </div>
 </div>
@@ -592,7 +592,7 @@ variables to your terminal for the remaining of the installation instructions:</
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-4">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># note: you can pass the argument &quot;--help&quot; to see all arguments possible.</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># note: you can pass the argument "--help" to see all arguments possible.</span>
 <span class="si">${</span><span class="nv">ISAACSIM_PATH</span><span class="si">}</span>/isaac-sim.sh
 </pre></div>
 </div>
@@ -600,7 +600,7 @@ variables to your terminal for the remaining of the installation instructions:</
 <input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-5">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: note: you can pass the argument &quot;--help&quot; to see all arguments possible.</span>
+<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: note: you can pass the argument "--help" to see all arguments possible.</span>
 <span class="nv">%ISAACSIM_PATH%</span>\isaac-sim.bat
 </pre></div>
 </div>
@@ -612,7 +612,7 @@ variables to your terminal for the remaining of the installation instructions:</
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-6">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># checks that python path is set correctly</span>
-<span class="si">${</span><span class="nv">ISAACSIM_PYTHON_EXE</span><span class="si">}</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;print(&#39;Isaac Sim configuration is now complete.&#39;)&quot;</span>
+<span class="si">${</span><span class="nv">ISAACSIM_PYTHON_EXE</span><span class="si">}</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"print('Isaac Sim configuration is now complete.')"</span>
 <span class="c1"># checks that Isaac Sim can be launched from python</span>
 <span class="si">${</span><span class="nv">ISAACSIM_PYTHON_EXE</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">ISAACSIM_PATH</span><span class="si">}</span>/standalone_examples/api/isaacsim.core.api/add_cubes.py
 </pre></div>
@@ -622,7 +622,7 @@ variables to your terminal for the remaining of the installation instructions:</
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-7">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: checks that python path is set correctly</span>
-<span class="nv">%ISAACSIM_PYTHON_EXE%</span> -c <span class="s2">&quot;print(&#39;Isaac Sim configuration is now complete.&#39;)&quot;</span>
+<span class="nv">%ISAACSIM_PYTHON_EXE%</span> -c <span class="s2">"print('Isaac Sim configuration is now complete.')"</span>
 <span class="p">:</span><span class="c1">: checks that Isaac Sim can be launched from python</span>
 <span class="nv">%ISAACSIM_PYTHON_EXE%</span> <span class="nv">%ISAACSIM_PATH%</span>\standalone_examples\api\isaacsim.core.api\add_cubes.py
 </pre></div>
@@ -699,7 +699,7 @@ usage: uwlab.sh [-h] [-i] [-f] [-p] [-s] [-t] [-o] [-v] [-d] [-n] [-c] -- Utilit
 
 optional arguments:
    -h, --help           Display the help content.
-   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is &#39;all&#39;.
+   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is 'all'.
    -f, --format         Run pre-commit to format the code and check lints.
    -p, --python         Run the python executable provided by Isaac Sim or virtual environment (if active).
    -s, --sim            Run the simulator executable (isaac-sim.sh) provided by Isaac Sim.
@@ -708,8 +708,8 @@ optional arguments:
    -v, --vscode         Generate the VSCode settings file from template.
    -d, --docs           Build the documentation from source using sphinx.
    -n, --new            Create a new external project or internal task from template.
-   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is &#39;env_uwlab&#39;.
-   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is &#39;env_uwlab&#39;.
+   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is 'env_uwlab'.
+   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is 'env_uwlab'.
 </pre></div>
 </div>
 </div>
@@ -722,7 +722,7 @@ usage: uwlab.bat [-h] [-i] [-f] [-p] [-s] [-v] [-d] [-n] [-c] -- Utility to mana
 
 optional arguments:
    -h, --help           Display the help content.
-   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is &#39;all&#39;.
+   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is 'all'.
    -f, --format         Run pre-commit to format the code and check lints.
    -p, --python         Run the python executable provided by Isaac Sim or virtual environment (if active).
    -s, --sim            Run the simulator executable (isaac-sim.bat) provided by Isaac Sim.
@@ -730,8 +730,8 @@ optional arguments:
    -v, --vscode         Generate the VSCode settings file from template.
    -d, --docs           Build the documentation from source using sphinx.
    -n, --new            Create a new external project or internal task from template.
-   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is &#39;env_uwlab&#39;.
-   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is &#39;env_uwlab&#39;.
+   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is 'env_uwlab'.
+   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is 'env_uwlab'.
 </pre></div>
 </div>
 </div>
@@ -821,14 +821,14 @@ You can create the UW Lab environment using the following commands:</p>
 <input checked="checked" id="sd-tab-item-18" name="sd-tab-set-9" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-18">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name &#39;env_uwlab&#39;</span>
-./uwlab.sh<span class="w"> </span>--uv<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -u&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name 'env_uwlab'</span>
+./uwlab.sh<span class="w"> </span>--uv<span class="w">  </span><span class="c1"># or "./uwlab.sh -u"</span>
 <span class="c1"># Option 2: Custom name</span>
-./uwlab.sh<span class="w"> </span>--uv<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -u my_env&quot;</span>
+./uwlab.sh<span class="w"> </span>--uv<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or "./uwlab.sh -u my_env"</span>
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activate environment</span>
-<span class="nb">source</span><span class="w"> </span>./env_uwlab/bin/activate<span class="w">  </span><span class="c1"># or &quot;source ./my_env/bin/activate&quot;</span>
+<span class="nb">source</span><span class="w"> </span>./env_uwlab/bin/activate<span class="w">  </span><span class="c1"># or "source ./my_env/bin/activate"</span>
 </pre></div>
 </div>
 </div>
@@ -854,28 +854,28 @@ since it is light-weight and resource-efficient environment management system.</
 <input checked="checked" id="sd-tab-item-20" name="sd-tab-set-10" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-20">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name &#39;env_uwlab&#39;</span>
-./uwlab.sh<span class="w"> </span>--conda<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -c&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name 'env_uwlab'</span>
+./uwlab.sh<span class="w"> </span>--conda<span class="w">  </span><span class="c1"># or "./uwlab.sh -c"</span>
 <span class="c1"># Option 2: Custom name</span>
-./uwlab.sh<span class="w"> </span>--conda<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -c my_env&quot;</span>
+./uwlab.sh<span class="w"> </span>--conda<span class="w"> </span>my_env<span class="w">  </span><span class="c1"># or "./uwlab.sh -c my_env"</span>
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activate environment</span>
-conda<span class="w"> </span>activate<span class="w"> </span>env_uwlab<span class="w">  </span><span class="c1"># or &quot;conda activate my_env&quot;</span>
+conda<span class="w"> </span>activate<span class="w"> </span>env_uwlab<span class="w">  </span><span class="c1"># or "conda activate my_env"</span>
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-21" name="sd-tab-set-10" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-21">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Option 1: Default environment name &#39;env_uwlab&#39;</span>
-uwlab.bat --conda  :: or <span class="s2">&quot;uwlab.bat -c&quot;</span>
+<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Option 1: Default environment name 'env_uwlab'</span>
+uwlab.bat --conda  :: or <span class="s2">"uwlab.bat -c"</span>
 <span class="p">:</span><span class="c1">: Option 2: Custom name</span>
-uwlab.bat --conda my_env  :: or <span class="s2">&quot;uwlab.bat -c my_env&quot;</span>
+uwlab.bat --conda my_env  :: or <span class="s2">"uwlab.bat -c my_env"</span>
 </pre></div>
 </div>
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Activate environment</span>
-conda activate env_uwlab  # or <span class="s2">&quot;conda activate my_env&quot;</span>
+conda activate env_uwlab  # or <span class="s2">"conda activate my_env"</span>
 </pre></div>
 </div>
 </div>
@@ -902,14 +902,14 @@ using pip (with <code class="docutils literal notranslate"><span class="pre">--e
 <input checked="checked" id="sd-tab-item-22" name="sd-tab-set-11" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-22">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--install<span class="w"> </span><span class="c1"># or &quot;./uwlab.sh -i&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--install<span class="w"> </span><span class="c1"># or "./uwlab.sh -i"</span>
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-23" name="sd-tab-set-11" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-23">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat --install :: or <span class="s2">&quot;uwlab.bat -i&quot;</span>
+<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat --install :: or <span class="s2">"uwlab.bat -i"</span>
 </pre></div>
 </div>
 </div>
@@ -922,14 +922,14 @@ as an argument. For example, to install only the <code class="docutils literal n
 <input checked="checked" id="sd-tab-item-24" name="sd-tab-set-12" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-24">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--install<span class="w"> </span>rl_games<span class="w">  </span><span class="c1"># or &quot;./uwlab.sh -i rl_games&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--install<span class="w"> </span>rl_games<span class="w">  </span><span class="c1"># or "./uwlab.sh -i rl_games"</span>
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-25" name="sd-tab-set-12" type="radio">
 <label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-25">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat --install rl_games :: or <span class="s2">&quot;uwlab.bat -i rl_games&quot;</span>
+<div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat --install rl_games :: or <span class="s2">"uwlab.bat -i rl_games"</span>
 </pre></div>
 </div>
 </div>
@@ -1117,7 +1117,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 25, 2026.
+  Last updated on Aug 29, 2026.
   <br/>
 </p>
   </div>
