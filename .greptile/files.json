@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "description": "PR template. The items that matter for review are the pre-commit run and the CHANGELOG + extension.toml version bump; tests are optional and should not be requested."
+    },
+    {
+      "path": ".pre-commit-config.yaml",
+      "description": "Formatting and lint checks that CI already enforces; do not duplicate these in review comments. Note scripts/ is excluded from pre-commit."
+    },
+    {
+      "path": ".gitattributes",
+      "description": "File types that must be stored via git LFS."
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "commentTypes": [
+    "logic",
+    "syntax"
+  ],
+  "instructions": "Review against the conventions in .greptile/rules.md. Formatting, import order, line length, license headers, spelling, and debug statements are already enforced by pre-commit (black/isort/flake8/pyupgrade/codespell) - do not comment on them, except under scripts/ which pre-commit skips. Prioritize, in order: (1) runtime bugs and cross-script CLI/config mismatches, (2) unvectorized, device-mismatched, or non-deterministic tensor code in mdp terms, (3) gym registration and cfg entry points that do not resolve, (4) missing extension version + CHANGELOG bumps, (5) machine-specific paths or committed artifacts. Be concise; include a code suggestion when the fix is local.",
+  "ignorePatterns": [
+    "docs/licenses/**",
+    "docs/source/_static/**",
+    ".github/workflows/license-exceptions.json",
+    "CONTRIBUTORS.md"
+  ],
+  "rules": [
+    {
+      "id": "extension-version-changelog",
+      "rule": "Any change to code under source/<ext>/<ext>/ must bump `version` in source/<ext>/config/extension.toml (semver) and add a matching entry to source/<ext>/docs/CHANGELOG.rst with the same version, a date, and Added/Changed/Deprecated/Removed/Fixed sub-sections written in past tense. Flag PRs that touch an extension's package without both, or where the two versions disagree.",
+      "severity": "high",
+      "scope": [
+        "source/**"
+      ]
+    },
+    {
+      "id": "cli-flag-consistency",
+      "rule": "When a script launches another script (subprocess, os.system, shell), every flag it passes must be defined by the target's argparse parser or Hydra config, and opt-out flags such as --no_video, --headless, or --disable_* must actually change behavior in every code path that reads them. Flag passed-but-undefined flags and flags that are parsed but ignored.",
+      "severity": "high",
+      "scope": [
+        "scripts/**",
+        "scripts_v2/**",
+        "source/**"
+      ]
+    },
+    {
+      "id": "vectorized-mdp-terms",
+      "rule": "Observation, reward, event, termination, curriculum, and command terms under **/mdp/ must be batched over the env dimension: operate on tensors shaped (num_envs, ...) or on the given env_ids, allocate tensors with device=env.device, and never loop in Python over environments, call .item()/.cpu()/.numpy() inside per-step logic, or mix CPU and CUDA tensors. Flag per-env Python loops and host round-trips in these files.",
+      "severity": "high",
+      "scope": [
+        "source/**/mdp/**"
+      ]
+    },
+    {
+      "id": "per-env-sampling-uses-torch",
+      "rule": "Per-environment randomness in mdp terms (anything that differs across env_ids: poses, velocities, physics parameters, noise) must be sampled with torch on env.device (torch.rand/randn/randint, math_utils.sample_uniform) in one batched call, not with Python `random` or `np.random` in a loop. Scalar scene-wide choices shared by all envs (e.g. picking one HDRI or a camera jitter applied to the whole scene) may use `random`, which the env seed also seeds.",
+      "severity": "medium",
+      "scope": [
+        "source/uwlab_tasks/**",
+        "source/uwlab/**"
+      ]
+    },
+    {
+      "id": "task-registration",
+      "rule": "A new environment cfg class in uwlab_tasks must be registered with gym.register in its package __init__.py, and every entry-point string in the registration (env_cfg_entry_point, *_cfg_entry_point) must resolve to an existing module:attribute or agents/ file. Flag registrations whose targets do not exist, duplicate task ids, and env cfgs that are never registered.",
+      "severity": "high",
+      "scope": [
+        "source/uwlab_tasks/**"
+      ]
+    },
+    {
+      "id": "task-package-self-contained",
+      "rule": "A new task lives in its own package under source/uwlab_tasks/uwlab_tasks/<manager_based|direct>/<category>/<task>/ (reference layout: manipulation/omnireset with __init__.py doing gym.register, *_env_cfg.py, mdp/, config/<robot>/ or agents/). By default everything the task needs - mdp terms, recorders, utilities, cfgs - stays inside that package. Changes outside it (the uwlab core extension, uwlab_rl, uwlab_assets, shared uwlab_tasks utilities, or another task's package) are sometimes correct but must be justified: the PR description or code comment should say why the code cannot live in the task package (generic and used by more than one task, a framework bug fix, a new asset). Flag out-of-package changes that carry no such justification, task-specific code added to another task's package (e.g. extending omnireset/mdp for a different task), and behaviour flags added to another task's env cfg instead of a separate env cfg.",
+      "severity": "high",
+      "scope": [
+        "source/**"
+      ]
+    },
+    {
+      "id": "new-task-docs",
+      "rule": "When a PR registers a new task id, it should also list it in docs/source/overview/uw_environments.rst. Work that ships as a publication (own Quick Start, checkpoints, paper) additionally gets docs/source/publications/<name>/index.rst and a bullet under 'Getting Started' in README.md. Mention this once as a note; do not block on it.",
+      "severity": "medium",
+      "scope": [
+        "source/uwlab_tasks/**"
+      ]
+    },
+    {
+      "id": "optional-research-dependencies",
+      "rule": "Research-only or heavy dependencies (e.g. diffusion_policy, robomimic, policy-training frameworks) must not be added to any extension's install_requires or extension.toml [python.pipapi] requirements, so a default UWLab install stays light. Ship them as an extras_require group (pattern: EXTRAS_REQUIRE in source/uwlab_rl/setup.py), a git submodule, or documented install steps on the relevant docs/source/publications/<name>/ page. Nothing under source/ may import them at module import time.",
+      "severity": "high"
+    },
+    {
+      "id": "submodule-policy",
+      "rule": "A new .gitmodules entry must point at a lab-owned repository (github.com/UW-Lab or github.com/WEIRDLabUW, not a personal fork), pin a branch or commit, be optional to initialize (nothing under source/ imports it at module import time), and come with docs saying when to run `git submodule update --init`. If docs previously told users to clone that repo manually (e.g. docs/source/publications/omnireset/distillation.rst), the PR must update them.",
+      "severity": "high"
+    },
+    {
+      "id": "no-machine-specific-paths",
+      "rule": "Committed code must not contain absolute filesystem paths (/home/<user>, /mnt, /data, /scratch), personal usernames, hard-coded conda env names, wandb entities, or local checkpoint and dataset paths. Use CLI arguments, environment variables, Hydra config, or paths relative to the repository or the extension's data directory.",
+      "severity": "high"
+    },
+    {
+      "id": "no-committed-artifacts",
+      "rule": "Do not commit training outputs or generated data: checkpoints (*.pt, *.pth, *.jit, *.onnx), logs, videos, hdf5/npz datasets, USD files, __pycache__, or wandb/tensorboard directories. Binary assets that legitimately belong in uwlab_assets must go through git LFS per .gitattributes. Trained checkpoints and datasets are published to the Hugging Face dataset UW-Lab/uwlab-assets (checkpoints under Policies/) via a fork + PR and linked from the docs, never stored in this repo.",
+      "severity": "medium"
+    },
+    {
+      "id": "type-hints-signature-only",
+      "rule": "Public functions and methods in source/ carry type hints in the signature using PEP 604 syntax (`int | None`, not `Optional[int]`), omit `-> None`, and use Google-style docstrings whose Args entries are `name: description` with no type repeated in the docstring. Flag missing hints on new public APIs and types duplicated in docstrings.",
+      "severity": "medium",
+      "scope": [
+        "source/**"
+      ]
+    },
+    {
+      "id": "type-checking-imports-only-for-cfg",
+      "rule": "Imports live at module top. `typing.TYPE_CHECKING` guarded imports are allowed only to break the cfg <-> implementation cycle (a cfg referencing its class_type/func, or an implementation annotating its cfg). The only other accepted exception is standalone scripts that must import isaaclab/uwlab modules after AppLauncher has started the app. Flag other function-local or TYPE_CHECKING imports.",
+      "severity": "medium",
+      "scope": [
+        "source/**"
+      ]
+    },
+    {
+      "id": "shell-scripts-need-bash",
+      "rule": "Shell scripts that use bash-only syntax (arrays, [[ ]], ${!arr[@]}, (( )), `local`) must start with `#!/usr/bin/env bash`, not `#!/bin/sh`.",
+      "severity": "medium",
+      "scope": [
+        "**/*.sh"
+      ]
+    },
+    {
+      "id": "new-dependencies-need-justification",
+      "rule": "Adding a package to any setup.py install_requires, extension.toml [python.pipapi] requirements, environment.yml, or pyproject.toml needs a stated reason in the PR and a license on the allowlist (MIT, Apache, BSD, ISC, zlib, PSF, BSL, MPL) or an entry in .github/workflows/license-exceptions.json. Prefer implementing with torch, numpy, or existing dependencies. Research-only or heavy dependencies (diffusion_policy, robomimic, policy-training frameworks) must not go in install_requires at all - see optional-research-dependencies.",
+      "severity": "medium"
+    }
+  ]
+}
