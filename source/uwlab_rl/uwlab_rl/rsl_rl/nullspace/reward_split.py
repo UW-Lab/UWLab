@@ -80,6 +80,30 @@ class GaussianNoisePreference(PreferenceRewardSource):
         )
 
 
+class ActionRatePreference(PreferenceRewardSource):
+    """The **noise-bait probe**: preference = negative action-rate norm.
+
+    This is literally ``r_smooth``'s second term (``action_rate_l2_clamped``), chosen because it is
+    *maximally* satisfiable by shrinking exploration noise and barely satisfiable any other way.
+
+    It exists to test the scoping of the null-space constraint, and it is strictly sharper than the
+    Gaussian sanity run: zero-mean noise produces an *unsystematic* preference gradient that will
+    not preferentially shrink exploration, so that run passes even with the leak wide open.
+
+    Expected result when correctly scoped: **almost no compliance gain**, because both routes are
+    closed -- the noise parameters are masked out of the preference gradient, and the mean policy
+    is held by the task constraint. Large apparent compliance means the leak is still open;
+    escalate to Layer 2 (``pref_detach_noise_features``).
+
+    Exogenous (not subtracted from the task stream): the task's own ``action_rate`` term stays
+    where it is, so the arms remain comparable to the baseline on task reward.
+    """
+
+    def compute(self, env, total_reward: torch.Tensor) -> torch.Tensor:  # noqa: ANN001
+        am = env.unwrapped.action_manager
+        return -torch.clamp(torch.sum(torch.square(am.action - am.prev_action), dim=1), 0, 1e4)
+
+
 class RewardManagerTermsPreference(PreferenceRewardSource):
     """Preference reward = the sum of named RewardManager terms (Phase 2 scripted predicates).
 

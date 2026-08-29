@@ -41,8 +41,9 @@ parser.add_argument(
 # --- null-space preference critic -------------------------------------------------------------
 parser.add_argument("--beta", type=float, default=None, help="Preference step budget. 0 == baseline PPO.")
 parser.add_argument(
-    "--pref_source", type=str, default=None, choices=["zero", "noise", "terms"],
-    help="Preference reward stream: zero (sanity A), noise (sanity B), terms (scripted predicates).",
+    "--pref_source", type=str, default=None, choices=["zero", "noise", "action_rate", "terms"],
+    help="Preference stream: zero (sanity A), noise (sanity B), action_rate (noise-bait probe), "
+         "terms (scripted predicates).",
 )
 parser.add_argument("--pref_noise_std", type=float, default=None, help="Std for --pref_source=noise.")
 parser.add_argument(
@@ -54,6 +55,14 @@ parser.add_argument(
     help="Second value head as a widened shared trunk, or an independent critic MLP.",
 )
 parser.add_argument("--gamma_pref", type=float, default=None, help="Discount for the preference return.")
+parser.add_argument(
+    "--pref_mask_noise", type=lambda v: v.lower() not in ("0", "false", "no"), default=None,
+    help="Layer 1: keep the preference gradient off the exploration-noise params (default true).",
+)
+parser.add_argument(
+    "--pref_detach_noise_features", action="store_true", default=False,
+    help="Layer 2: also detach the trunk features feeding the gSDE noise head in the pref surrogate.",
+)
 parser.add_argument(
     "--projection_mode", type=str, default=None, choices=["gradient", "advantage", "sum"],
     help="gradient = faithful null-space projection; advantage/sum = ablations.",
@@ -108,6 +117,7 @@ from datetime import datetime
 from rsl_rl.runners import DistillationRunner, OnPolicyRunner
 
 from uwlab_rl.rsl_rl.nullspace import (
+    ActionRatePreference,
     DualCriticOnPolicyRunner,
     DualRewardVecEnvWrapper,
     GaussianNoisePreference,
@@ -163,6 +173,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         agent_cfg.algorithm.gamma_pref = args_cli.gamma_pref
     if args_cli.projection_mode is not None:
         agent_cfg.algorithm.projection_mode = args_cli.projection_mode
+    if args_cli.pref_mask_noise is not None:
+        agent_cfg.algorithm.pref_mask_noise = args_cli.pref_mask_noise
+    if args_cli.pref_detach_noise_features:
+        agent_cfg.algorithm.pref_detach_noise_features = True
     if args_cli.critic_arch is not None:
         agent_cfg.policy.critic_arch = args_cli.critic_arch
     if args_cli.pref_source is not None:
@@ -259,6 +273,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             pref_source = GaussianNoisePreference(
                 std=getattr(agent_cfg, "pref_noise_std", 1.0), seed=agent_cfg.seed
             )
+        elif source_name == "action_rate":
+            # Noise-bait probe: a preference maximally satisfiable by shrinking exploration.
+            pref_source = ActionRatePreference()
         elif source_name == "terms":
             term_names = list(getattr(agent_cfg, "pref_term_names", ()))
             if not term_names:

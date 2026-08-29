@@ -70,12 +70,65 @@ class DualCriticActorCritic(ActorCritic):
     # normally. EmpiricalNormalization holds buffers, not parameters, so a name-prefix split is
     # exact here.
 
+    #: Parameter names that scale exploration noise rather than the deployed mean action.
+    NOISE_PARAM_NAMES = ("std", "log_std")
+
     def actor_parameters(self) -> list[torch.nn.Parameter]:
         """Actor MLP plus the exploration-noise parameters (``std`` / ``log_std`` for gSDE)."""
         return [p for n, p in self.named_parameters() if not n.startswith("critic")]
 
     def critic_parameters(self) -> list[torch.nn.Parameter]:
         return [p for n, p in self.named_parameters() if n.startswith("critic")]
+
+    def is_noise_param_name(self, name: str) -> bool:
+        return name.split(".")[0] in self.NOISE_PARAM_NAMES
+
+    def actor_param_noise_mask(self) -> list[bool]:
+        """Per-entry flags over ``actor_parameters()``: True where the parameter is noise scale.
+
+        The preference objective is a statement about *deployed behaviour*, and the policy is
+        deployed on the mean action -- gSDE noise does not exist at deployment time. So the
+        preference gradient has no business touching these.
+        """
+        return [self.is_noise_param_name(n) for n, _ in self.named_parameters() if not n.startswith("critic")]
+
+    # -- preference-scoped log probability ------------------------------------------------------
+
+    def log_prob_mean_path(self, obs: TensorDict, actions: torch.Tensor) -> torch.Tensor:
+        """Log-prob whose gradient reaches the network **only through the mean action**.
+
+        Numerically identical to the usual log-prob -- ``detach`` changes no values -- so the PPO
+        importance ratio built from it is the same number, and "one ratio, one clip" still holds.
+        Only the backward graph differs.
+
+        Why this is needed (Layer 2): gSDE's action variance is
+        ``mm(features**2, exp(log_std)**2)`` where ``features = actor[:-1](obs)``
+        (rsl_rl/modules/actor_critic.py:72, :283). Excluding ``log_std`` from the preference
+        gradient (Layer 1) therefore does *not* close the path -- the preference can still shrink
+        exploration by reshaping the trunk features that feed the noise head. Detaching both
+        inputs to the variance closes it.
+        """
+        obs = self.get_actor_obs(obs)
+        obs = self.actor_obs_normalizer(obs)
+        mean = self.actor(obs)
+
+        if self.noise_std_type == "gsde":
+            features = self.actor[:-1](obs).detach()
+            std = torch.sqrt(
+                torch.mm(features**2, torch.exp(self.log_std.detach()) ** 2) + self.distribution.epsilon
+            )
+        elif self.noise_std_type == "scalar":
+            std = self.std.detach().expand_as(mean)
+        else:  # "log"
+            std = torch.exp(self.log_std.detach()).expand_as(mean)
+
+        return torch.distributions.Normal(mean, std).log_prob(actions).sum(dim=-1)
+
+    # -- diagnostics ---------------------------------------------------------------------------
+
+    def noise_magnitude(self) -> torch.Tensor:
+        """Mean realised action std of the current distribution (the exploration-leak canary)."""
+        return self.action_std.mean().detach()
 
     # -- value heads ---------------------------------------------------------------------------
 

@@ -27,7 +27,13 @@ from tensordict import TensorDict
 from rsl_rl.algorithms import PPO
 
 from .dual_storage import DualRolloutStorage
-from .projection import flatten_grads, project_nullspace, unflatten_to
+from .projection import (
+    flat_mask,
+    flatten_grads,
+    project_nullspace,
+    project_nullspace_masked,
+    unflatten_to,
+)
 
 PROJECTION_MODES = ("gradient", "advantage", "sum")
 
@@ -43,6 +49,8 @@ class NullspacePPO(PPO):
         lam_pref: float | None = None,
         projection_mode: str = "gradient",
         pref_value_loss_coef: float | None = None,
+        pref_mask_noise: bool = True,
+        pref_detach_noise_features: bool = False,
         **kwargs,
     ) -> None:
         # IsaacLab's RslRlPpoAlgorithmCfg carries fields that only exist in rsl-rl >= 4.x
@@ -79,6 +87,20 @@ class NullspacePPO(PPO):
         self.pref_value_loss_coef = (
             self.value_loss_coef if pref_value_loss_coef is None else pref_value_loss_coef
         )
+
+        # --- exploration-leak scoping -----------------------------------------------------
+        # Every scripted manner preference (mechanical power, EE speed, action smoothness) is
+        # monotonically improved by shrinking action noise, while perturbing noise around a local
+        # optimum of the mean policy is ~second order in task return. Large first-order preference
+        # gradient against ~zero first-order task gradient means the projector does not merely
+        # permit that direction -- it *selects* it. That is entropy collapse arriving through the
+        # exact channel built to find task-neutral directions.
+        #
+        # gSDE noise is an optimisation parameter, not a deployed behavioural property (the policy
+        # is deployed on the mean action), so no legitimate preference is given up by masking it.
+        self.pref_mask_noise = pref_mask_noise  # Layer 1: exclude noise params from g_pref
+        self.pref_detach_noise_features = pref_detach_noise_features  # Layer 2: cut the trunk path
+        self._pref_allowed: torch.Tensor | None = None  # lazily built flat subspace mask
 
         self.transition = DualRolloutStorage.Transition()
         self._diag: dict[str, float] = {}
@@ -175,6 +197,10 @@ class NullspacePPO(PPO):
             "surrogate": 0.0,
             "surrogate_pref": 0.0,
             "entropy": 0.0,
+            # Guard metrics -- logged in EVERY arm including beta=0, because the exploration leak
+            # is only visible as drift *relative to the beta=0 reference*.
+            "guard_entropy": 0.0,
+            "guard_noise_std": 0.0,
         }
         diag_sums: dict[str, float] = {}
 
@@ -216,13 +242,28 @@ class NullspacePPO(PPO):
             # One ratio, one clip, shared by both objectives.
             ratio = torch.exp(actions_log_prob_batch - torch.squeeze(old_actions_log_prob_batch))
             surrogate_task = self._surrogate(advantages_batch, ratio)
-            surrogate_pref = self._surrogate(advantages_pref_batch, ratio)
+
+            if self.pref_detach_noise_features:
+                # Layer 2: same ratio *value*, different backward graph -- the preference
+                # objective reaches the network only through the mean action, so it cannot be
+                # satisfied by reshaping the trunk features that set the gSDE noise scale.
+                lp_pref = self.policy.log_prob_mean_path(obs_batch, actions_batch)
+                ratio_pref = torch.exp(lp_pref - torch.squeeze(old_actions_log_prob_batch))
+                self._assert_ratio_equivalence(ratio, ratio_pref)
+            else:
+                ratio_pref = ratio
+            surrogate_pref = self._surrogate(advantages_pref_batch, ratio_pref)
 
             value_loss = self._value_loss(value_batch, target_values_batch, returns_batch)
             value_loss_pref = self._value_loss(value_pref_batch, target_values_pref_batch, returns_pref_batch)
 
             # Critic losses + entropy bonus. The surrogates are handled separately below because
             # their gradients must be projected before they reach the actor.
+            #
+            # NOTE: the entropy bonus deliberately sits HERE and not inside either surrogate. It
+            # is a regulariser on the optimisation, not a preference about behaviour, so it stays
+            # on the task side of the split -- it must keep its unrestricted gradient path to the
+            # noise parameters even when the preference term is masked off them.
             loss_rest = (
                 self.value_loss_coef * value_loss
                 + self.pref_value_loss_coef * value_loss_pref
@@ -255,6 +296,8 @@ class NullspacePPO(PPO):
             stats["surrogate"] += surrogate_task.item()
             stats["surrogate_pref"] += surrogate_pref.item()
             stats["entropy"] += entropy_batch.mean().item()
+            stats["guard_entropy"] += entropy_batch.mean().item()
+            stats["guard_noise_std"] += self.policy.noise_magnitude().item()
             for k, v in diag.items():
                 diag_sums[k] = diag_sums.get(k, 0.0) + v
 
@@ -264,6 +307,8 @@ class NullspacePPO(PPO):
         for k, v in diag_sums.items():
             stats[f"proj/{k}"] = v / num_updates
         stats["beta"] = self.beta
+        stats["pref_mask_noise"] = float(self.pref_mask_noise)
+        stats["pref_detach_noise_features"] = float(self.pref_detach_noise_features)
 
         # Per-stream reward means. The runner's reward bookkeeping only tracks the scalar it gets
         # from env.step (the task stream), so log the preference stream here -- attribution
@@ -276,6 +321,15 @@ class NullspacePPO(PPO):
         return stats
 
     # -- helpers ---------------------------------------------------------------------------
+
+    def _preference_subspace(self, actor_params: list) -> torch.Tensor | None:
+        """Flat mask of the coordinates the preference term may move (None = all of them)."""
+        if not self.pref_mask_noise:
+            return None
+        if self._pref_allowed is None:
+            noise_flags = self.policy.actor_param_noise_mask()
+            self._pref_allowed = ~flat_mask(actor_params, noise_flags)
+        return self._pref_allowed
 
     def _projected_actor_grad(
         self, surrogate_task: torch.Tensor, surrogate_pref: torch.Tensor, actor_params: list
@@ -294,7 +348,31 @@ class NullspacePPO(PPO):
             torch.autograd.grad(surrogate_pref, actor_params, retain_graph=True, allow_unused=True),
             actor_params,
         )
-        return project_nullspace(g_task, g_pref, self.beta)
+
+        allowed = self._preference_subspace(actor_params)
+        if allowed is None:
+            # Unmasked: the known-degenerate configuration. Kept runnable on purpose so the
+            # exploration collapse can be demonstrated once rather than argued about.
+            return project_nullspace(g_task, g_pref, self.beta)
+        return project_nullspace_masked(g_task, g_pref, self.beta, allowed)
+
+    def _assert_ratio_equivalence(self, ratio: torch.Tensor, ratio_pref: torch.Tensor) -> None:
+        """Check once that Layer 2 changed only the gradient path, not the objective's value.
+
+        If these ever differ numerically we are no longer running "one ratio, one clip" -- we are
+        running two different PPO objectives, and the clipping would disagree between streams.
+        """
+        if getattr(self, "_ratio_checked", False):
+            return
+        self._ratio_checked = True
+        if not torch.allclose(ratio.detach(), ratio_pref.detach(), rtol=1e-4, atol=1e-6):
+            d = (ratio - ratio_pref).abs().max().item()
+            raise RuntimeError(
+                f"Layer-2 preference ratio diverged from the task ratio (max |diff| {d:.3e}). "
+                "log_prob_mean_path must reproduce the policy's log-prob exactly and differ only "
+                "in its backward graph."
+            )
+        print("[NullspacePPO] Layer 2 active: preference ratio value-identical, mean-path gradient only.")
 
     def _adapt_learning_rate(self, mu, sigma, old_mu, old_sigma) -> None:  # noqa: ANN001
         """Unchanged from upstream: KL-adaptive LR on the *policy* distribution only."""

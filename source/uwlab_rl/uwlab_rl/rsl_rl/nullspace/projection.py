@@ -45,6 +45,45 @@ def unflatten_to(vec: torch.Tensor, params: list[torch.Tensor]) -> list[torch.Te
     return out
 
 
+def flat_mask(params: list[torch.Tensor], flags: list[bool]) -> torch.Tensor:
+    """Boolean mask over the flattened parameter vector, True where ``flags`` is True."""
+    return torch.cat([
+        torch.full((p.numel(),), bool(f), dtype=torch.bool, device=p.device)
+        for p, f in zip(params, flags)
+    ])
+
+
+def project_nullspace_masked(
+    g_task: torch.Tensor,
+    g_pref: torch.Tensor,
+    beta: float,
+    allowed: torch.Tensor,
+    eps: float = DEFAULT_EPS,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    """Project within a *subspace* of the parameters, leaving the rest untouched by preference.
+
+    ``allowed`` is a boolean mask selecting the coordinates the preference term is permitted to
+    move (the mean-action parameters). The projection is computed against ``g_task`` **restricted
+    to that same subspace**, and the preference contribution is zero everywhere else.
+
+    Why restrict rather than zero ``g_pref`` and project in the full space: the projector subtracts
+    a multiple of ``ĝ_task``, and ``g_task`` has non-zero components on the excluded coordinates.
+    Projecting in the full space would therefore feed a correction term back onto exactly the
+    parameters we are trying to protect. Restricting the whole operation to the subspace is what
+    actually guarantees the preference never moves them.
+
+    The scoping is a deliberate weakening of the guarantee, and belongs in the method section:
+    no first-order change in task value *as mediated by the deployed (mean-action) parameters*.
+    """
+    g_sub_task, g_sub_pref = g_task[allowed], g_pref[allowed]
+    combined_sub, diag = project_nullspace(g_sub_task, g_sub_pref, beta, eps)
+
+    g = g_task.clone()
+    g[allowed] = combined_sub
+    diag["masked_frac"] = 1.0 - (allowed.sum().item() / max(allowed.numel(), 1))
+    return g, diag
+
+
 def project_nullspace(
     g_task: torch.Tensor,
     g_pref: torch.Tensor,

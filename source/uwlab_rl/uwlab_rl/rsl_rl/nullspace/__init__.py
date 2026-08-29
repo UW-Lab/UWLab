@@ -6,8 +6,9 @@
 from .dual_actor_critic import DualCriticActorCritic
 from .dual_storage import DualRolloutStorage
 from .nullspace_ppo import NullspacePPO
-from .projection import project_nullspace
+from .projection import project_nullspace, project_nullspace_masked
 from .reward_split import (
+    ActionRatePreference,
     DualRewardVecEnvWrapper,
     GaussianNoisePreference,
     PreferenceRewardSource,
@@ -17,6 +18,7 @@ from .reward_split import (
 from .runner import DualCriticOnPolicyRunner
 
 __all__ = [
+    "ActionRatePreference",
     "DualCriticActorCritic",
     "DualCriticOnPolicyRunner",
     "DualRewardVecEnvWrapper",
@@ -27,4 +29,5 @@ __all__ = [
     "RewardManagerTermsPreference",
     "ZeroPreference",
     "project_nullspace",
+    "project_nullspace_masked",
 ]
