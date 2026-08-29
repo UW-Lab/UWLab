@@ -4,11 +4,11 @@ Each iteration runs three stages, all as subprocesses:
 
     1. collect  -- roll out the expert (plus, from iteration 1 on, the previous
                    student as an explorer) in the data-collection env
-                   (``scripts_v2/tools/collect_demos_asteroid.py``)
+                   (``scripts/ASTEROID/collect_demos_asteroid.py``)
     2. train    -- fit a diffusion-policy student on every dataset collected so far
                    (``diffusion_policy/train.py``)
     3. eval     -- roll out the student in the eval env
-                   (``scripts_v2/tools/eval_distilled_policy.py``)
+                   (``scripts/ASTEROID/eval_asteroid_policy.py``)
 
 Hyperparameters form a hierarchy of dataclasses: a :class:`RunCfg` holds the
 run-level settings plus an ordered list of :class:`IterationCfg`, and each
@@ -19,8 +19,8 @@ a new one to :data:`CURRICULA` and select it with ``--schedule``.
 Run from the repository root, e.g.::
 
     python scripts/ASTEROID/run_asteroid.py \
-        --data_task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0 \
-        --eval_task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0 \
+        --data_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0 \
+        --eval_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0 \
         --expert_policy_checkpoint logs/exported/policy.pt \
         --max_iterations 4 --exp_name my_run
 """
@@ -313,7 +313,7 @@ class AsteroidRun:
         cfg, c = self.cfg, self.cfg.iterations[iteration].collect
         dataset_dir = self.dataset_dir(iteration)
         command = [
-            "python", "scripts_v2/tools/collect_demos_asteroid.py",
+            "python", "scripts/ASTEROID/collect_demos_asteroid.py",
             "--task", cfg.data_task,
             "--dataset_file", os.path.join(dataset_dir, "data.zarr"),
             "--num_envs", str(c.num_envs),
@@ -368,7 +368,7 @@ class AsteroidRun:
     def eval(self, iteration: int, checkpoint: str) -> None:
         cfg, e = self.cfg, self.cfg.iterations[iteration].eval
         command = [
-            "python", "scripts_v2/tools/eval_distilled_policy.py",
+            "python", "scripts/ASTEROID/eval_asteroid_policy.py",
             "--task", cfg.eval_task,
             "--checkpoint", checkpoint,
             "--num_trajectories", str(e.num_trajectories),
@@ -425,8 +425,8 @@ class AsteroidRun:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     # tasks / policies
-    p.add_argument("--data_task", default="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0")
-    p.add_argument("--eval_task", default="OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0")
+    p.add_argument("--data_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0")
+    p.add_argument("--eval_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0")
     p.add_argument("--expert_policy_checkpoint", default="logs/policy_cube_final_v4.pt")
     p.add_argument("--insertive_object", default="cube")
     p.add_argument("--receptive_object", default=None)

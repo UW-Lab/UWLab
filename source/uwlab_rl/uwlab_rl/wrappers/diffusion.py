@@ -1,11 +1,16 @@
+# Copyright (c) 2024-2026, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 import torch
-from torch.nn.utils.rnn import pad_sequence
-from typing import Dict, Any, List
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class ObservationHistoryManager(ABC):
     """Abstract base class for managing observation history."""
+
     def __init__(self, num_envs: int, n_obs_steps: int, device: torch.device):
         self.num_envs = num_envs
         self.n_obs_steps = n_obs_steps
@@ -14,35 +19,35 @@ class ObservationHistoryManager(ABC):
         self.needs_init = set()  # Track environments that need initialization
 
     @abstractmethod
-    def initialize(self, processed_obs: Dict[str, torch.Tensor]):
+    def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize the history with the first observation."""
         pass
 
     @abstractmethod
-    def update(self, processed_obs: Dict[str, torch.Tensor]):
+    def update(self, processed_obs: dict[str, torch.Tensor]):
         """Update history with new observations."""
         pass
 
     @abstractmethod
-    def get_batch(self, env_indices: List[int]) -> Dict[str, torch.Tensor]:
+    def get_batch(self, env_indices: list[int]) -> dict[str, torch.Tensor]:
         """Get observation batch for specific environments."""
         pass
 
     @abstractmethod
-    def reset_envs(self, env_indices: List[int]):
+    def reset_envs(self, env_indices: list[int]):
         """Reset history for specific environments."""
         pass
 
 
 class LowDimObservationHistory(ObservationHistoryManager):
     """Manages observation history for low-dimensional policies."""
-    def initialize(self, processed_obs: Dict[str, torch.Tensor]):
+    def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize history as a single tensor."""
         obs_shape = processed_obs["obs"].shape
         history_shape = (self.num_envs, self.n_obs_steps, obs_shape[-1])
         self.history = torch.zeros(history_shape, device=self.device, dtype=processed_obs["obs"].dtype)
 
-    def update(self, processed_obs: Dict[str, torch.Tensor]):
+    def update(self, processed_obs: dict[str, torch.Tensor]):
         """Update history by shifting and adding new observations."""
         if self.history is None:
             self.initialize(processed_obs)
@@ -59,7 +64,7 @@ class LowDimObservationHistory(ObservationHistoryManager):
         # Add new observation at the end
         self.history[:, -1] = processed_obs["obs"]
 
-    def get_batch(self, env_indices: List[int]) -> Dict[str, torch.Tensor]:
+    def get_batch(self, env_indices: list[int]) -> dict[str, torch.Tensor]:
         """Get observation batch for specific environments."""
         if self.history is None:
             return {"obs": torch.zeros((len(env_indices), self.n_obs_steps, 0), device=self.device)}
@@ -68,7 +73,7 @@ class LowDimObservationHistory(ObservationHistoryManager):
         env_obs = self.history[env_indices]  # Shape: (batch, n_obs_steps, obs_dim)
         return {"obs": env_obs}
 
-    def reset_envs(self, env_indices: List[int]):
+    def reset_envs(self, env_indices: list[int]):
         """Reset history for specific environments."""
         for i in env_indices:
             self.needs_init.add(i)
@@ -77,11 +82,11 @@ class LowDimObservationHistory(ObservationHistoryManager):
 class ImageObservationHistory(ObservationHistoryManager):
     """Manages observation history for image-based policies."""
 
-    def __init__(self, num_envs: int, obs_keys: List[str], n_obs_steps: int, device: torch.device):
+    def __init__(self, num_envs: int, obs_keys: list[str], n_obs_steps: int, device: torch.device):
         super().__init__(num_envs, n_obs_steps, device)
         self.obs_keys = obs_keys
 
-    def initialize(self, processed_obs: Dict[str, torch.Tensor]):
+    def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize history as a dictionary of tensors."""
         # self.obs_keys = list(processed_obs.keys())
         self.history = {}
@@ -91,7 +96,7 @@ class ImageObservationHistory(ObservationHistoryManager):
             history_shape = (self.num_envs, self.n_obs_steps) + obs_shape[1:]
             self.history[key] = torch.zeros(history_shape, device=self.device, dtype=processed_obs[key].dtype)
 
-    def update(self, processed_obs: Dict[str, torch.Tensor]):
+    def update(self, processed_obs: dict[str, torch.Tensor]):
         """Update history by shifting and adding new observations."""
         if self.history is None:
             self.initialize(processed_obs)
@@ -113,7 +118,7 @@ class ImageObservationHistory(ObservationHistoryManager):
                 # Add new observation at the end
                 self.history[key][:, -1] = processed_obs[key]
 
-    def get_batch(self, env_indices: List[int]) -> Dict[str, torch.Tensor]:
+    def get_batch(self, env_indices: list[int]) -> dict[str, torch.Tensor]:
         """Get observation batch for specific environments."""
         if self.history is None or self.obs_keys is None:
             return {}
@@ -124,7 +129,7 @@ class ImageObservationHistory(ObservationHistoryManager):
             obs_batch[key] = env_obs
         return obs_batch
 
-    def reset_envs(self, env_indices: List[int]):
+    def reset_envs(self, env_indices: list[int]):
         """Reset history for specific environments."""
         for i in env_indices:
             self.needs_init.add(i)
@@ -134,7 +139,7 @@ class ImageObservationSequence(ImageObservationHistory):
     """Stores full trajectory per-environment as lists and returns padded batches with attention masks.
     """
 
-    def initialize(self, processed_obs: Dict[str, torch.Tensor]):
+    def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize internal per-key, per-env lists for histories."""
         # Keep the same obs_keys behaviour
         # self.obs_keys = list(processed_obs.keys())
@@ -143,7 +148,7 @@ class ImageObservationSequence(ImageObservationHistory):
         for key in self.obs_keys:
             self.history[key] = [[] for _ in range(self.num_envs)]
 
-    def update(self, processed_obs: Dict[str, torch.Tensor], env_indices: List[int]):
+    def update(self, processed_obs: dict[str, torch.Tensor], env_indices: list[int]):
         """Append new observations to each environment's trajectory list.
 
         If an environment is marked in `needs_init` it will have its lists cleared
@@ -171,7 +176,7 @@ class ImageObservationSequence(ImageObservationHistory):
                     # store a detached clone to avoid accidental graph retention
                     self.history[key][env_idx].append(obs.detach().clone().to(self.device))
 
-    def get_batch(self, env_indices: List[int]) -> Dict[str, torch.Tensor]:
+    def get_batch(self, env_indices: list[int]) -> dict[str, torch.Tensor]:
         """Return a padded batch of observations for the requested envs plus an attention mask.
 
         Returns a dict mapping each observation key to a tensor of shape
@@ -185,7 +190,7 @@ class ImageObservationSequence(ImageObservationHistory):
         lengths = [len(self.history[self.obs_keys[0]][env]) for env in env_indices]
         max_len = max(lengths) if lengths else 0
 
-        obs_batch: Dict[str, torch.Tensor] = {}
+        obs_batch: dict[str, torch.Tensor] = {}
 
         lengths_tensor = torch.tensor(lengths, device=self.device)
         attention_mask = (torch.arange(max_len, device=self.device).unsqueeze(0) < lengths_tensor.unsqueeze(1)).long()
@@ -263,7 +268,7 @@ class DiffusionPolicyWrapper:
         self.obs_history_manager.reset_envs(reset_indices)
         self.policy.reset()
 
-    def predict_action(self, obs_dict: Dict[str, Any], env_indices: List[int] = None) -> torch.Tensor:
+    def predict_action(self, obs_dict: dict[str, Any], env_indices: list[int] = None) -> torch.Tensor:
         """Predict action given Isaac Lab environment observations.
 
         Args:
@@ -307,7 +312,7 @@ class DiffusionPolicyWrapper:
 
         return actions
 
-    def _process_obs(self, obs_dict: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def _process_obs(self, obs_dict: dict[str, Any]) -> dict[str, torch.Tensor]:
         """Convert Isaac Lab observations to format expected by diffusion policy.
 
         Args:
@@ -327,7 +332,7 @@ class DiffusionPolicyWrapper:
         else:
             return self._process_lowdim_obs(obs)
 
-    def _process_image_obs(self, obs: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def _process_image_obs(self, obs: dict[str, Any]) -> dict[str, torch.Tensor]:
         """Process observations for image-based policies with batched operations.
 
         Args:
@@ -345,7 +350,7 @@ class DiffusionPolicyWrapper:
             processed_obs[key] = tensor
         return processed_obs
 
-    def _process_lowdim_obs(self, obs: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def _process_lowdim_obs(self, obs: dict[str, Any]) -> dict[str, torch.Tensor]:
         """Process observations for low-dimensional policies with batched operations.
 
         Args:
@@ -375,7 +380,7 @@ class DiffusionPolicyWrapper:
 
         return processed_obs
 
-    def _get_action_chunks(self, env_indices: List[int]) -> List[torch.Tensor]:
+    def _get_action_chunks(self, env_indices: list[int]) -> list[torch.Tensor]:
         """Get action chunks for specific environments.
 
         Args:

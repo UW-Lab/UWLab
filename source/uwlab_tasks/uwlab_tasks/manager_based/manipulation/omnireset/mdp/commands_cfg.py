@@ -28,4 +28,4 @@ class TaskCommandCfg(TaskDependentCommandCfg):
 
     insertive_asset_cfg: SceneEntityCfg = MISSING
 
-    receptive_asset_cfg: SceneEntityCfg | None = None
+    receptive_asset_cfg: SceneEntityCfg = MISSING

@@ -10,14 +10,10 @@
 import argparse
 import contextlib
 import os
-import sys
 import gymnasium as gym
 import torch
 from tqdm import tqdm
-from functools import partial
 from typing import Sequence
-import random
-import numpy as np
 
 from isaaclab.app import AppLauncher
 
@@ -88,7 +84,9 @@ from isaaclab.managers.recorder_manager import DatasetExportMode
 
 from uwlab.utils.datasets import ZarrDatasetFileHandler
 from uwlab_tasks.utils.hydra import hydra_task_compose
-from uwlab_tasks.manager_based.manipulation.omnireset.mdp.recorders.recorders_cfg import ActionStateRecorderManagerCfg
+from uwlab_tasks.manager_based.manipulation.asteroid.mdp.recorders.recorders_cfg import (
+    AsteroidActionStateRecorderManagerCfg as ActionStateRecorderManagerCfg,
+)
 
 # Diffusion policy imports
 from diffusion_policy.workspace.base_workspace import BaseWorkspace

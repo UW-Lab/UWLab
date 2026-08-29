@@ -70,7 +70,7 @@ def main(env_cfg, agent_cfg) -> None:
         "ObjectAnywhereEEAnywhere",
         "ObjectRestingEEGrasped",
         "ObjectAnywhereEEGrasped",
-        # "ObjectPartiallyAssembledEEGrasped",
+        "ObjectPartiallyAssembledEEGrasped",
     ]
     reset_types = [args_cli.reset_type] if args_cli.reset_type else ALL_RESET_TYPES
     env_cfg.events.reset_from_reset_states.params["dataset_dir"] = args_cli.dataset_dir

@@ -74,10 +74,8 @@ class RelCartesianOSCAction(ActionTerm):
         self._kd = kd.unsqueeze(0).expand(self.num_envs, -1).clone()
         self._torque_max = torch.tensor(cfg.torque_limit, device=self.device, dtype=torch.float32)
 
-        # Action scaling (per-env so domain randomization can write into [env_ids])
-        scale_default = torch.tensor(cfg.scale_xyz_axisangle, device=self.device, dtype=torch.float32)
-        self._scale_default = scale_default
-        self._scale = scale_default.unsqueeze(0).expand(self.num_envs, -1).clone()
+        # Action scaling
+        self._scale = torch.tensor(cfg.scale_xyz_axisangle, device=self.device, dtype=torch.float32)
         if cfg.input_clip is not None:
             self._input_clip = torch.tensor(cfg.input_clip, device=self.device, dtype=torch.float32)
         else:
@@ -191,48 +189,3 @@ class RelCartesianOSCAction(ActionTerm):
             ee_quat_w,
         )
         return ee_pos_b, ee_quat_b
-
-
-class RelCartesianOSCPositionAction(RelCartesianOSCAction):
-    """Position-only variant of :class:`RelCartesianOSCAction`.
-
-    The policy outputs a 3-DOF Cartesian delta ``[x, y, z]`` only -- it cannot
-    rotate the gripper. The desired EE orientation simply tracks the *current*
-    orientation each policy step, so the controller never accumulates a rotation
-    error to fight: collision-induced rotations are accepted rather than resisted.
-
-    All control machinery (analytical Jacobian, PD torques, clamping) is
-    inherited unchanged from the parent; only the action interface and the
-    desired-pose computation differ.
-    """
-
-    cfg: actions_cfg.RelCartesianOSCPositionActionCfg
-    """The configuration of the action term."""
-
-    def __init__(self, cfg: actions_cfg.RelCartesianOSCPositionActionCfg, env: ManagerBasedEnv):
-        super().__init__(cfg, env)
-        # Override the 6-DOF action buffers with 3-DOF (x, y, z) ones.
-        self._raw_actions = torch.zeros(self.num_envs, 3, device=self.device)
-        self._processed_actions = torch.zeros(self.num_envs, 3, device=self.device)
-
-    @property
-    def action_dim(self) -> int:
-        return 3
-
-    def process_actions(self, actions: torch.Tensor):
-        """Scale raw 3-DOF xyz deltas and compute the desired EE position.
-
-        The desired orientation tracks the current EE orientation, so no rotation
-        error builds up and collision-induced rotations are accepted, not fought.
-        """
-        self._raw_actions[:] = actions
-        scaled = actions * self._scale[:, :3]
-        if self._input_clip is not None:
-            scaled = torch.clamp(scaled, min=self._input_clip[0], max=self._input_clip[1])
-        self._processed_actions[:] = scaled
-
-        # Current EE pose in root (base_link) frame.
-        ee_pos_b, ee_quat_b = self._get_ee_pose_root_frame()
-        # Position: desired = current + delta. Orientation: track current (no command).
-        self._ee_pos_des[:] = ee_pos_b + scaled
-        self._ee_quat_des[:] = ee_quat_b
