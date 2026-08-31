@@ -77,6 +77,7 @@ Table of Contents
 
    source/publications/pg1
    source/publications/omnireset/index
+   source/publications/asteroid/index
 
 .. toctree::
    :maxdepth: 3

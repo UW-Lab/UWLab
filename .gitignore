@@ -71,3 +71,6 @@ tests/
 
 # Docker history
 .uw-lab-docker-history
+
+# local reset datasets
+Datasets/
