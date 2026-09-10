@@ -20,8 +20,10 @@ class RslRlNullspaceActorCriticCfg(RslRlFancyActorCriticCfg):
     critic_arch: str = "shared"
     """``shared``: one critic trunk widened to 2 outputs (cheap; the preference value loss
     backpropagates through the shared trunk, so the heads are coupled even at beta=0).
-    ``separate``: an independent preference critic MLP (no coupling, so the beta=0 overlay is
-    guaranteed by construction). Run sanity check A against both."""
+    ``separate``: an independent preference critic MLP -- no coupling through shared weights.
+    That alone does NOT guarantee the beta=0 overlay: until ``grad_clip_mode='per_group'`` the
+    actor and both critics shared one gradient-norm clip, which coupled them regardless of
+    architecture (NOTES 29). Run sanity check A against both."""
 
 
 @configclass
@@ -31,8 +33,12 @@ class RslRlNullspacePpoAlgorithmCfg(RslRlPpoAlgorithmCfg):
     class_name: str = "NullspacePPO"
 
     beta: float = 0.0
-    """Preference step budget. 0.0 reproduces baseline PPO exactly (the second backward pass is
-    skipped), which is what makes sanity run A a true no-op."""
+    """Preference step budget. 0.0 applies no preference gradient to the actor.
+
+    It reproduced baseline PPO only with ``pref_source='zero'``. Under a non-zero preference the
+    preference critic's gradient reached the actor through the shared gradient-norm clip, so
+    beta=0 was not a no-op (NOTES 29). With ``grad_clip_mode='per_group'`` it is, for any
+    ``pref_source``."""
 
     gamma_pref: float | None = None
     """Discount for the preference return. None mirrors ``gamma``. Manner is mostly local while
@@ -70,6 +76,27 @@ class RslRlNullspacePpoAlgorithmCfg(RslRlPpoAlgorithmCfg):
     ``mm(actor[:-1](obs)**2, exp(log_std)**2)``, so the preference can still shrink exploration by
     reshaping the trunk. Enable if guard entropy / noise magnitude drift against the beta=0
     reference after Layer 1."""
+
+    grad_clip_mode: str = "per_group"
+    """How ``max_grad_norm`` is applied. ``per_group`` clips the actor, the task critic and the
+    preference critic each on its own budget; ``global`` clips them as one vector (upstream).
+
+    ``global`` is a bug for a dual-critic agent and is kept only to reproduce pre-fix runs
+    (NOTES 29). The preference critic's gradient enters the same norm as the actor's, so a large
+    preference value loss scales the actor's update down -- at beta=0 as well. With
+    ``pref_source='action_rate'`` that loss reached 1e5-1e6 against ``max_grad_norm=1.0``: the
+    actor was throttled, the adaptive schedule pinned the learning rate at its 1e-2 cap, and
+    because the preference scales with action noise the throttle tracked exploration."""
+
+    normalize_pref_reward: bool = True
+    """Scale the preference reward by a running std of its discounted sum (Pathak et al.; rsl_rl's
+    ``EmpiricalDiscountedVariationNormalization``) before it reaches the preference critic.
+
+    Per-stream advantage normalisation already makes the *actor's* preference signal scale-free,
+    but the preference critic regressed onto raw returns, so its loss carried the reward's
+    arbitrary scale. A positive running factor leaves the normalised preference advantages
+    unchanged, so this fixes the critic without altering what the actor sees. The task stream is
+    never normalised: it must stay identical to upstream for the beta=0 null to mean anything."""
 
 
 @configclass

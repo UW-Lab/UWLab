@@ -25,11 +25,14 @@ import torch.nn as nn
 from tensordict import TensorDict
 
 from rsl_rl.algorithms import PPO
+from rsl_rl.networks import EmpiricalDiscountedVariationNormalization
 
 from .dual_storage import DualRolloutStorage
 from .projection import (
+    clip_grad_norm_by_group,
     flat_mask,
     flatten_grads,
+    partition_policy_params,
     project_nullspace,
     project_nullspace_masked,
     unflatten_to,
@@ -52,6 +55,8 @@ class NullspacePPO(PPO):
         pref_mask_noise: bool = True,
         pref_detach_noise_features: bool = False,
         log_pref_alignment: bool = True,
+        grad_clip_mode: str = "per_group",
+        normalize_pref_reward: bool = True,
         **kwargs,
     ) -> None:
         # IsaacLab's RslRlPpoAlgorithmCfg carries fields that only exist in rsl-rl >= 4.x
@@ -106,6 +111,26 @@ class NullspacePPO(PPO):
         # logged in EVERY arm as a time series -- including beta=0, where nothing is applied.
         self.log_pref_alignment = log_pref_alignment
 
+        # --- gradient-norm clipping scope (NOTES 29) ----------------------------------------
+        # Upstream clips the whole policy as one vector. For a dual critic that couples the
+        # preference critic to the actor: its value loss enters the same norm, and a large one
+        # scales the actor's update down -- at beta=0 too. Clip each group on its own budget.
+        if grad_clip_mode not in ("per_group", "global"):
+            raise ValueError(f"grad_clip_mode must be 'per_group' or 'global', got {grad_clip_mode!r}")
+        self.grad_clip_mode = grad_clip_mode
+
+        # --- preference reward scale (NOTES 29) ---------------------------------------------
+        # The preference critic regresses onto returns of an arbitrary-scale reward; with
+        # action_rate its loss reached 1e5-1e6. A positive running scale leaves the normalised
+        # preference advantages unchanged, so this fixes the critic without changing what the
+        # actor sees. Registered on the policy so its running stats are checkpointed with it.
+        # The task stream is deliberately NOT normalised.
+        self.normalize_pref_reward = normalize_pref_reward
+        if normalize_pref_reward:
+            self.policy.pref_reward_normalizer = EmpiricalDiscountedVariationNormalization(
+                shape=1, gamma=self.gamma_pref
+            ).to(self.device)
+
         self.transition = DualRolloutStorage.Transition()
         self._diag: dict[str, float] = {}
 
@@ -153,6 +178,12 @@ class NullspacePPO(PPO):
 
         self.transition.rewards = rewards.clone()
         self.transition.rewards_pref = rewards_pref.clone().to(self.device)
+        if self.normalize_pref_reward:
+            # Before the time-out bootstrap below: that adds gamma_pref * values_pref, and the
+            # preference critic's values live in this normalised scale once it trains on it.
+            self.transition.rewards_pref = self.policy.pref_reward_normalizer(
+                self.transition.rewards_pref.view(-1, 1)
+            ).view(-1)
         self.transition.dones = dones
 
         if "time_outs" in extras:
@@ -214,6 +245,8 @@ class NullspacePPO(PPO):
 
         generator = self.storage.mini_batch_generator(self.num_mini_batches, self.num_learning_epochs)
         actor_params = self.policy.actor_parameters()
+        param_groups = partition_policy_params(self.policy.named_parameters())
+        grad_norm_sums: dict[str, float] = {}
 
         for (
             obs_batch,
@@ -306,8 +339,14 @@ class NullspacePPO(PPO):
             if self.is_multi_gpu:
                 self.reduce_parameters()
 
-            nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
+            if self.grad_clip_mode == "per_group":
+                gnorms = clip_grad_norm_by_group(param_groups, self.max_grad_norm)
+            else:  # "global": upstream behaviour, kept only to reproduce pre-fix runs (NOTES 29)
+                total = nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
+                gnorms = {"global": float(total)}
             self.optimizer.step()
+            for k, v in gnorms.items():
+                grad_norm_sums[k] = grad_norm_sums.get(k, 0.0) + v
 
             stats["value_function"] += value_loss.item()
             stats["value_function_pref"] += value_loss_pref.item()
@@ -327,9 +366,17 @@ class NullspacePPO(PPO):
             stats[k] /= num_updates
         for k, v in diag_sums.items():
             stats[f"proj/{k}"] = v / num_updates
+        # Pre-clip gradient norm per group: makes a cross-group throttle directly visible
+        # instead of inferring it from the adaptive learning rate (NOTES 29).
+        for k, v in grad_norm_sums.items():
+            stats[f"grad_norm/{k}"] = v / num_updates
         stats["beta"] = self.beta
         stats["pref_mask_noise"] = float(self.pref_mask_noise)
         stats["pref_detach_noise_features"] = float(self.pref_detach_noise_features)
+        stats["grad_clip_per_group"] = float(self.grad_clip_mode == "per_group")
+        stats["normalize_pref_reward"] = float(self.normalize_pref_reward)
+        if self.normalize_pref_reward:
+            stats["pref_reward_scale"] = float(self.policy.pref_reward_normalizer.emp_norm._std)
 
         # Per-stream reward means. The runner's reward bookkeeping only tracks the scalar it gets
         # from env.step (the task stream), so log the preference stream here -- attribution

@@ -143,3 +143,51 @@ def project_nullspace(
         # self-schedules: small early (task gradient dominates), growing as g_task → 0.
         "pref_contrib_ratio": (beta * perp_norm / task_norm.clamp_min(eps)).item(),
     }
+
+
+# -- gradient-norm clipping scope (NOTES 29) -------------------------------------------------
+
+
+def partition_policy_params(named_params) -> dict[str, list[torch.nn.Parameter]]:  # noqa: ANN001
+    """Split a dual actor-critic's parameters into the groups that must not share one
+    gradient-norm budget.
+
+    ``actor``        the actor MLP plus exploration-noise parameters (``std`` / ``log_std``);
+    ``critic``       the task value head -- or, with ``critic_arch='shared'``, the 2-head trunk;
+    ``critic_pref``  the separate preference critic (empty with ``critic_arch='shared'``).
+
+    Name-prefix based, consistent with ``DualCriticActorCritic.actor_parameters`` (everything not
+    starting with ``critic`` is actor). ``critic_pref`` is tested first because ``critic`` is a
+    prefix of it.
+    """
+    groups: dict[str, list[torch.nn.Parameter]] = {"actor": [], "critic": [], "critic_pref": []}
+    for name, param in named_params:
+        if name.startswith("critic_pref"):
+            groups["critic_pref"].append(param)
+        elif name.startswith("critic"):
+            groups["critic"].append(param)
+        else:
+            groups["actor"].append(param)
+    return groups
+
+
+def clip_grad_norm_by_group(
+    groups: dict[str, list[torch.nn.Parameter]], max_norm: float
+) -> dict[str, float]:
+    """``clip_grad_norm_`` applied to each group on its own budget.
+
+    Upstream rsl_rl clips the whole policy as one vector. With two critics that couples them to
+    the actor: a large preference value loss enters the same norm and scales the actor's update
+    down, at beta=0 too. Clipping per group removes that channel.
+
+    Returns each group's pre-clip norm (0.0 for a group with no gradients) -- the diagnostic that
+    makes a cross-group throttle directly observable.
+    """
+    norms: dict[str, float] = {}
+    for name, params in groups.items():
+        with_grad = [p for p in params if p.grad is not None]
+        if not with_grad:
+            norms[name] = 0.0
+            continue
+        norms[name] = float(torch.nn.utils.clip_grad_norm_(with_grad, max_norm))
+    return norms
