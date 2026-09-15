@@ -27,7 +27,8 @@ PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu118"]
 # Extra dependencies for RL agents
 EXTRAS_REQUIRE = {
     "rsl-rl": [
-        "rsl-rl-lib @ git+https://github.com/UW-Lab/rsl_rl.git@main",
+        # Update this pin alongside compatible UWLab changes.
+        "rsl-rl-lib @ git+https://github.com/UW-Lab/rsl_rl.git@e7cd3c77bdb3c94753612f208c725e1add38a655",
     ],
 }
 
