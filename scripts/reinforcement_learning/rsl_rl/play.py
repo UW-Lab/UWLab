@@ -34,6 +34,13 @@ parser.add_argument(
     help="Use the pre-trained checkpoint from Nucleus.",
 )
 parser.add_argument("--real-time", action="store_true", default=False, help="Run in real-time, if possible.")
+parser.add_argument("--max_episodes", type=int, default=None,
+                    help="Stop after this many completed episodes and write a JSON.")
+parser.add_argument("--eval_output", type=str, default=None, help="Path to write per-eval JSON.")
+parser.add_argument("--discretize_actions", action="store_true", default=False,
+                    help="Snap arm dims to bin grid + binarize gripper sign before env.step.")
+parser.add_argument("--num_bins", type=int, default=51, help="Bins per arm dim for --discretize_actions.")
+parser.add_argument("--action_bound", type=float, default=25.0, help="Symmetric clip range for arm dims.")
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -179,6 +186,32 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     dt = env.unwrapped.step_dt
 
+    # Discretizer setup (UWLab-ICL collect_demos_asteroid scheme): arm dims 0-5
+    # snap to evenly-spaced bin centers in [-bound, +bound]; gripper dim 6 sign-
+    # thresholded to {-1, +1}. Mirrors the inference-side discretization used by
+    # the categorical-head distillation student.
+    bin_centers = None
+    if args_cli.discretize_actions:
+        bin_centers = torch.linspace(
+            -args_cli.action_bound, args_cli.action_bound, args_cli.num_bins,
+            device=env.unwrapped.device, dtype=torch.float32,
+        )
+        print(f"[eval] discretize ON: arm bins={args_cli.num_bins} ±{args_cli.action_bound}, gripper sign-thresh")
+
+    # Termination bookkeeping (success vs timeout vs other)
+    eval_episodes = 0
+    eval_term_success = 0
+    eval_term_timeout = 0
+    eval_term_other = 0
+    has_success_term = False
+    has_timeout_term = False
+    if args_cli.max_episodes is not None:
+        term_mgr = env.unwrapped.termination_manager
+        active = list(term_mgr.active_terms)
+        has_success_term = "success" in active
+        has_timeout_term = "time_out" in active
+        print(f"[eval] termination terms: {active}")
+
     # reset environment
     obs = env.get_observations()
     timestep = 0
@@ -189,10 +222,45 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         with torch.inference_mode():
             # agent stepping
             actions = policy(obs)
+            if bin_centers is not None:
+                a = actions.clamp(-args_cli.action_bound, args_cli.action_bound)
+                # arm dims (0..5): snap to nearest bin center
+                for d in range(min(6, actions.shape[-1])):
+                    diff = (a[:, d:d+1] - bin_centers.unsqueeze(0)).abs()
+                    actions[:, d] = bin_centers[diff.argmin(dim=-1).squeeze(-1)]
+                # gripper dim (6): hard sign-threshold
+                if actions.shape[-1] >= 7:
+                    actions[:, 6] = torch.where(
+                        actions[:, 6] >= 0,
+                        torch.ones_like(actions[:, 6]),
+                        -torch.ones_like(actions[:, 6]),
+                    )
             # env stepping
             obs, _, dones, _ = env.step(actions)
             # reset recurrent states for episodes that have terminated
             policy_nn.reset(dones)
+
+            if args_cli.max_episodes is not None and isinstance(dones, torch.Tensor) and dones.any():
+                done_ids = (dones > 0).nonzero(as_tuple=False).reshape(-1)
+                term_mgr = env.unwrapped.termination_manager
+                if has_success_term:
+                    eval_term_success += int(term_mgr.get_term("success")[done_ids].sum().item())
+                if has_timeout_term:
+                    eval_term_timeout += int(term_mgr.get_term("time_out")[done_ids].sum().item())
+                acc = (
+                    (int(term_mgr.get_term("success")[done_ids].sum().item()) if has_success_term else 0)
+                    + (int(term_mgr.get_term("time_out")[done_ids].sum().item()) if has_timeout_term else 0)
+                )
+                eval_term_other += int(done_ids.numel()) - acc
+                eval_episodes += int(done_ids.numel())
+                rate_s = eval_term_success / max(eval_episodes, 1)
+                rate_t = eval_term_timeout / max(eval_episodes, 1)
+                print(f"[eval] episodes={eval_episodes}/{args_cli.max_episodes} "
+                      f"term_success={eval_term_success} ({rate_s:.4f}) "
+                      f"term_timeout={eval_term_timeout} ({rate_t:.4f}) "
+                      f"term_other={eval_term_other}", flush=True)
+                if eval_episodes >= args_cli.max_episodes:
+                    break
         if args_cli.video:
             timestep += 1
             # Exit the play loop after recording one video
@@ -203,6 +271,29 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         sleep_time = dt - (time.time() - start_time)
         if args_cli.real_time and sleep_time > 0:
             time.sleep(sleep_time)
+
+    if args_cli.max_episodes is not None and args_cli.eval_output is not None:
+        import json
+        rate_s = eval_term_success / max(eval_episodes, 1)
+        rate_t = eval_term_timeout / max(eval_episodes, 1)
+        result = {
+            "task": args_cli.task,
+            "checkpoint": resume_path,
+            "discretize_actions": bool(args_cli.discretize_actions),
+            "num_bins": args_cli.num_bins,
+            "action_bound": args_cli.action_bound,
+            "num_envs": env_cfg.scene.num_envs,
+            "num_episodes": eval_episodes,
+            "term_success": eval_term_success,
+            "term_success_rate": rate_s,
+            "term_timeout": eval_term_timeout,
+            "term_timeout_rate": rate_t,
+            "term_other": eval_term_other,
+        }
+        os.makedirs(os.path.dirname(args_cli.eval_output) or ".", exist_ok=True)
+        with open(args_cli.eval_output, "w") as f:
+            json.dump(result, f, indent=2)
+        print(f"[eval] wrote {args_cli.eval_output}: term_success={rate_s:.4f}")
 
     # close the simulator
     env.close()
