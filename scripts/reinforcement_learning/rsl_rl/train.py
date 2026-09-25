@@ -292,6 +292,23 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     else:
         env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
+    # In-job wandb with a stable run id (gen_convergence_yaml.py sets WANDB_RUN_ID + WANDB_RESUME=allow):
+    # every preemption restart resumes the SAME wandb run instead of opening a new one. On resume wandb
+    # loads the run's stored config, and rsl_rl's WandbSummaryWriter then re-sends its own config with
+    # values that change on every start (log_dir, env_cfg.log_dir, resume settings). wandb raises
+    # ConfigError on a changed value unless allow_val_change=True, which would kill the start before
+    # training -- so let config updates overwrite, in this process only.
+    if agent_cfg.logger == "wandb" and os.environ.get("WANDB_RUN_ID"):
+        import wandb.sdk.wandb_config as _wandb_config
+
+        _config_update = _wandb_config.Config.update
+
+        def _update_allow_change(self, d, allow_val_change=None):
+            return _config_update(self, d, allow_val_change=True)
+
+        _wandb_config.Config.update = _update_allow_change
+        print(f"[INFO] wandb: resuming run id {os.environ['WANDB_RUN_ID']} (config updates may overwrite)")
+
     # create runner from rsl-rl
     if agent_cfg.class_name == "OnPolicyRunner":
         runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
