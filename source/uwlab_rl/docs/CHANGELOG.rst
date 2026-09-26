@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.2.3 (2026-09-26)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Updated the pinned RSL-RL 5.4.1 revision without changing its library code or runtime behavior.
+  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
+
+
 0.2.2 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~
 
