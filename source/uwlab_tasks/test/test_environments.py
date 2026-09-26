@@ -226,6 +226,21 @@ def test_grasp_sampling_preserves_asset_masses():
         assert object_cfg.spawn.rigid_props.disable_gravity is False
 
 
+@pytest.mark.parametrize("contract", ["asset", "armature"])
+@pytest.mark.isaacsim_ci
+def test_omnireset_published_expert_robot_defaults(contract):
+    if contract == "asset":
+        module = importlib.import_module("uwlab_assets.robots.ur5e_robotiq_gripper.ur5e_robotiq_2f85_gripper")
+        assert module.UR5E_ARTICULATION.spawn.usd_path.endswith(
+            "/ur5e_robotiq_gripper_d415_mount_safety_calibrated.usd"
+        )
+    else:
+        module = importlib.import_module(
+            "uwlab_tasks.manager_based.manipulation.omnireset.config.ur5e_robotiq_2f85.rl_state_cfg"
+        )
+        assert module.BaseEventCfg().robot_wrist_armature is None
+
+
 @pytest.mark.isaacsim_ci
 def test_sysid_armature_startup_selects_wrist_joints(monkeypatch):
     from isaaclab.managers import SceneEntityCfg

@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.6.3 (2026-09-26)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Restored the original calibrated UR5e USD for compatibility with published OmniReset
+  checkpoints. Deferred the mass/inertia changes for issues #38 and #40. Use the original
+  filename with existing checkpoints; the experimental ``_v2.usd`` is not the default.
+
+
 0.6.2 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~
 

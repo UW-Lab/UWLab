@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.14.7 (2026-09-26)
+~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Disabled added wrist armature by default when restoring the original robot for published
+  checkpoints. Keep ``robot_wrist_armature`` unset with those checkpoints; the experimental
+  mass/inertia changes are deferred.
+
+
 0.14.6 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~~
 
