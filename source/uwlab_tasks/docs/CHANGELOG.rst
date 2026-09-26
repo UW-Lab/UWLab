@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.14.4 (2026-09-26)
+~~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Resolved grasp-sampling and collision asset paths from the USD stage for both legacy and EA
+  environment namespace patterns, preserving natural environment-index ordering.
+* Corrected cached collider-relative quaternions to scalar-last order and included complete
+  collider transforms in geometry hashes. Regenerate grasp datasets to use the corrected geometry checks.
+
+
 0.14.3 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~~
 

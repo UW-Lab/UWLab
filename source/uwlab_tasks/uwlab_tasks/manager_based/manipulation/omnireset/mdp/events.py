@@ -169,7 +169,7 @@ class grasp_sampling_event(ManagerTermBase):
         stage = omni.usd.get_context().get_stage()
 
         # For multi-environment setups, we need to get the first environment's path
-        prim_path = asset.cfg.prim_path.replace(".*", "0", 1)
+        prim_path = utils.RigidObjectHasher.resolve_prim_paths(self._env.num_envs, asset.cfg.prim_path, stage=stage)[0]
 
         # Get the USD prim
         prim = stage.GetPrimAtPath(prim_path)

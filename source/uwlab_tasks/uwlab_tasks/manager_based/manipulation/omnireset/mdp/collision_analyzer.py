@@ -51,16 +51,17 @@ class CollisionAnalyzer:
 
         self.body_ids = []
         self.local_pts = []
+        template_path = RigidObjectHasher.resolve_prim_paths(env.num_envs, self.asset.cfg.prim_path)[0]
         for i, body_name in enumerate(body_names):
             # start = time.perf_counter()
             prim = get_first_matching_child_prim(
-                self.asset.cfg.prim_path.replace(".*", "0", 1),  # we use the 0th env prim as template
+                template_path,  # we use the 0th env prim as template
                 predicate=lambda p: p.GetName() == body_name and p.HasAPI(UsdPhysics.RigidBodyAPI),
             )
             local_pts = utils.sample_object_point_cloud(
                 num_envs=env.num_envs,
                 num_points=cfg.num_points,
-                prim_path_pattern=str(prim.GetPath()).replace("env_0", "env_.*", 1),
+                prim_path_pattern=self.asset.cfg.prim_path + str(prim.GetPath())[len(template_path) :],
                 device=env.device,
             )
             if local_pts is not None:

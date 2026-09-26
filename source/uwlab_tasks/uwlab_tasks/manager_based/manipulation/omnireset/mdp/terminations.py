@@ -462,7 +462,9 @@ class check_obb_no_overlap_termination(ManagerTermBase):
     def _compute_object_obbs(self):
         """Compute OBB for insertive object and convert to body frame."""
         # Get prim path (use env 0 as template)
-        insertive_prim_path = self.insertive_object.cfg.prim_path.replace(".*", "0", 1)
+        insertive_prim_path = utils.RigidObjectHasher.resolve_prim_paths(
+            self._env.num_envs, self.insertive_object.cfg.prim_path
+        )[0]
 
         # Compute OBB in world frame using Isaac Sim's built-in functions
         insertive_centroid_world, insertive_axes_world, insertive_half_extents = self._bounds_utils.compute_obb(

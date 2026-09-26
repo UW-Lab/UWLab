@@ -5,11 +5,12 @@
 
 import hashlib
 import numpy as np
+import re
 import torch
 
 import isaaclab.sim.utils.stage as stage_utils
 import warp as wp
-from isaaclab.sim import get_all_matching_child_prims
+from isaaclab.sim import find_matching_prim_paths, get_all_matching_child_prims
 from pxr import Gf, Usd, UsdGeom, UsdPhysics
 
 HASH_STORE = {"warp_mesh_store": {}, "__stage_id__": None}
@@ -46,7 +47,7 @@ class RigidObjectHasher:
         stor = HASH_STORE[prim_path_pattern]
         stage = stage_utils.get_current_stage()
         xform_cache = UsdGeom.XformCache()
-        prim_paths = [prim_path_pattern.replace(".*", f"{i}", 1) for i in range(num_envs)]
+        prim_paths = self.resolve_prim_paths(num_envs, prim_path_pattern, stage=stage)
 
         num_roots = len(prim_paths)
         collider_prim_env_ids = []
@@ -78,7 +79,7 @@ class RigidObjectHasher:
                 rel_mat_tf = Gf.Transform(child_xf * root_xf.GetInverse())
                 rel_quat = rel_mat_tf.GetRotation().GetQuat()
                 rel_t = torch.tensor(rel_mat_tf.GetTranslation())
-                rel_q = torch.tensor([rel_quat.GetReal(), *rel_quat.GetImaginary()])
+                rel_q = torch.tensor([*rel_quat.GetImaginary(), rel_quat.GetReal()])
                 rel_s = torch.tensor(rel_mat_tf.GetScale())
                 rel_tfs.append(torch.cat([rel_t, rel_q, rel_s]))
             rel_tfs = torch.cat(rel_tfs)
@@ -86,7 +87,7 @@ class RigidObjectHasher:
 
             # 3: Store the collider prims hash
             root_hash = hashlib.sha256()
-            for prim, prim_rel_tf in zip(coll_prims, rel_tfs.numpy()):
+            for prim, prim_rel_tf in zip(coll_prims, rel_tfs.view(-1, 10).numpy()):
                 h = hashlib.sha256()
                 h.update(
                     np.round(prim_rel_tf * 50).astype(np.int64)
@@ -129,6 +130,16 @@ class RigidObjectHasher:
         stor["collider_prim_relative_transforms"] = torch.cat(collider_prim_relative_transforms).view(-1, 10).to("cpu")
         stor["root_prim_hashes"] = torch.tensor(root_prim_hashes, dtype=torch.int64, device="cpu")
         stor["root_prim_scales"] = torch.stack(root_prim_scales).to("cpu")
+
+    @staticmethod
+    def resolve_prim_paths(num_envs: int, prim_path_pattern: str, stage: Usd.Stage | None = None) -> list[str]:
+        """Resolve one asset root per environment in natural environment-index order."""
+        stage = stage_utils.get_current_stage() if stage is None else stage
+        paths = find_matching_prim_paths(prim_path_pattern, stage=stage)
+        paths.sort(key=lambda path: [int(part) if part.isdigit() else part for part in re.split(r"(\d+)", path)])
+        if len(paths) != num_envs:
+            raise ValueError(f"Expected {num_envs} asset roots for {prim_path_pattern}, found {len(paths)}.")
+        return paths
 
     @property
     def num_root(self) -> int:

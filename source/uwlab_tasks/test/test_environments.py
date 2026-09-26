@@ -175,3 +175,40 @@ def test_progress_context_reset_is_per_environment(env_ids, expected):
     assert torch.equal(reference, torch.tensor(expected, dtype=torch.int32))
     context.reset(ids)
     assert torch.equal(reference, torch.tensor(expected, dtype=torch.int32))
+
+
+@pytest.mark.parametrize("pattern", ["/World/envs/env_.*/Object", "/World/envs/env_[^/]+/Object"])
+@pytest.mark.isaacsim_ci
+def test_collision_asset_paths_and_frames(monkeypatch, pattern):
+    from isaaclab.sim.utils import find_matching_prim_paths, get_all_matching_child_prims
+    from pxr import Usd, UsdGeom, UsdPhysics
+
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.rigid_object_hasher")
+    stage = Usd.Stage.CreateInMemory()
+    for index in (10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11):
+        root = f"/World/envs/env_{index}/Object"
+        UsdGeom.Xform.Define(stage, root)
+        for name, y in (("a", 1.0), ("b", float(index + 2))):
+            cube = UsdGeom.Cube.Define(stage, f"{root}/{name}")
+            UsdPhysics.CollisionAPI.Apply(cube.GetPrim())
+            cube.AddTranslateOp().Set((0.0, y, 0.0))
+    monkeypatch.setattr(module.stage_utils, "get_current_stage", lambda: stage)
+    monkeypatch.setattr(module.stage_utils, "get_current_stage_id", lambda: None)
+    monkeypatch.setattr(module, "HASH_STORE", {"warp_mesh_store": {}, "__stage_id__": None})
+    monkeypatch.setattr(
+        module,
+        "find_matching_prim_paths",
+        lambda expr, stage=None: find_matching_prim_paths(expr, stage=stage),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        module,
+        "get_all_matching_child_prims",
+        lambda path, **kwargs: get_all_matching_child_prims(path, stage=stage, **kwargs),
+    )
+    hasher = module.RigidObjectHasher(12, pattern, device="cpu")
+    paths = [str(prim.GetPath()) for prim in hasher.collider_prims]
+    assert paths == [f"/World/envs/env_{index}/Object/{name}" for index in range(12) for name in ("a", "b")]
+    expected_quaternions = torch.tensor([[0.0, 0.0, 0.0, 1.0]]).expand(24, -1)
+    torch.testing.assert_close(hasher.collider_prim_relative_transforms[:, 3:7], expected_quaternions, rtol=0, atol=0)
+    assert hasher.root_prim_hashes[0] != hasher.root_prim_hashes[1]
