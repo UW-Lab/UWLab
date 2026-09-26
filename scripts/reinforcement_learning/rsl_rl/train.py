@@ -58,18 +58,14 @@ simulation_app = app_launcher.app
 """Check for minimum supported RSL-RL version."""
 
 import importlib.metadata as metadata
-import platform
 
 from packaging import version
 
 # check minimum supported rsl-rl version
-RSL_RL_VERSION = "3.0.1"
+RSL_RL_VERSION = "5.4.1"
 installed_version = metadata.version("rsl-rl-lib")
 if version.parse(installed_version) < version.parse(RSL_RL_VERSION):
-    if platform.system() == "Windows":
-        cmd = [r".\isaaclab.bat", "-p", "-m", "pip", "install", f"rsl-rl-lib=={RSL_RL_VERSION}"]
-    else:
-        cmd = ["./isaaclab.sh", "-p", "-m", "pip", "install", f"rsl-rl-lib=={RSL_RL_VERSION}"]
+    cmd = [sys.executable, "-m", "pip", "install", "-e", "source/uwlab_rl[rsl-rl]"]
     print(
         f"Please install the correct version of RSL-RL.\nExisting version is: '{installed_version}'"
         f" and required version is: '{RSL_RL_VERSION}'.\nTo install the correct version, run:"

@@ -626,11 +626,14 @@ class Ur5eRobotiq2f85RGBRelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
         self.episode_length_s = 32.0
 
         # Render settings
-        self.sim.render.enable_dlssg = False
-        self.sim.render.enable_ambient_occlusion = True
-        self.sim.render.enable_reflections = True
-        self.sim.render.enable_dl_denoiser = True
-        self.sim.render.antialiasing_mode = "DLAA"
+        task_mdp.configure_isaac_rtx(
+            self,
+            enable_dlssg=False,
+            enable_ambient_occlusion=True,
+            enable_reflections=True,
+            enable_dl_denoiser=True,
+            antialiasing_mode="DLAA",
+        )
 
         # speeds up rendering
         self.sim.render_interval = self.decimation

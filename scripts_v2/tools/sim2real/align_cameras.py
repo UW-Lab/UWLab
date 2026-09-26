@@ -16,14 +16,14 @@ Mirrors the sysid workflow:
 
 Usage (front camera example):
     python scripts_v2/tools/sim2real/align_cameras.py \
-        --enable_cameras \
+        --visualizer none \
         --camera front_camera \
         --real_image /path/to/real_front.png \
         --joint_angles -12.0 -80.0 63.0 -30.6 -97.9 174.3
 
 Usage (wrist camera example):
     python scripts_v2/tools/sim2real/align_cameras.py \
-        --enable_cameras \
+        --visualizer none \
         --camera wrist_camera \
         --real_image /path/to/real_wrist.png \
         --joint_angles -12.0 -80.0 63.0 -30.6 -97.9 174.3

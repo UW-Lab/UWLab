@@ -1,6 +1,26 @@
 Changelog
 ---------
 
+0.14.2 (2026-09-26)
+~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Migrated OmniReset renderer configuration and extension loading to Isaac Lab 3.0 Early Access.
+  Preserved the legacy actuator execution path and existing task parameters during migration.
+  Use ``--visualizer none`` instead of ``--headless`` when disabling visualization.
+* Deferred task MDP and ANYmal configuration imports until a task was selected, matching upstream
+  registration behavior while preserving the existing task IDs and configuration entry points.
+* Adopted the EA observation declaration order for OmniReset. Use the converted EA experts;
+  convert beta checkpoints with ``convert_checkpoint_layout.py`` before loading them.
+
+Fixed
+^^^^^
+
+* Fixed renderer setup for physics-replicated scenes without changing scene replication settings.
+
+
 0.14.1 (2026-09-21)
 ~~~~~~~~~~~~~~~~~~~
 

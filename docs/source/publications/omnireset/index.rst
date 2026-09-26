@@ -17,6 +17,21 @@ Quick Start (Try in 2 Minutes)
 
 Download our pretrained checkpoint and run evaluation.
 
+.. important::
+
+   These checkpoints use the Isaac Lab 3.0 EA observation order. Earlier beta checkpoints
+   have the same input size but a different feature order. Do not use them unchanged.
+   To convert a beta state expert without retraining:
+
+   .. code:: bash
+
+      python scripts/reinforcement_learning/rsl_rl/convert_checkpoint_layout.py \
+          --checkpoint <beta_checkpoint.pt> --output <ea_checkpoint.pt>
+
+   The converter preserves the original file and updates actor/critic inputs, normalization
+   statistics and Adam state. It supports the published 43-input OmniReset state-policy architecture.
+   The old checkpoints remain on the ``isaaclab3`` HF branch; EA copies are on ``isaaclab3-ea``.
+
 .. tab-set::
 
    .. tab-item:: Leg Twisting
@@ -36,7 +51,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -49,7 +64,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed43.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -62,7 +77,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed44.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -88,7 +103,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -101,7 +116,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed43.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -114,7 +129,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed44.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -140,7 +155,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -153,7 +168,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed43.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -166,7 +181,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed44.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -186,11 +201,12 @@ Download our pretrained checkpoint and run evaluation.
            </video>
          </div>
 
-      .. note::
+      .. warning::
 
-         On Isaac Lab 3.0 this task plateaus at about 62-65% end-of-episode success on all three
-         seeds, well below the other tasks (90-99%). The checkpoints below are the best ones from
-         those runs.
+         **Isaac Lab 3 regression:** Rectangle success stalls at 62-65%.
+         For now, use `UWLab v1.2.0 <https://github.com/UW-Lab/UWLab/tree/v1.2.0>`_
+         with Isaac Lab pinned to 2.x. Have a fix?
+         `Send a PR <https://github.com/UW-Lab/UWLab/pulls>`_. We'll take a look.
 
       .. tab-set::
 
@@ -198,7 +214,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -211,7 +227,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed43.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -224,7 +240,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed44.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -250,7 +266,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -263,7 +279,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed43.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -276,7 +292,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed44.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -302,7 +318,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -315,7 +331,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed43.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -328,7 +344,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed44.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \

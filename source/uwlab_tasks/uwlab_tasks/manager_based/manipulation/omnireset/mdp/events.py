@@ -21,11 +21,13 @@ import isaaclab.utils.math as math_utils
 import omni.usd
 from isaaclab.assets import Articulation, RigidObject
 from isaaclab.controllers import DifferentialIKControllerCfg
-from isaaclab.envs import ManagerBasedEnv
+from isaaclab.envs import ManagerBasedEnv, ManagerBasedEnvCfg
 from isaaclab.envs.mdp.actions.task_space_actions import DifferentialInverseKinematicsAction
 from isaaclab.managers import EventTermCfg, ManagerTermBase, SceneEntityCfg
 from isaaclab.markers import VisualizationMarkers
 from isaaclab.markers.config import FRAME_MARKER_CFG
+from isaaclab.sensors import CameraCfg
+from isaaclab_physx.renderers import IsaacRtxRendererCfg, IsaacRtxRendererGlobalSettingsCfg
 from pxr import Gf, UsdGeom, UsdLux
 
 from uwlab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
@@ -34,6 +36,32 @@ from uwlab_tasks.manager_based.manipulation.omnireset.mdp import utils
 
 from ..assembly_keypoints import Offset
 from .success_monitor_cfg import SuccessMonitorCfg
+
+
+def apply_isaac_rtx_settings(
+    env: ManagerBasedEnv,
+    env_ids: torch.Tensor | None,
+    settings: IsaacRtxRendererGlobalSettingsCfg,
+):
+    """Apply process-global RTX settings during environment startup."""
+    from isaaclab_physx.renderers.isaac_rtx_renderer_utils import apply_isaac_rtx_global_settings
+
+    if settings.antialiasing_mode is not None:
+        sim_utils.enable_extension("omni.replicator.core")
+    apply_isaac_rtx_global_settings(settings)
+
+
+def configure_isaac_rtx(env_cfg: ManagerBasedEnvCfg, **settings: bool | str):
+    """Preserve the task's renderer settings across the EA renderer API migration."""
+    global_settings = IsaacRtxRendererGlobalSettingsCfg(**settings)
+    env_cfg.events.render_settings = EventTermCfg(
+        func=apply_isaac_rtx_settings, mode="startup", params={"settings": global_settings}
+    )
+    for sensor_cfg in vars(env_cfg.scene).values():
+        if isinstance(sensor_cfg, CameraCfg):
+            sensor_cfg.renderer_cfg = IsaacRtxRendererCfg(
+                enable_scene_partitioning=False, global_settings=global_settings.copy()
+            )
 
 
 class grasp_sampling_event(ManagerTermBase):
@@ -2073,7 +2101,7 @@ class randomize_visual_appearance_multiple_meshes(ManagerTermBase):
         """Initialize the randomization term."""
         super().__init__(cfg, env)
 
-        from isaacsim.core.experimental.utils.app import enable_extension
+        from isaaclab.sim.utils import enable_extension
 
         enable_extension("omni.replicator.core")
         import omni.replicator.core as rep

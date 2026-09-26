@@ -32,6 +32,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.sensors import TiledCameraCfg
 from isaaclab.utils import configclass
+from isaaclab_physx.physics import PhysxCfg
 
 from uwlab_assets.robots.ur5e_robotiq_gripper import EXPLICIT_UR5E_ROBOTIQ_2F85
 
@@ -208,10 +209,13 @@ class CameraAlignEnvCfg(ManagerBasedRLEnvCfg):
         self.scene.robot.init_state.pos = (0.0, -0.039, 0.0)
         self.scene.ur5_metal_support.init_state.pos = (0.0, -0.039, -0.013)
 
+        self.sim.use_newton_actuators = False
+        self.sim.physics = PhysxCfg(enable_external_forces_every_iteration=False)
+
         # Render settings for visual fidelity
-        self.sim.render.enable_ambient_occlusion = True
-        self.sim.render.enable_reflections = True
-        self.sim.render.enable_dl_denoiser = True
+        task_mdp.configure_isaac_rtx(
+            self, enable_ambient_occlusion=True, enable_reflections=True, enable_dl_denoiser=True
+        )
         self.sim.render_interval = 1
 
         # rerender on reset

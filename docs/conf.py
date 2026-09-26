@@ -127,9 +127,9 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "trimesh": ("https://trimesh.org/", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
-    "isaacsim": ("https://docs.isaacsim.omniverse.nvidia.com/6.0.1/py/", None),
+    "isaacsim": ("https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/", None),
     "gymnasium": ("https://gymnasium.farama.org/", None),
-    "warp": ("https://nvidia.github.io/warp/", None),
+    "warp": ("https://nvidia.github.io/warp/stable/", None),
     "dev-guide": ("https://docs.omniverse.nvidia.com/dev-guide/latest", None),
 }
 

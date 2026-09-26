@@ -8,10 +8,10 @@
 import numpy as np
 import torch
 
-import isaacsim.core.experimental.utils.bounds as bounds_utils
 from isaaclab.assets import Articulation, RigidObject, RigidObjectCollection
 from isaaclab.envs import ManagerBasedEnv, ManagerBasedRLEnv
 from isaaclab.managers import ManagerTermBase, SceneEntityCfg, TerminationTermCfg
+from isaaclab.sim.utils import enable_extension
 from isaaclab.utils import math as math_utils
 
 from uwlab_tasks.manager_based.manipulation.omnireset.mdp import utils
@@ -437,6 +437,10 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         self.insertive_object = env.scene[self.insertive_object_cfg.name]
 
         self.enable_visualization = cfg.params.get("enable_visualization", False)
+        enable_extension("isaacsim.core.experimental.utils")
+        import isaacsim.core.experimental.utils.bounds as bounds_utils
+
+        self._bounds_utils = bounds_utils
 
         # Initialize OBB computation cache and compute OBBs once
         self._bbox_cache = bounds_utils.create_bbox_cache()
@@ -448,6 +452,7 @@ class check_obb_no_overlap_termination(ManagerTermBase):
 
         # Store debug draw interface if visualization is enabled
         if self.enable_visualization:
+            enable_extension("isaacsim.util.debug_draw")
             import isaacsim.util.debug_draw._debug_draw as omni_debug_draw
 
             self._omni_debug_draw = omni_debug_draw
@@ -460,7 +465,7 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         insertive_prim_path = self.insertive_object.cfg.prim_path.replace(".*", "0", 1)
 
         # Compute OBB in world frame using Isaac Sim's built-in functions
-        insertive_centroid_world, insertive_axes_world, insertive_half_extents = bounds_utils.compute_obb(
+        insertive_centroid_world, insertive_axes_world, insertive_half_extents = self._bounds_utils.compute_obb(
             insertive_prim_path, bbox_cache=self._bbox_cache
         )
 
@@ -531,7 +536,7 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         all_corners = []
         for env_idx in range(num_envs):
             # Use Isaac Sim's get_obb_corners function
-            corners_np = bounds_utils.get_obb_corners(
+            corners_np = self._bounds_utils.get_obb_corners(
                 centroids_np[env_idx], axes_np[env_idx], half_extents_np
             )  # (8, 3)
             all_corners.append(corners_np)

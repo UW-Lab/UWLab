@@ -273,6 +273,7 @@ class PartialAssembliesCfg(ManagerBasedRLEnvCfg):
         # 192 position iterations); these values back the sim-to-real transfer.
         self.sim.physics = PhysxCfg(
             solver_type=1,
+            enable_external_forces_every_iteration=False,
             max_position_iteration_count=192,
             max_velocity_iteration_count=1,
             bounce_threshold_velocity=0.02,
@@ -284,8 +285,13 @@ class PartialAssembliesCfg(ManagerBasedRLEnvCfg):
             gpu_max_rigid_patch_count=2**23,
             gpu_collision_stack_size=2**31,
         )
+        self.sim.use_newton_actuators = False
+
         # Render settings
-        self.sim.render.enable_dlssg = True
-        self.sim.render.enable_ambient_occlusion = True
-        self.sim.render.enable_reflections = True
-        self.sim.render.enable_dl_denoiser = True
+        task_mdp.configure_isaac_rtx(
+            self,
+            enable_dlssg=True,
+            enable_ambient_occlusion=True,
+            enable_reflections=True,
+            enable_dl_denoiser=True,
+        )

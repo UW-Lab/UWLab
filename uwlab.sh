@@ -536,7 +536,7 @@ while [[ $# -gt 0 ]]; do
             # (isaaclab_rl's cfg schema follows the rsl-rl API), so the commit here
             # and the rsl-rl-lib commit in source/uwlab_rl/setup.py must be bumped
             # as a pair. Override for experiments with UWLAB_ISAACLAB_COMMIT=<sha>.
-            ISAACLAB_COMMIT="${UWLAB_ISAACLAB_COMMIT:-ffff603eafc6b74264a5261cc0183d6a65390d78}"  # 3.0.0-beta2.patch1
+            ISAACLAB_COMMIT="${UWLAB_ISAACLAB_COMMIT:-ae37b028ea415c91ea2bc32609efcd759ed2b974}"  # 3.0.0-EA
             echo "[INFO] Installing upstream IsaacLab (pinned ${ISAACLAB_COMMIT:0:9}) in editable mode into ${UWLAB_PATH}/_isaaclab ..."
             repo_root="${UWLAB_PATH}/_isaaclab/IsaacLab"
             mkdir -p "${UWLAB_PATH}/_isaaclab"
@@ -562,12 +562,43 @@ while [[ $# -gt 0 ]]; do
             # Isaac Lab 3.0 splits the core into per-backend packages; isaaclab
             # imports isaaclab_physx/isaaclab_newton/isaaclab_ov at runtime, so all
             # of them are required even for a single-backend install.
-            for ext in isaaclab isaaclab_assets isaaclab_contrib isaaclab_experimental isaaclab_newton \
-                       isaaclab_ov isaaclab_ovphysx isaaclab_physx isaaclab_ppisp isaaclab_tasks \
-                       isaaclab_tasks_experimental isaaclab_visualizers; do
-                ${pip_command} -e "${repo_root}/source/${ext}" --extra-index-url https://pypi.nvidia.com
-            done
-            ${pip_command} -e "${repo_root}/source/isaaclab_rl[all]" --extra-index-url https://pypi.nvidia.com
+            requirements_file=$(mktemp)
+            "${python_exe}" - "${repo_root}" "${UWLAB_PATH}" "${2:-all}" > "${requirements_file}" <<'PY'
+import platform
+import re
+import sys
+import tomllib
+from pathlib import Path
+
+isaaclab_root, uwlab_root = (Path(value).resolve() for value in sys.argv[1:3])
+framework = sys.argv[3].replace("_", "-")
+metadata = tomllib.loads((isaaclab_root / "pyproject.toml").read_text())
+project = metadata["project"]
+sources = metadata["tool"]["uv"]["sources"]
+requirements = list(project["dependencies"])
+for extra in ("isaacsim", "video"):
+    requirements.extend(project["optional-dependencies"][extra])
+if framework not in ("all", "none", "rsl-rl"):
+    requirements.extend(project["optional-dependencies"][framework])
+for requirement in dict.fromkeys(requirements):
+    name = re.match(r"[A-Za-z0-9_.-]+", requirement).group().replace("_", "-").lower()
+    source = sources.get(name)
+    if isinstance(source, dict) and "path" in source:
+        print("-e " + (isaaclab_root / source["path"]).resolve().as_uri())
+    else:
+        print(requirement)
+for extension in sorted((uwlab_root / "source").iterdir()):
+    if not (extension / "setup.py").is_file():
+        continue
+    extra = ""
+    if extension.name == "uwlab_rl" and framework != "none":
+        extra = f"[{framework}]"
+    if extension.name == "uwlab_tasks" and platform.machine() == "x86_64":
+        extra = "[collision]"
+    print("-e " + extension.as_uri() + extra)
+PY
+            ${pip_command} -r "${requirements_file}" --extra-index-url https://pypi.nvidia.com
+            rm "${requirements_file}"
             echo "[INFO] Upstream IsaacLab packages installed (editable) from local clone at ${repo_root}."
             # source directory
             find -L "${UWLAB_PATH}/source" -mindepth 1 -maxdepth 1 -type d -exec bash -c 'install_uwlab_extension "{}"' \;

@@ -1,6 +1,22 @@
 Changelog
 ---------
 
+0.2.1 (2026-09-26)
+~~~~~~~~~~~~~~~~~~
+
+Added
+^^^^^
+
+* Added CPU conversion of OmniReset beta observation layouts to EA order, including
+  actor/critic normalization and Adam state without retraining or overwriting the original.
+
+Changed
+^^^^^^^
+
+* Updated the RSL-RL dependency to version 5.4.1 for Isaac Lab 3.0 Early Access.
+  Run ``./uwlab.sh --install`` to reinstall the pinned dependencies when upgrading.
+
+
 0.2.0 (2026-09-16)
 ~~~~~~~~~~~~~~~~~~
 

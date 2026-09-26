@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+0.6.1 (2026-09-26)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Aligned the USD Python provider with Isaac Lab 3.0 Early Access using ``usd-exchange``.
+  Use a fresh environment when upgrading to avoid overlapping ``pxr`` files from ``usd-core``.
+  The robot and object asset contents were unchanged.
+* Pinned the EA asset revision containing converted OmniReset checkpoints. The beta and 2.x
+  branches remain available for their original observation layouts.
+
+
 0.6.0 (2026-09-16)
 ~~~~~~~~~~~~~~~~~~
 

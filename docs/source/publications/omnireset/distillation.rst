@@ -44,7 +44,7 @@ To train your own vision policy from scratch, follow the steps below.
 Collect Demonstrations
 ^^^^^^^^^^^^^^^^^^^^^^
 
-**Step 1 — Export the expert policy**
+**Step 1: Export the expert policy**
 
 Run ``play.py`` on a **Stage 2** (finetuned) checkpoint to export a JIT-traced ``policy.pt``. You can finetune your own (see :doc:`sim2real`).
 
@@ -56,11 +56,11 @@ Run ``play.py`` on a **Stage 2** (finetuned) checkpoint to export a JIT-traced `
        --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
        --num_envs 4 \
        --checkpoint <stage2_checkpoint.pt> \
-       --headless
+       --visualizer none
 
 This saves ``policy.pt`` (and ``policy.onnx``) under ``<checkpoint_dir>/exported/``.
 
-**Step 2 — Collect RGB demonstrations**
+**Step 2: Collect RGB demonstrations**
 
 Use the exported ``policy.pt`` to roll out the expert and record RGB observations in Zarr format. Only successful trajectories are saved.
 
@@ -80,8 +80,7 @@ Use the exported ``policy.pt`` to roll out the expert and record RGB observation
              --dataset_file datasets/peg/rgb0.zarr \
              --num_envs 32 \
              --num_demos 10000 \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole \
              agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path='["exported/policy.pt"]'
@@ -95,8 +94,7 @@ Use the exported ``policy.pt`` to roll out the expert and record RGB observation
              --dataset_file datasets/leg/rgb0.zarr \
              --num_envs 32 \
              --num_demos 10000 \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop \
              agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path='["exported/policy.pt"]'
@@ -110,8 +108,7 @@ Use the exported ``policy.pt`` to roll out the expert and record RGB observation
              --dataset_file datasets/drawer/rgb0.zarr \
              --num_envs 32 \
              --num_demos 10000 \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox \
              agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path='["exported/policy.pt"]'
@@ -199,8 +196,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              --save_video \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
@@ -214,8 +210,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
 
@@ -230,8 +225,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              --save_video \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop
@@ -245,8 +239,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop
 
@@ -261,8 +254,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              --save_video \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
@@ -276,8 +268,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
 

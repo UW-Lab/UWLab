@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.9.1 (2026-09-26)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Updated mesh conversion to enable Isaac Sim extensions through the Isaac Lab API.
+  Launch the simulator before invoking conversion helpers.
+
+
 0.9.0 (2026-09-16)
 ~~~~~~~~~~~~~~~~~~
 

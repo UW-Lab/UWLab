@@ -12,15 +12,15 @@ Our system identification follows the `PACE <https://arxiv.org/abs/2509.06342>`_
 Pipeline overview
 -----------------
 
-1. **Robot setup** — UR5e/UR7e hardware config, robot calibration & USD, FK verification, metadata. Re-run reset state collection and RL training from :doc:`rl_training` (geometry-dependent). Install the diffusion_policy repo for real-robot control and sysid data collection.
+1. **Robot setup**: UR5e/UR7e hardware config, robot calibration & USD, FK verification, metadata. Re-run reset state collection and RL training from :doc:`rl_training` (geometry-dependent). Install the diffusion_policy repo for real-robot control and sysid data collection.
 
-2. **System identification** — Collect chirp on real robot, run CMA-ES in UWLab, verify fit, write sysid params to metadata, teleop to verify.
+2. **System identification**: Collect chirp on real robot, run CMA-ES in UWLab, verify fit, write sysid params to metadata, teleop to verify.
 
-3. **Finetune** — Select best Stage-1 checkpoint, finetune with ADR, evaluate.
+3. **Finetune**: Select best Stage-1 checkpoint, finetune with ADR, evaluate.
 
-4. **Camera & hardware setup** — Mount cameras (D415/D435/D455), print task objects, calibrate camera extrinsics.
+4. **Camera & hardware setup**: Mount cameras (D415/D435/D455), print task objects, calibrate camera extrinsics.
 
-5. **Next** — :doc:`distillation` for vision policy training and real-robot deployment.
+5. **Next**: :doc:`distillation` for vision policy training and real-robot deployment.
 
 ----
 
@@ -97,7 +97,7 @@ Collect (joint_pos, ee_pose) pairs from the simulator using IK-based workspace s
    conda activate env_uwlab
    cd <parent_dir>/UWLab
    python scripts_v2/tools/sim2real/collect_fk_pairs.py \
-       --num_samples 4 --output /tmp/fk_pairs.npz --headless
+       --num_samples 4 --output /tmp/fk_pairs.npz --visualizer none
 
 .. code:: bash
 
@@ -158,7 +158,7 @@ Use CMA-ES to optimize simulator dynamics parameters (armature, friction, motor 
 
    conda activate env_uwlab
    cd <parent_dir>/UWLab
-   python scripts_v2/tools/sim2real/sysid_ur5e_osc.py --headless \
+   python scripts_v2/tools/sim2real/sysid_ur5e_osc.py --visualizer none \
        --num_envs 512 \
        --real_data /tmp/sysid_data_real.pt \
        --max_iter 200
@@ -169,7 +169,7 @@ Plot simulated vs. real joint trajectories using the best checkpoint:
 
 .. code:: bash
 
-   python scripts_v2/tools/sim2real/plot_sysid_fit.py --headless \
+   python scripts_v2/tools/sim2real/plot_sysid_fit.py --visualizer none \
        --checkpoint logs/sysid/<timestamp>/checkpoint_0200.pt \
        --real_data /tmp/sysid_data_real.pt
 
@@ -227,7 +227,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --action_noise 2.0 \
              --eval_steps 1000 \
              --num_envs 4096 \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
 
@@ -239,7 +239,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-v0 \
              --num_envs 4096 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --resume_path <stage1_checkpoint.pt> \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
@@ -281,7 +281,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --action_noise 2.0 \
              --eval_steps 1000 \
              --num_envs 4096 \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop
 
@@ -296,7 +296,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              --resume_path <stage1_checkpoint.pt> \
              env.scene.insertive_object=fbleg \
@@ -339,7 +339,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --action_noise 2.0 \
              --eval_steps 1000 \
              --num_envs 4096 \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
 
@@ -351,7 +351,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-v0 \
              --num_envs 8192 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --resume_path <stage1_checkpoint.pt> \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
@@ -390,8 +390,8 @@ Camera & Hardware Setup
 
 We use a **three-camera setup** with Intel RealSense depth cameras:
 
-* **Wrist camera** — D415 mounted on the Robotiq 2F-85 gripper via a 3D-printed bracket.
-* **Two third-person cameras** — D435 and D455 on tripods, providing front and side views.
+* **Wrist camera**: D415 mounted on the Robotiq 2F-85 gripper via a 3D-printed bracket.
+* **Two third-person cameras**: D435 and D455 on tripods, providing front and side views.
 
 Any combination of D415 / D435 / D455 works for any of the three viewpoints (the D455 has a wider baseline and higher depth quality, so prefer it when available).
 
@@ -433,7 +433,7 @@ Virtual cameras in simulation must match your real camera poses and intrinsics s
 
 1. The calibration workflow switches between two environments: ``robodiff_real`` for real-robot scripts (Step 1) and ``env_uwlab`` for UWLab simulation scripts (Step 2). Set up ``robodiff_real`` in :ref:`Installing Diffusion Policy <installing-diffusion-policy>` above.
 
-2. Print an ArUco marker — the calibration scripts use dictionary **6x6_50**, marker **ID 12**, printed at **150 mm**. Download the printable PDF: :download:`marker_6x6_150mm_id12.pdf <../../_static/publications/omnireset/marker_6x6_150mm_id12.pdf>`.
+2. Print an ArUco marker: the calibration scripts use dictionary **6x6_50**, marker **ID 12**, printed at **150 mm**. Download the printable PDF: :download:`marker_6x6_150mm_id12.pdf <../../_static/publications/omnireset/marker_6x6_150mm_id12.pdf>`.
 
 3. Place the printed marker flat on the table near the robot base (see the :ref:`camera setup photo <camera-hardware-setup>` above for an example placement). Measure the offset (in meters) from the marker center to the robot base-frame origin and update ``aruco_offset`` in ``0_camera_calibrate.py``. If you place the marker in the same position as our setup photo, the default ``[0.24, 0.0, 0.0]`` should work.
 
@@ -453,7 +453,7 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
    .. tab-item:: Front Camera
 
-      **Step 1 — Calibrate & capture (diffusion_policy, robodiff_real)**
+      **Step 1: Calibrate & capture (diffusion_policy, robodiff_real)**
 
       .. code:: bash
 
@@ -465,15 +465,14 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
       Copy the ``pos``, ``rot``, and ``focal_length`` printed by ``2_get_isaacsim_extrinsics.py`` into the corresponding ``front_camera`` entry in ``camera_align_cfg.py`` as the initial guess for interactive alignment.
 
-      **Step 2 — Interactive alignment (UWLab, env_uwlab)**
+      **Step 2: Interactive alignment (UWLab, env_uwlab)**
 
       .. code:: bash
 
          conda activate env_uwlab
          cd <parent_dir>/UWLab
          python scripts_v2/tools/sim2real/align_cameras.py \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              --camera front_camera \
              --real_image /path/to/real_front.png \
              --joint_angles <j1> <j2> <j3> <j4> <j5> <j6>
@@ -491,7 +490,7 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
    .. tab-item:: Side Camera
 
-      **Step 1 — Calibrate & capture (diffusion_policy, robodiff_real)**
+      **Step 1: Calibrate & capture (diffusion_policy, robodiff_real)**
 
       .. code:: bash
 
@@ -503,15 +502,14 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
       Copy the ``pos``, ``rot``, and ``focal_length`` printed by ``2_get_isaacsim_extrinsics.py`` into the corresponding ``side_camera`` entry in ``camera_align_cfg.py`` as the initial guess for interactive alignment.
 
-      **Step 2 — Interactive alignment (UWLab, env_uwlab)**
+      **Step 2: Interactive alignment (UWLab, env_uwlab)**
 
       .. code:: bash
 
          conda activate env_uwlab
          cd <parent_dir>/UWLab
          python scripts_v2/tools/sim2real/align_cameras.py \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              --camera side_camera \
              --real_image /path/to/real_side.png \
              --joint_angles <j1> <j2> <j3> <j4> <j5> <j6>
@@ -529,7 +527,7 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
    .. tab-item:: Wrist Camera
 
-      **Step 1 — Calibrate & capture (diffusion_policy, robodiff_real)**
+      **Step 1: Calibrate & capture (diffusion_policy, robodiff_real)**
 
       .. code:: bash
 
@@ -541,15 +539,14 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
       Copy the ``pos``, ``rot``, and ``focal_length`` printed by ``2_get_isaacsim_extrinsics.py`` into the corresponding ``wrist_camera`` entry in ``camera_align_cfg.py`` as the initial guess for interactive alignment.
 
-      **Step 2 — Interactive alignment (UWLab, env_uwlab)**
+      **Step 2: Interactive alignment (UWLab, env_uwlab)**
 
       .. code:: bash
 
          conda activate env_uwlab
          cd <parent_dir>/UWLab
          python scripts_v2/tools/sim2real/align_cameras.py \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              --camera wrist_camera \
              --real_image /path/to/real_wrist.png \
              --joint_angles <j1> <j2> <j3> <j4> <j5> <j6>

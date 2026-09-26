@@ -323,7 +323,7 @@ def main():
         ee_frame_idx,
         sim_dt,
         T_steps,
-        headless=args_cli.headless,
+        headless=not app_launcher.has_gui(),
     )
 
     sim_joints = result["joint_positions"]

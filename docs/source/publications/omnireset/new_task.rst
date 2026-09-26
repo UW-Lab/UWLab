@@ -171,7 +171,7 @@ Add to ``variants["scene.receptive_object"]``:
 .. tip::
 
    Use local absolute paths during development. Switch to ``UWLAB_CLOUD_ASSETS_DIR`` when sharing.
-   Published assets go on the ``isaaclab3`` branch of the asset repository (``main`` holds the Isaac Lab 2.x
+   Published EA assets go on the ``isaaclab3-ea`` branch of the asset repository (``main`` holds the Isaac Lab 2.x
    files), and ``uwlab_assets.UWLAB_CLOUD_ASSETS_REVISION`` has to be bumped to a commit that contains them.
 
 ----
@@ -185,7 +185,7 @@ Step 6: Verify Setup
 
    python scripts_v2/tools/record_partial_assemblies.py \
        --task OmniReset-PartialAssemblies-v0 \
-       --num_envs 10 --num_trajectories 10 --headless \
+       --num_envs 10 --num_trajectories 10 --visualizer none \
        env.scene.insertive_object=my_insertive_object env.scene.receptive_object=my_receptive_object
 
 If objects are misaligned or upside down, revisit Step 1.
@@ -196,7 +196,7 @@ If objects are misaligned or upside down, revisit Step 1.
 
    python scripts_v2/tools/record_reset_states.py \
        --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-       --num_envs 4 --num_reset_states 8 --headless \
+       --num_envs 4 --num_reset_states 8 --visualizer none \
        env.scene.insertive_object=my_insertive_object env.scene.receptive_object=my_receptive_object
 
 .. code:: bash

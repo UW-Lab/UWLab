@@ -9,6 +9,26 @@ Reproduce our training results from scratch.
 
    **Want to try it quickly?** Start with **Cube Stacking** or **Peg Insertion**. They have the fastest reset state collection times and converge within ~8 hours on 4×L40S GPUs.
 
+Plots show seeds 42, 43, and 44 on 4x L40S each. Relaunches are joined by PPO update;
+dotted links mark gaps without logged samples. The first 30 updates after a resume are
+omitted while the success window refills. Time sums the logged runtime of each run,
+not total elapsed wall-clock time.
+
+.. warning::
+
+   **Known performance regressions in Isaac Lab 3**
+
+   * **Leg Twisting:** Training success can drop sharply after roughly 24 hours.
+     The current workaround is to restart training from a checkpoint saved **before the drop**,
+     rather than from the latest degraded checkpoint. This is a workaround, not a resolved fix.
+   * **Rectangle on Wall:** Performance has degraded significantly compared with the Isaac Lab 2
+     version. If you need this task now, use
+     `UWLab v1.2.0 <https://github.com/UW-Lab/UWLab/tree/v1.2.0>`_ with an **Isaac Lab 2.x** environment,
+     rather than mixing that tag with the current Isaac Lab 3 installation.
+
+   If you have a fix for either issue, please
+   `open a pull request <https://github.com/UW-Lab/UWLab/pulls>`_. We'll review it.
+
 .. tab-set::
 
    .. tab-item:: Leg Twisting
@@ -21,13 +41,13 @@ Reproduce our training results from scratch.
 
       .. code:: bash
 
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --headless env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
+         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --visualizer none env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
 
       **Step 2: Sample Grasp Poses** (~1 minute)
 
       .. code:: bash
 
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --headless env.scene.object=fbleg
+         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --visualizer none env.scene.object=fbleg
 
       **Step 3: Generate Reset State Datasets** (~1 min to multiple hours depending on the reset and task)
 
@@ -36,13 +56,13 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Anywhere (Reaching)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop
 
          # Object Resting, End-Effector Grasped (Near Object)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop \
              env.events.reset_insertive_object_pose_from_reset_states.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -50,14 +70,14 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Grasped (Grasped)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
 
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbleg env.scene.receptive_object=fbtabletop \
              env.events.reset_insertive_object_pose_from_partial_assembly_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -130,7 +150,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop
@@ -146,7 +166,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop \
@@ -154,17 +174,19 @@ Reproduce our training results from scratch.
 
       **Training Curves**
 
+      Shown through **22.5 logged hours**, before the first seed drops.
+
       .. list-table::
          :widths: 50 50
          :class: borderless
 
          * - .. figure:: ../../../source/_static/publications/omnireset/leg_success_rate_seeds.jpg
                 :width: 100%
-                :alt: Leg twisting success rate over steps
+                :alt: Leg twisting success rate over PPO updates
 
            - .. figure:: ../../../source/_static/publications/omnireset/leg_success_rate_seeds_walltime.jpg
                 :width: 100%
-                :alt: Leg twisting success rate over wall clock time
+                :alt: Leg twisting success rate over cumulative logged runtime
 
    .. tab-item:: Drawer Assembly
 
@@ -176,13 +198,13 @@ Reproduce our training results from scratch.
 
       .. code:: bash
 
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --headless env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
+         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --visualizer none env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
 
       **Step 2: Sample Grasp Poses** (~1 minute)
 
       .. code:: bash
 
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --headless env.scene.object=fbdrawerbottom
+         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --visualizer none env.scene.object=fbdrawerbottom
 
       **Step 3: Generate Reset State Datasets** (~1 min to multiple hours depending on the reset and task)
 
@@ -191,13 +213,13 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Anywhere (Reaching)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox
 
          # Object Resting, End-Effector Grasped (Near Object)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox \
              env.events.reset_insertive_object_pose_from_reset_states.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -205,14 +227,14 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Grasped (Grasped)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
 
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=fbdrawerbottom env.scene.receptive_object=fbdrawerbox \
              env.events.reset_insertive_object_pose_from_partial_assembly_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -285,7 +307,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
@@ -301,7 +323,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox \
@@ -315,11 +337,11 @@ Reproduce our training results from scratch.
 
          * - .. figure:: ../../../source/_static/publications/omnireset/drawer_success_rate_seeds.jpg
                 :width: 100%
-                :alt: Drawer assembly success rate over steps
+                :alt: Drawer assembly success rate over PPO updates
 
            - .. figure:: ../../../source/_static/publications/omnireset/drawer_success_rate_seeds_walltime.jpg
                 :width: 100%
-                :alt: Drawer assembly success rate over wall clock time
+                :alt: Drawer assembly success rate over cumulative logged runtime
 
    .. tab-item:: Peg Insertion
 
@@ -331,13 +353,13 @@ Reproduce our training results from scratch.
 
       .. code:: bash
 
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --headless env.scene.insertive_object=peg env.scene.receptive_object=peghole
+         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --visualizer none env.scene.insertive_object=peg env.scene.receptive_object=peghole
 
       **Step 2: Sample Grasp Poses** (~1 minute)
 
       .. code:: bash
 
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --headless env.scene.object=peg
+         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --visualizer none env.scene.object=peg
 
       **Step 3: Generate Reset State Datasets** (~1 min to multiple hours depending on the reset and task)
 
@@ -346,13 +368,13 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Anywhere (Reaching)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=peg env.scene.receptive_object=peghole
 
          # Object Resting, End-Effector Grasped (Near Object)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=peg env.scene.receptive_object=peghole \
              env.events.reset_insertive_object_pose_from_reset_states.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -360,14 +382,14 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Grasped (Grasped)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=peg env.scene.receptive_object=peghole \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
 
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=peg env.scene.receptive_object=peghole \
              env.events.reset_insertive_object_pose_from_partial_assembly_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -440,7 +462,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
@@ -456,7 +478,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole \
@@ -470,19 +492,20 @@ Reproduce our training results from scratch.
 
          * - .. figure:: ../../../source/_static/publications/omnireset/peg_success_rate_seeds.jpg
                 :width: 100%
-                :alt: Peg insertion success rate over steps
+                :alt: Peg insertion success rate over PPO updates
 
            - .. figure:: ../../../source/_static/publications/omnireset/peg_success_rate_seeds_walltime.jpg
                 :width: 100%
-                :alt: Peg insertion success rate over wall clock time
+                :alt: Peg insertion success rate over cumulative logged runtime
 
    .. tab-item:: Rectangle on Wall
 
-      .. note::
+      .. warning::
 
-         On Isaac Lab 3.0 this task plateaus at about 62-65% end-of-episode success on all three
-         seeds, well below the other tasks (90-99%). Expect a lower final success rate than
-         for the other tasks.
+         **Isaac Lab 3 regression:** Rectangle success stalls at 62-65%.
+         For now, use `UWLab v1.2.0 <https://github.com/UW-Lab/UWLab/tree/v1.2.0>`_
+         with Isaac Lab pinned to 2.x. Have a fix?
+         `Send a PR <https://github.com/UW-Lab/UWLab/pulls>`_. We'll take a look.
 
       .. note::
 
@@ -492,13 +515,13 @@ Reproduce our training results from scratch.
 
       .. code:: bash
 
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --headless env.scene.insertive_object=rectangle env.scene.receptive_object=wall
+         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --visualizer none env.scene.insertive_object=rectangle env.scene.receptive_object=wall
 
       **Step 2: Sample Grasp Poses** (~1 minute)
 
       .. code:: bash
 
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --headless env.scene.object=rectangle
+         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --visualizer none env.scene.object=rectangle
 
       **Step 3: Generate Reset State Datasets** (~1 min to multiple hours depending on the reset and task)
 
@@ -507,13 +530,13 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Anywhere (Reaching)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=rectangle env.scene.receptive_object=wall
 
          # Object Resting, End-Effector Grasped (Near Object)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=rectangle env.scene.receptive_object=wall \
              env.events.reset_insertive_object_pose_from_reset_states.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -521,14 +544,14 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Grasped (Grasped)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=rectangle env.scene.receptive_object=wall \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
 
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=rectangle env.scene.receptive_object=wall \
              env.events.reset_insertive_object_pose_from_partial_assembly_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -601,7 +624,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=rectangle \
              env.scene.receptive_object=wall
@@ -617,15 +640,11 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=rectangle \
              env.scene.receptive_object=wall \
              env.events.reset_from_reset_states.params.dataset_dir=./Datasets/OmniReset_isaaclab3
-
-      .. warning::
-
-         This task has the least stable training. Some seeds plateau around 60%; if a run dies, reload from a checkpoint before the crash. You may need to try a few seeds (plot below is seed 0).
 
       **Training Curves**
 
@@ -635,11 +654,11 @@ Reproduce our training results from scratch.
 
          * - .. figure:: ../../../source/_static/publications/omnireset/rectangle_success_rate_seeds.jpg
                 :width: 100%
-                :alt: Rectangle on wall success rate over steps
+                :alt: Rectangle on wall success rate over PPO updates
 
            - .. figure:: ../../../source/_static/publications/omnireset/rectangle_success_rate_seeds_walltime.jpg
                 :width: 100%
-                :alt: Rectangle on wall success rate over wall clock time
+                :alt: Rectangle on wall success rate over cumulative logged runtime
 
    .. tab-item:: Cube Stacking
 
@@ -651,13 +670,13 @@ Reproduce our training results from scratch.
 
       .. code:: bash
 
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --headless env.scene.insertive_object=cube env.scene.receptive_object=cube
+         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --visualizer none env.scene.insertive_object=cube env.scene.receptive_object=cube
 
       **Step 2: Sample Grasp Poses** (~1 minute)
 
       .. code:: bash
 
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --headless env.scene.object=cube
+         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --visualizer none env.scene.object=cube
 
       **Step 3: Generate Reset State Datasets** (~1 min to multiple hours depending on the reset and task)
 
@@ -666,13 +685,13 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Anywhere (Reaching)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cube env.scene.receptive_object=cube
 
          # Object Resting, End-Effector Grasped (Near Object)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cube env.scene.receptive_object=cube \
              env.events.reset_insertive_object_pose_from_reset_states.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -680,14 +699,14 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Grasped (Grasped)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cube env.scene.receptive_object=cube \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
 
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cube env.scene.receptive_object=cube \
              env.events.reset_insertive_object_pose_from_partial_assembly_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -760,7 +779,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=cube \
              env.scene.receptive_object=cube
@@ -776,7 +795,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=cube \
              env.scene.receptive_object=cube \
@@ -790,11 +809,11 @@ Reproduce our training results from scratch.
 
          * - .. figure:: ../../../source/_static/publications/omnireset/cube_success_rate_seeds.jpg
                 :width: 100%
-                :alt: Cube stacking success rate over steps
+                :alt: Cube stacking success rate over PPO updates
 
            - .. figure:: ../../../source/_static/publications/omnireset/cube_success_rate_seeds_walltime.jpg
                 :width: 100%
-                :alt: Cube stacking success rate over wall clock time
+                :alt: Cube stacking success rate over cumulative logged runtime
 
    .. tab-item:: Cupcake on Plate
 
@@ -806,13 +825,13 @@ Reproduce our training results from scratch.
 
       .. code:: bash
 
-         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --headless env.scene.insertive_object=cupcake env.scene.receptive_object=plate
+         python scripts_v2/tools/record_partial_assemblies.py --task OmniReset-PartialAssemblies-v0 --num_envs 10 --num_trajectories 10 --visualizer none env.scene.insertive_object=cupcake env.scene.receptive_object=plate
 
       **Step 2: Sample Grasp Poses** (~1 minute)
 
       .. code:: bash
 
-         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --headless env.scene.object=cupcake
+         python scripts_v2/tools/record_grasps.py --task OmniReset-Robotiq2f85-GraspSampling-v0 --num_envs 8192 --num_grasps 1000 --visualizer none env.scene.object=cupcake
 
       **Step 3: Generate Reset State Datasets** (~1 min to multiple hours depending on the reset and task)
 
@@ -821,13 +840,13 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Anywhere (Reaching)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cupcake env.scene.receptive_object=plate
 
          # Object Resting, End-Effector Grasped (Near Object)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectRestingEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cupcake env.scene.receptive_object=plate \
              env.events.reset_insertive_object_pose_from_reset_states.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -835,14 +854,14 @@ Reproduce our training results from scratch.
          # Object Anywhere, End-Effector Grasped (Grasped)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cupcake env.scene.receptive_object=plate \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
 
          # Object Partially Assembled, End-Effector Grasped (Near Goal)
          python scripts_v2/tools/record_reset_states.py \
              --task OmniReset-UR5eRobotiq2f85-ObjectPartiallyAssembledEEGrasped-v0 \
-             --num_envs 4096 --num_reset_states 10000 --headless \
+             --num_envs 4096 --num_reset_states 10000 --visualizer none \
              env.scene.insertive_object=cupcake env.scene.receptive_object=plate \
              env.events.reset_insertive_object_pose_from_partial_assembly_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3 \
              env.events.reset_end_effector_pose_from_grasp_dataset.params.dataset_dir=./Datasets/OmniReset_isaaclab3
@@ -915,7 +934,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=cupcake \
              env.scene.receptive_object=plate
@@ -931,7 +950,7 @@ Reproduce our training results from scratch.
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              env.scene.insertive_object=cupcake \
              env.scene.receptive_object=plate \
@@ -945,11 +964,11 @@ Reproduce our training results from scratch.
 
          * - .. figure:: ../../../source/_static/publications/omnireset/cupcake_success_rate_seeds.jpg
                 :width: 100%
-                :alt: Cupcake on plate success rate over steps
+                :alt: Cupcake on plate success rate over PPO updates
 
            - .. figure:: ../../../source/_static/publications/omnireset/cupcake_success_rate_seeds_walltime.jpg
                 :width: 100%
-                :alt: Cupcake on plate success rate over wall clock time
+                :alt: Cupcake on plate success rate over cumulative logged runtime
 
 ----
 
