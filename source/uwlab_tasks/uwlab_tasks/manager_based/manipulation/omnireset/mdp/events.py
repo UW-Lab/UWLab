@@ -30,6 +30,8 @@ from isaaclab.sensors import CameraCfg
 from isaaclab_physx.renderers import IsaacRtxRendererCfg, IsaacRtxRendererGlobalSettingsCfg
 from pxr import Gf, UsdGeom, UsdLux
 
+from uwlab_assets.robots.ur5e_robotiq_gripper.kinematics import ARM_JOINT_NAMES
+
 from uwlab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 
 from uwlab_tasks.manager_based.manipulation.omnireset.mdp import utils
@@ -1535,6 +1537,27 @@ def randomize_camera_focal_length(
             focal_attr.Set(focal_length)
 
 
+def set_armature_from_sysid(env: ManagerBasedEnv, env_ids: torch.Tensor | None, asset_cfg: SceneEntityCfg) -> None:
+    """Set selected UR5e motor armatures [kg*m^2] from the robot's metadata.
+
+    Args:
+        env: Environment containing the robot.
+        env_ids: Environments to update, or all environments when None.
+        asset_cfg: Robot and joint-name selection for the calibrated motor inertia.
+    """
+    robot: Articulation = env.scene[asset_cfg.name]
+    metadata = utils.read_metadata_from_usd_directory(robot.cfg.spawn.usd_path)
+    nominal = metadata["sysid"]["armature"]
+    if len(nominal) != len(ARM_JOINT_NAMES):
+        raise ValueError("Expected one calibrated armature for each UR5e arm joint.")
+    joint_ids, joint_names = robot.find_joints(asset_cfg.joint_names)
+    values = torch.tensor(
+        [nominal[ARM_JOINT_NAMES.index(name)] for name in joint_names], device=robot.device, dtype=torch.float32
+    )
+    count = env.num_envs if env_ids is None else len(env_ids)
+    robot.write_joint_armature_to_sim_index(armature=values.repeat(count, 1), joint_ids=joint_ids, env_ids=env_ids)
+
+
 class randomize_arm_from_sysid(ManagerTermBase):
     """Randomize arm joint dynamics around sysid nominal values.
 
@@ -1542,8 +1565,9 @@ class randomize_arm_from_sysid(ManagerTermBase):
     next to the robot USD.  ``scale_range = (lo, hi)`` scales each nominal:
     ``nominal * uniform(lo, hi)`` per env per joint.
 
-    When used with ADR, ``scale_progress`` (0→1) linearly interpolates armature,
-    friction, and motor delay from 0 to the full sysid-randomized values.
+    When used with ADR, ``scale_progress`` (0 to 1) interpolates armature from
+    its startup value [kg*m^2] to the randomized calibration. Friction and motor
+    delay retain their zero-to-calibrated ramp.
     """
 
     def __init__(self, cfg: EventTermCfg, env: ManagerBasedEnv):
@@ -1561,8 +1585,9 @@ class randomize_arm_from_sysid(ManagerTermBase):
         self.dynamic_ratio = sysid["dynamic_ratio"]
         self.viscous_friction = sysid["viscous_friction"]
 
-        # ADR progress: 0 = armature/friction are 0, 1 = full sysid randomization
+        # ADR progress: 0 = startup armature and zero friction, 1 = full sysid randomization
         self.scale_progress: float = cfg.params.get("initial_scale_progress", 0.0)
+        self._initial_armature: torch.Tensor | None = None
 
     def __call__(
         self,
@@ -1587,8 +1612,10 @@ class randomize_arm_from_sysid(ManagerTermBase):
             val = torch.as_tensor(nominal, device=device, dtype=torch.float32)
             return val * (lo + torch.rand(N, n_joints, device=device) * (hi - lo))
 
-        # Armature and friction: scaled by ADR progress (0 → sysid)
-        arm_vals = _scale(self.armature) * p
+        # Armature and friction: interpolate from the startup model to sysid
+        if self._initial_armature is None:
+            self._initial_armature = self.robot.data.joint_armature.torch[:, self.joint_ids].clone()
+        arm_vals = self._initial_armature[env_ids] * (1.0 - p) + _scale(self.armature) * p
         sfric_vals = _scale(self.static_friction) * p
         dratio_vals = _scale(self.dynamic_ratio) * p
         dfric_vals = torch.minimum(dratio_vals * sfric_vals, sfric_vals)
@@ -1793,7 +1820,7 @@ class adr_sysid_curriculum(ManagerTermBase):
 
     Monitors the mean success rate from ``MultiResetManager``'s ``SuccessMonitor``
     and linearly ramps the ``scale_progress`` attribute of the target event terms
-    from 0 (no friction/armature) to 1 (full sysid randomization).
+    from 0 (startup dynamics) to 1 (full sysid randomization).
 
     Updates are gated by ``update_every_n_steps`` (env steps via ``common_step_counter``)
     to ensure the update rate is independent of the number of environments.

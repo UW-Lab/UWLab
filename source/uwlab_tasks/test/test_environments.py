@@ -224,3 +224,68 @@ def test_grasp_sampling_preserves_asset_masses():
     for object_cfg in module.variants["scene.object"].values():
         assert object_cfg.spawn.mass_props is None
         assert object_cfg.spawn.rigid_props.disable_gravity is False
+
+
+@pytest.mark.isaacsim_ci
+def test_sysid_armature_startup_selects_wrist_joints(monkeypatch):
+    from isaaclab.managers import SceneEntityCfg
+
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.events")
+    names = [
+        "shoulder_pan_joint",
+        "shoulder_lift_joint",
+        "elbow_joint",
+        "wrist_1_joint",
+        "wrist_2_joint",
+        "wrist_3_joint",
+    ]
+    nominal = [3.0, 1.2, 1.4, 0.17, 0.08, 0.38]
+    written = []
+    robot = SimpleNamespace(
+        cfg=SimpleNamespace(spawn=SimpleNamespace(usd_path="fixture/robot.usd")),
+        device="cpu",
+        joint_names=names,
+        find_joints=lambda selected: ([names.index(name) for name in selected], selected),
+        write_joint_armature_to_sim_index=lambda **kwargs: written.append(kwargs),
+    )
+    monkeypatch.setattr(module.utils, "read_metadata_from_usd_directory", lambda path: {"sysid": {"armature": nominal}})
+    env = SimpleNamespace(scene={"robot": robot}, num_envs=4)
+    ids = torch.tensor([1, 3])
+    module.set_armature_from_sysid(env, ids, SceneEntityCfg("robot", joint_names=names[3:]))
+    assert written[0]["joint_ids"] == [3, 4, 5]
+    assert torch.equal(written[0]["env_ids"], ids)
+    torch.testing.assert_close(written[0]["armature"], torch.tensor([nominal[3:], nominal[3:]]), rtol=0, atol=0)
+
+
+@pytest.mark.isaacsim_ci
+def test_armature_curriculum_preserves_startup_baseline():
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.events")
+    initial = torch.tensor([[0.0, 0.0, 0.0, 0.17, 0.08, 0.38]]).repeat(4, 1)
+    current = initial.clone()
+    written = []
+
+    def write_armature(armature, joint_ids, env_ids):
+        current[env_ids[:, None], joint_ids] = armature
+        written.append(armature.clone())
+
+    robot = SimpleNamespace(
+        device="cpu",
+        data=SimpleNamespace(joint_armature=SimpleNamespace(torch=current)),
+        actuators={"arm": SimpleNamespace()},
+        write_joint_armature_to_sim_index=write_armature,
+        write_joint_friction_coefficient_to_sim_index=lambda **kwargs: None,
+    )
+    term = module.randomize_arm_from_sysid.__new__(module.randomize_arm_from_sysid)
+    term.robot = robot
+    term.joint_ids = list(range(6))
+    term.actuator_name = "arm"
+    term.armature = [3.0, 1.2, 1.4, 0.17, 0.08, 0.38]
+    term.static_friction = term.dynamic_ratio = term.viscous_friction = [1.0] * 6
+    term._initial_armature = None
+    ids = torch.tensor([1, 3])
+    for progress in (0.0, 1.0, 0.5):
+        term.scale_progress = progress
+        term(None, ids, None, [], "arm", scale_range=(1.0, 1.0), delay_range=(0, 0))
+        expected = initial[ids] * (1.0 - progress) + torch.tensor(term.armature).repeat(2, 1) * progress
+        torch.testing.assert_close(written[-1], expected, rtol=0, atol=0)
+        torch.testing.assert_close(current[[0, 2]], initial[[0, 2]], rtol=0, atol=0)

@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+0.14.6 (2026-09-26)
+~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Applied calibrated wrist motor armature at startup for the corrected UR5e asset, while
+  retaining Stage-1 shoulder/elbow settings and the existing policy rate, gains and action scales.
+  The values come from the robot's ``metadata.yaml``; keep this metadata with custom robot assets.
+* Started armature ADR from the initialized robot model instead of erasing its inertia at zero
+  progress. Full-progress calibration and friction/motor-delay ramps remain unchanged.
+
+
 0.14.5 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~~
 

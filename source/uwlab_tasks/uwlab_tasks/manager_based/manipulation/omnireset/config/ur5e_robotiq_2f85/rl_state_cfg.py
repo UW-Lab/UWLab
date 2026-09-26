@@ -107,12 +107,18 @@ class RlStateSceneCfg(InteractiveSceneCfg):
 
 @configclass
 class BaseEventCfg:
-    """Shared events: material/mass randomization, gripper gains, scene reset.
+    """Shared events: fixed wrist inertia, material/mass randomization, gripper gains and reset.
 
     Does NOT include arm sysid or OSC gain randomization -- those differ
     between finetune (curriculum-ramped) and eval (fixed) stages.  See
     ``FinetuneEventCfg`` and ``FinetuneEvalEventCfg``.
     """
+
+    robot_wrist_armature = EventTerm(
+        func=task_mdp.set_armature_from_sysid,
+        mode="startup",
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["wrist_1_joint", "wrist_2_joint", "wrist_3_joint"])},
+    )
 
     # mode: startup (randomize dynamics)
     robot_material = EventTerm(

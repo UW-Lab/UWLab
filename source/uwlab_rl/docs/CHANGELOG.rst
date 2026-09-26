@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.2.2 (2026-09-26)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Pinned the integrated RSL-RL 5.4.1 fork, retaining deprecated legacy checkpoint inference
+  and distributed initialization fixes. New training uses the 5.x actor/critic configuration.
+  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
+
+
 0.2.1 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~
 

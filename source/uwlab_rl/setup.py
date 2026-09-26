@@ -35,7 +35,7 @@ PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu118"]
 # Bump together with the Isaac Lab commit pinned in uwlab.sh.
 # TODO(port): point back at UW-Lab/rsl_rl once UW-Lab/rsl_rl#6 is merged there.
 RSL_RL_REPO = "https://github.com/JTran-UW/rsl_rl.git"
-RSL_RL_COMMIT = "1f30b1414b880bfd9d3707b1b00dca890f3a40f9"  # bump_rsl_rl_5_3 (UW-Lab/rsl_rl#6)
+RSL_RL_COMMIT = "d2411d54ac8f0fd7eb6039254ec92e5119e64fd2"  # bump_rsl_rl_5_3 (UW-Lab/rsl_rl#6)
 EXTRAS_REQUIRE = {
     "rsl-rl": [
         # Update this pin alongside compatible UWLab changes.
