@@ -212,3 +212,15 @@ def test_collision_asset_paths_and_frames(monkeypatch, pattern):
     expected_quaternions = torch.tensor([[0.0, 0.0, 0.0, 1.0]]).expand(24, -1)
     torch.testing.assert_close(hasher.collider_prim_relative_transforms[:, 3:7], expected_quaternions, rtol=0, atol=0)
     assert hasher.root_prim_hashes[0] != hasher.root_prim_hashes[1]
+
+
+@pytest.mark.isaacsim_ci
+def test_grasp_sampling_preserves_asset_masses():
+    module = importlib.import_module(
+        "uwlab_tasks.manager_based.manipulation.omnireset.config.ur5e_robotiq_2f85.grasp_sampling_cfg"
+    )
+    assert module.GraspSamplingSceneCfg().object.spawn.mass_props is None
+    assert set(module.variants["scene.object"]) == {"peg", "cube", "cupcake", "rectangle", "fbleg", "fbdrawerbottom"}
+    for object_cfg in module.variants["scene.object"].values():
+        assert object_cfg.spawn.mass_props is None
+        assert object_cfg.spawn.rigid_props.disable_gravity is False

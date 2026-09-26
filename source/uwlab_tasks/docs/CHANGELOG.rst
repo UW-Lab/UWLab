@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.14.5 (2026-09-26)
+~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Used authored or geometry-derived object masses for grasp sampling instead of requesting a
+  1 g override. The override was ineffective for the released assets; all six objects retained
+  identical live masses and sampled grasp datasets in paired checks. Custom assets now retain
+  their own mass properties, so verify those properties when generating new grasp datasets.
+
+
 0.14.4 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~~
 

@@ -40,8 +40,8 @@ class GraspSamplingSceneCfg(InteractiveSceneCfg):
             rigid_props=sim_utils.RigidBodyPropertiesCfg(
                 solver_position_iteration_count=4, solver_velocity_iteration_count=0, disable_gravity=False
             ),
-            # assume very light
-            mass_props=sim_utils.MassPropertiesCfg(mass=0.001),
+            # Use the asset mass instead of assuming a very light object.
+            mass_props=None,
         ),
         init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, OBJECT_SPAWN_HEIGHT), rot=(0.0, 0.0, 0.0, 1.0)),
     )
@@ -162,7 +162,7 @@ def make_object(usd_path: str):
                 disable_gravity=False,
                 kinematic_enabled=False,
             ),
-            mass_props=sim_utils.MassPropertiesCfg(mass=0.001),
+            mass_props=None,
         ),
         init_state=RigidObjectCfg.InitialStateCfg(pos=(0.0, 0.0, 1.0), rot=(0.0, 0.0, 0.0, 1.0)),
     )
