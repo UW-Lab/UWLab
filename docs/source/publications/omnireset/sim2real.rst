@@ -84,7 +84,7 @@ Install ROS 2 and set up the UR robot driver following the `NVIDIA Isaac ROS Uni
 **2. Update the robot USD**
 
 Download the existing calibrated robot USD from
-`here <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/ur5e_robotiq_gripper_d415_mount_safety_calibrated.usd>`__
+`here <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/ur5e_robotiq_gripper_d415_mount_safety_calibrated_v2.usd>`__
 and open it in Isaac Sim. Replace the UR5e/UR7e arm in the USD with the URDF of your newly calibrated UR5e/UR7e. After replacing the arm, relink the joint that attaches the gripper to the arm. This joint connection must be re-established in Isaac Sim for the gripper to remain properly attached.
 
 **3. Verify alignment**

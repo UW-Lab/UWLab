@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.6.2 (2026-09-26)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Selected the versioned FactoryV2 UR5e/Robotiq asset with explicit knuckle mass and inertia,
+  camera/mount mass corrections, passive-link armature and the calibrated fingertip TCP.
+  The previous USD remains available under its original filename for reproducible comparisons.
+  Existing policies should be checked against the changed robot dynamics before deployment.
+
+
 0.6.1 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~
 
