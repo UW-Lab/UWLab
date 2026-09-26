@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.14.3 (2026-09-26)
+~~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Fixed partial environment resets clearing consecutive-success counters in unrelated
+  environments. An empty reset selection leaves counters unchanged; ``None`` resets all.
+
+
 0.14.2 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~~
 

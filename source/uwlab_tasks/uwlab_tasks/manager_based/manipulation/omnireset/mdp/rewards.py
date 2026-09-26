@@ -112,7 +112,9 @@ class ProgressContext(ManagerTermBase):
 
     def reset(self, env_ids: torch.Tensor | None = None) -> None:
         super().reset(env_ids)
-        self.continuous_success_counter[:] = 0
+        if env_ids is None:
+            env_ids = slice(None)
+        self.continuous_success_counter[env_ids] = 0
 
     def __call__(
         self,

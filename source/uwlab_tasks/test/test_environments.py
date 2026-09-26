@@ -160,3 +160,18 @@ def test_omnireset_checkpoint_observation_layout():
     expected = torch.cat([torch.full((2, width), float(index + 1)) for index, width in enumerate(widths)], dim=-1)
     assert manager.active_terms["policy"] == names
     torch.testing.assert_close(manager.compute()["policy"], expected, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("env_ids, expected", [([1], [4, 0]), ([], [4, 2]), (None, [0, 0]), ([0, 1], [0, 0])])
+@pytest.mark.isaacsim_ci
+def test_progress_context_reset_is_per_environment(env_ids, expected):
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.rewards")
+    context = module.ProgressContext.__new__(module.ProgressContext)
+    context.continuous_success_counter = torch.tensor([4, 2], dtype=torch.int32)
+    reference = context.continuous_success_counter
+    ids = None if env_ids is None else torch.tensor(env_ids, dtype=torch.long)
+    context.reset(ids)
+    assert context.continuous_success_counter is reference
+    assert torch.equal(reference, torch.tensor(expected, dtype=torch.int32))
+    context.reset(ids)
+    assert torch.equal(reference, torch.tensor(expected, dtype=torch.int32))
