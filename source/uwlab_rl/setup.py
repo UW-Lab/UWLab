@@ -38,6 +38,7 @@ RSL_RL_REPO = "https://github.com/JTran-UW/rsl_rl.git"
 RSL_RL_COMMIT = "1f30b1414b880bfd9d3707b1b00dca890f3a40f9"  # bump_rsl_rl_5_3 (UW-Lab/rsl_rl#6)
 EXTRAS_REQUIRE = {
     "rsl-rl": [
+        # Update this pin alongside compatible UWLab changes.
         f"rsl-rl-lib @ git+{RSL_RL_REPO}@{RSL_RL_COMMIT}",
     ],
 }

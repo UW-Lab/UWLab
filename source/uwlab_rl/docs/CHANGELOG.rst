@@ -27,6 +27,16 @@ Changed
   exporter supports heteroscedastic Gaussian actors. Requires Isaac Lab 3.0.
 
 
+0.1.4 (2026-09-14)
+~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Pinned the RSL-RL dependency to commit ``e7cd3c77bdb3c94753612f208c725e1add38a655``
+  so new installations do not pick up incompatible changes from its moving main branch.
+
+
 0.1.3 (2025-11-09)
 ~~~~~~~~~~~~~~~~~~
 
