@@ -582,16 +582,21 @@ while [[ $# -gt 0 ]]; do
             export -f extract_pip_command
             export -f extract_pip_uninstall_command
             export -f install_uwlab_extension
-            # --- NEW: install upstream isaaclab (GitHub main, editable) ---
-            echo "[INFO] Installing upstream IsaacLab packages from GitHub (main) in editable mode into ${UWLAB_PATH}/_isaaclab ..."
+            # --- NEW: install upstream isaaclab (pinned 2.x release, editable) ---
+            ISAACLAB_COMMIT="37ddf626871758333d6ed89cf64ad702aef127d0"
+            echo "[INFO] Installing IsaacLab 2.3.2 (${ISAACLAB_COMMIT}) in editable mode into ${UWLAB_PATH}/_isaaclab ..."
             repo_root="${UWLAB_PATH}/_isaaclab/IsaacLab"
             mkdir -p "${UWLAB_PATH}/_isaaclab"
             if [ ! -d "${repo_root}/.git" ]; then
-                echo "[INFO] Cloning IsaacLab repository (branch: main) into ${repo_root} ..."
-                git clone --depth 1 --branch main https://github.com/isaac-sim/IsaacLab.git "${repo_root}"
-            else
-                echo "[INFO] Found existing IsaacLab clone at ${repo_root}; using it."
+                echo "[INFO] Initializing IsaacLab repository at ${repo_root} ..."
+                git init -q "${repo_root}"
+                git -C "${repo_root}" remote add origin https://github.com/isaac-sim/IsaacLab.git
+            elif [ -n "$(git -C "${repo_root}" status --porcelain)" ]; then
+                echo "[ERROR] IsaacLab checkout has local changes; refusing to replace them."
+                exit 1
             fi
+            git -C "${repo_root}" fetch -q --depth 1 origin "${ISAACLAB_COMMIT}"
+            git -C "${repo_root}" checkout -q --detach FETCH_HEAD
             ${pip_command} -e "${repo_root}/source/isaaclab" --extra-index-url https://pypi.nvidia.com
             ${pip_command} -e "${repo_root}/source/isaaclab_assets" --extra-index-url https://pypi.nvidia.com
             ${pip_command} -e "${repo_root}/source/isaaclab_tasks" --extra-index-url https://pypi.nvidia.com

@@ -135,7 +135,7 @@ def main():
         all_ee_quat.append(ee_quat_b.cpu().numpy())
         all_ee_aa.append(ee_aa_b.cpu().numpy())
 
-        print(f"  Reset {r+1}/{args_cli.num_resets}: collected {len(joint_pos)} pairs")
+        print(f"  Reset {r + 1}/{args_cli.num_resets}: collected {len(joint_pos)} pairs")
 
     all_joint_pos = np.concatenate(all_joint_pos, axis=0)
     all_ee_pos = np.concatenate(all_ee_pos, axis=0)

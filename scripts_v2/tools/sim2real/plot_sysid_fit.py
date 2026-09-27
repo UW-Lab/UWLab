@@ -144,7 +144,7 @@ def closed_loop_replay(
         sim_ee_positions.append(ee_pos_b[0].cpu().numpy().copy())
 
         if (t + 1) % max(1, T_steps // 20) == 0:
-            print(f"  step {t+1}/{T_steps} ({100*(t+1)/T_steps:.0f}%)")
+            print(f"  step {t + 1}/{T_steps} ({100 * (t + 1) / T_steps:.0f}%)")
 
     return {
         "joint_positions": np.array(sim_positions),
@@ -256,7 +256,7 @@ def main():
     if args.max_steps is not None:
         T_steps = min(T_steps, args.max_steps)
 
-    print(f"  {T_steps} steps ({T_steps*dt:.2f}s), dt={dt*1000:.1f}ms")
+    print(f"  {T_steps} steps ({T_steps * dt:.2f}s), dt={dt * 1000:.1f}ms")
 
     # Move to GPU
     real_joint_pos_np = real_joint_pos[:T_steps].numpy()
@@ -330,7 +330,7 @@ def main():
 
     # Compute per-joint RMSE
     error_deg = np.degrees(sim_joints - real_joints)
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Per-joint RMSE (deg)")
     print("=" * 60)
     for j in range(NUM_ARM_JOINTS):

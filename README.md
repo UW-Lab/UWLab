@@ -27,9 +27,15 @@ In addition to what IsaacLab provides, UW Lab brings:
 - **Sim to Real**: Providing robots and configuration that has been tested in Lab and deliver the Simulation Setup that can directly transfer to reals
 
 
+## Legacy release line
+
+UWLab 1.3 targets Isaac Lab **2.3.2**, Isaac Sim **5.1**, Python **3.11**, and RSL-RL **3.1.2**.
+The installer pins Isaac Lab to `37ddf626871758333d6ed89cf64ad702aef127d0`; the existing RSL dependency remains pinned to its 3.x revision.
+Use the `isaaclab2` branch for this stack. The upgraded `main` line targets Isaac Lab 3.0 / Isaac Sim 6.1 and is not a drop-in replacement for older environments or checkpoints.
+
 ## Installation
 
-Follow the [installation guide](https://uw-lab.github.io/UWLab/main/source/setup/installation/index.html).
+Follow the [installation guide in this branch](docs/source/setup/installation/index.rst); the default `main` documentation tracks the upgraded stack.
 
 
 ## Getting Started

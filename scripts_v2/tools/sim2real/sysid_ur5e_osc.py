@@ -183,7 +183,7 @@ def main():
         T_steps = min(T_steps, args.max_steps)
     W = wp_step_indices.shape[0]
 
-    print(f"  {T_steps} steps ({T_steps*dt:.2f}s), {W} waypoints, dt={dt*1000:.1f}ms")
+    print(f"  {T_steps} steps ({T_steps * dt:.2f}s), {W} waypoints, dt={dt * 1000:.1f}ms")
 
     # Move to GPU
     real_joint_pos = real_joint_pos[:T_steps].to(device_str).float()
@@ -309,7 +309,7 @@ def main():
         best_delay = round(float(best_params_ever[24]))
         rmse_deg = np.degrees(np.sqrt(best_score_ever))
         print(
-            f"[{iteration+1:3d}/{args.max_iter}] "
+            f"[{iteration + 1:3d}/{args.max_iter}] "
             f"min={min_score:.6f} mean={mean_score:.6f} best={best_score_ever:.6f} "
             f"({rmse_deg:.3f}\u00b0 delay={best_delay}) {iter_time:.1f}s"
         )
@@ -323,14 +323,14 @@ def main():
                 "bounds": bounds,
                 "args": vars(args),
             }
-            ckpt_path = os.path.join(output_dir, f"checkpoint_{iteration+1:04d}.pt")
+            ckpt_path = os.path.join(output_dir, f"checkpoint_{iteration + 1:04d}.pt")
             torch.save(ckpt, ckpt_path)
             print(f"  -> {ckpt_path}")
 
     # Final results
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"DONE  RMSE: {np.degrees(np.sqrt(best_score_ever)):.4f}\u00b0")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     arm = best_params_ever[:6]
     sfric = best_params_ever[6:12]
@@ -342,7 +342,7 @@ def main():
     print(f"\n  {'Joint':<25s} {'Arm':>8s} {'SFric':>8s} {'DRat':>8s} {'DFric':>8s} {'VFric':>8s}")
     for i, name in enumerate(ARM_JOINT_NAMES):
         print(f"  {name:<25s} {arm[i]:8.4f} {sfric[i]:8.4f} {dratio[i]:8.4f} {dfric[i]:8.4f} {vfric[i]:8.4f}")
-    print(f"\n  Motor delay: {delay} steps ({delay*sim_dt*1000:.0f}ms at {1/sim_dt:.0f}Hz)")
+    print(f"\n  Motor delay: {delay} steps ({delay * sim_dt * 1000:.0f}ms at {1 / sim_dt:.0f}Hz)")
 
     final = {
         "best_params": best_params_ever,
