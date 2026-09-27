@@ -2,7 +2,7 @@
 
 # UW Lab
 
-[![IsaacSim](https://img.shields.io/badge/IsaacSim-6.0.1-silver.svg)](https://docs.isaacsim.omniverse.nvidia.com/latest/index.html)
+[![IsaacSim](https://img.shields.io/badge/IsaacSim-6.1.0-silver.svg)](https://docs.isaacsim.omniverse.nvidia.com/latest/index.html)
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://docs.python.org/3/whatsnew/3.12.html)
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/20.04/)
 [![Windows platform](https://img.shields.io/badge/platform-windows--64-orange.svg)](https://www.microsoft.com/en-us/)
@@ -26,6 +26,13 @@ In addition to what IsaacLab provides, UW Lab brings:
 - **Environments**: Cleaned Implementation of reputable environments in Manager-Based format
 - **Sim to Real**: Providing robots and configuration that has been tested in Lab and deliver the Simulation Setup that can directly transfer to reals
 
+
+## Release line
+
+UWLab 2.0 targets Isaac Lab **3.0 Early Access**, Isaac Sim **6.1**, Python **3.12**, and the released UW-Lab RSL-RL **5.4.1** integration.
+The installer pins Isaac Lab to `ae37b028ea415c91ea2bc32609efcd759ed2b974` and RSL-RL to `2c3bf18001a5e2a78527e9ea368b7ea31700a2c5` (`uw-v5.4.1`).
+Use `isaaclab2` for the legacy Isaac Lab 2.x / Isaac Sim 5.1 stack. Do not mix its environments, datasets, or checkpoint layouts with this release; follow the OmniReset migration and checkpoint-conversion instructions.
+The installer refuses to replace an Isaac Lab checkout with local changes.
 
 ## Installation
 

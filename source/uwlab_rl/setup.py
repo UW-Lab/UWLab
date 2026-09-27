@@ -33,9 +33,9 @@ PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu118"]
 # Must be a commit on UW-Lab/rsl_rl with the rsl-rl >= 5.0 API that Isaac Lab 3.0's
 # isaaclab_rl requires, including HeteroscedasticGaussianDistribution (rsl-rl 5.3).
 # Bump together with the Isaac Lab commit pinned in uwlab.sh.
-# TODO(port): point back at UW-Lab/rsl_rl once UW-Lab/rsl_rl#6 is merged there.
-RSL_RL_REPO = "https://github.com/JTran-UW/rsl_rl.git"
-RSL_RL_COMMIT = "2d8cc641a6ef915328aef8b67403c59b32b3930e"  # bump_rsl_rl_5_3 (UW-Lab/rsl_rl#6)
+# Released UW-Lab/rsl_rl integration after UW-Lab/rsl_rl#6 merged.
+RSL_RL_REPO = "https://github.com/UW-Lab/rsl_rl.git"
+RSL_RL_COMMIT = "2c3bf18001a5e2a78527e9ea368b7ea31700a2c5"  # uw-v5.4.1 (UW-Lab/rsl_rl#6)
 EXTRAS_REQUIRE = {
     "rsl-rl": [
         # Update this pin alongside compatible UWLab changes.
@@ -59,15 +59,15 @@ setup(
     keywords=EXTENSION_TOML_DATA["package"]["keywords"],
     license="BSD-3-Clause",
     include_package_data=True,
-    python_requires=">=3.10",
+    python_requires=">=3.12,<3.13",
     install_requires=INSTALL_REQUIRES,
     dependency_links=PYTORCH_INDEX_URL,
     extras_require=EXTRAS_REQUIRE,
     packages=["uwlab_rl"],
     classifiers=[
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.10",
-        "Isaac Sim :: 4.5.0",
+        "Programming Language :: Python :: 3.12",
+        "Isaac Sim :: 6.1.0",
     ],
     zip_safe=False,
 )

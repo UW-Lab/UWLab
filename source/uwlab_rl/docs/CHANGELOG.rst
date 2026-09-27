@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+0.2.5 (2026-09-27)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Pinned the released ``uw-v5.4.1`` revision from the official UW-Lab RSL-RL repository,
+  including logger configuration and image-only normalization fixes.
+  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
+* Changed the supported runtime metadata to Python 3.12 and Isaac Sim 6.1.
+  Use the ``isaaclab2`` branch for older environments.
+
+
 0.2.4 (2026-09-27)
 ~~~~~~~~~~~~~~~~~~
 

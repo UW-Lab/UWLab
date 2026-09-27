@@ -71,7 +71,7 @@ ensure_cuda_torch() {
         tv_ver="0.26.0"
         cuda_ver="130"
     else
-        # isaacsim-core 6.0.1 (Isaac Lab 3.0) requires torch==2.11.0. Its default
+        # isaacsim-core 6.1 (Isaac Lab 3.0) requires torch==2.11.0. Its default
         # PyPI wheel is built against CUDA 13.0 and silently yields
         # torch.cuda.is_available() == False on CUDA 12.x drivers, so this pin is
         # re-applied after the Isaac Lab install below (the +cu128 suffix check
@@ -544,6 +544,9 @@ while [[ $# -gt 0 ]]; do
                 echo "[INFO] Initializing IsaacLab repository at ${repo_root} ..."
                 git init -q "${repo_root}"
                 git -C "${repo_root}" remote add origin https://github.com/isaac-sim/IsaacLab.git
+            elif [ -n "$(git -C "${repo_root}" status --porcelain)" ]; then
+                echo "[ERROR] IsaacLab checkout has local changes; refusing to replace them."
+                exit 1
             else
                 echo "[INFO] Found existing IsaacLab clone at ${repo_root}; checking out the pin."
             fi

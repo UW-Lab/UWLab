@@ -3,9 +3,9 @@
 Local Installation
 ==================
 
-.. image:: https://img.shields.io/badge/IsaacSim-6.0.1-silver.svg
+.. image:: https://img.shields.io/badge/IsaacSim-6.1.0-silver.svg
    :target: https://developer.nvidia.com/isaac-sim
-   :alt: IsaacSim 6.0.1
+   :alt: IsaacSim 6.1.0
 
 .. image:: https://img.shields.io/badge/python-3.12-blue.svg
    :target: https://www.python.org/downloads/release/python-31211/
