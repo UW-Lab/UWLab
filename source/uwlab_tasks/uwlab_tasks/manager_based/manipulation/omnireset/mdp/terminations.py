@@ -8,7 +8,7 @@
 import numpy as np
 import torch
 
-from isaaclab.assets import Articulation, RigidObject, RigidObjectCollection
+from isaaclab.assets import BaseArticulation, BaseRigidObject, BaseRigidObjectCollection
 from isaaclab.envs import ManagerBasedEnv, ManagerBasedRLEnv
 from isaaclab.managers import ManagerTermBase, SceneEntityCfg, TerminationTermCfg
 from isaaclab.sim.utils import enable_extension
@@ -173,12 +173,12 @@ class check_grasp_success(ManagerTermBase):
         # Check gripper (articulation) velocities
         current_step_stable &= gripper_asset.data.joint_vel.torch.abs().sum(dim=1) < 5.0
         # Check object (rigid object) velocities
-        if isinstance(object_asset, RigidObject):
+        if isinstance(object_asset, BaseRigidObject):
             current_step_stable &= object_asset.data.body_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.05
             current_step_stable &= object_asset.data.body_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
-        elif isinstance(object_asset, RigidObjectCollection):
-            current_step_stable &= object_asset.data.object_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.05
-            current_step_stable &= object_asset.data.object_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
+        elif isinstance(object_asset, BaseRigidObjectCollection):
+            current_step_stable &= object_asset.data.object_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.05
+            current_step_stable &= object_asset.data.object_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
 
         self.stability_counter = torch.where(
             current_step_stable,
@@ -351,14 +351,14 @@ class check_reset_state_success(ManagerTermBase):
         # Check if asset velocities are small
         current_step_stable = torch.ones(env.num_envs, device=env.device, dtype=torch.bool)
         for asset in self.assets_to_check:
-            if isinstance(asset, Articulation):
+            if isinstance(asset, BaseArticulation):
                 current_step_stable &= asset.data.joint_vel.torch.abs().sum(dim=1) < 5.0
-            elif isinstance(asset, RigidObject):
+            elif isinstance(asset, BaseRigidObject):
                 current_step_stable &= asset.data.body_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.1
                 current_step_stable &= asset.data.body_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
-            elif isinstance(asset, RigidObjectCollection):
-                current_step_stable &= asset.data.object_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.1
-                current_step_stable &= asset.data.object_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
+            elif isinstance(asset, BaseRigidObjectCollection):
+                current_step_stable &= asset.data.object_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.1
+                current_step_stable &= asset.data.object_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
 
         self.stability_counter = torch.where(
             current_step_stable,

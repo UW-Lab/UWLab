@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.14.8 (2026-09-27)
+~~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Fixed backend-specific assets bypassing velocity-stability checks during OmniReset grasp
+  and reset-state generation. Regenerate affected datasets to apply the restored stability filters.
+
+
 0.14.7 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~~
 

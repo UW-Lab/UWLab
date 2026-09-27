@@ -214,6 +214,94 @@ def test_collision_asset_paths_and_frames(monkeypatch, pattern):
     assert hasher.root_prim_hashes[0] != hasher.root_prim_hashes[1]
 
 
+@pytest.mark.parametrize("term_name", ["check_grasp_success", "check_reset_state_success"])
+@pytest.mark.parametrize("object_kind", ["rigid", "collection"])
+@pytest.mark.isaacsim_ci
+def test_dataset_success_requires_backend_asset_stability(term_name, object_kind):
+    from unittest.mock import Mock
+
+    from isaaclab.assets import BaseArticulation, BaseRigidObject, BaseRigidObjectCollection
+
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.terminations")
+    positions = torch.tensor([[0.0, 0.0, 0.1]]).repeat(4, 1)
+    quaternions = torch.tensor([[0.0, 0.0, 0.0, 1.0]]).repeat(4, 1)
+    joint_velocities = torch.zeros(4, 2)
+    linear_velocities = torch.zeros(4, 2, 3)
+    angular_velocities = torch.zeros(4, 2, 3)
+    joint_velocities[1, 0] = 6.0
+    linear_velocities[2, 1, 0] = 0.2
+    angular_velocities[3, 1, 0] = 2.0
+    robot = Mock(spec=BaseArticulation)
+    robot.initial_pos = positions.clone()
+    robot.data = SimpleNamespace(
+        joint_vel=SimpleNamespace(torch=joint_velocities),
+        joint_vel_limits=SimpleNamespace(torch=torch.full_like(joint_velocities, 100.0)),
+        root_pos_w=SimpleNamespace(torch=positions),
+        root_quat_w=SimpleNamespace(torch=quaternions),
+        body_link_pos_w=SimpleNamespace(torch=positions[:, None]),
+        body_link_quat_w=SimpleNamespace(torch=quaternions[:, None]),
+    )
+    obj = Mock(spec=BaseRigidObject if object_kind == "rigid" else BaseRigidObjectCollection)
+    obj.initial_pos = positions.clone()
+    obj.data = SimpleNamespace(
+        root_pos_w=SimpleNamespace(torch=positions),
+        root_quat_w=SimpleNamespace(torch=quaternions),
+        body_lin_vel_w=SimpleNamespace(torch=linear_velocities),
+        body_ang_vel_w=SimpleNamespace(torch=angular_velocities),
+        object_lin_vel_w=SimpleNamespace(torch=linear_velocities),
+        object_ang_vel_w=SimpleNamespace(torch=angular_velocities),
+    )
+    env = SimpleNamespace(
+        scene={"robot": robot, "object": obj},
+        num_envs=4,
+        device="cpu",
+        episode_length_buf=torch.full((4,), 10),
+        max_episode_length=10,
+    )
+    term_type = getattr(module, term_name)
+    term = term_type.__new__(term_type)
+    term.stability_counter = torch.zeros(4, dtype=torch.int32)
+    term.consecutive_stability_steps = 2
+    term.pos_z_threshold = 0.05
+
+    def collision_free(env, ids):
+        return torch.ones(len(ids), dtype=torch.bool)
+
+    robot_cfg = SceneEntityCfg("robot")
+    object_cfg = SceneEntityCfg("object")
+    if term_name == "check_grasp_success":
+        term.object_cfg = object_cfg
+        term.gripper_cfg = robot_cfg
+        term.max_pos_deviation = 0.05
+        term.collision_analyzer = collision_free
+        params = {"object_cfg": object_cfg, "gripper_cfg": robot_cfg, "collision_analyzer_cfg": None}
+    else:
+        term.robot_asset = robot
+        term.assets_to_check = [obj, robot]
+        term.ee_body_idx = 0
+        term.gripper_approach_direction = (0.0, 0.0, -1.0)
+        term.max_robot_pos_deviation = term.max_object_pos_deviation = 0.05
+        term.collision_analyzers = [collision_free]
+        term.assembly_success_prob = None
+        params = {
+            "object_cfgs": [object_cfg],
+            "robot_cfg": robot_cfg,
+            "ee_body_name": "tool",
+            "collision_analyzer_cfgs": [],
+        }
+    assert not term(env, **params).any()
+    torch.testing.assert_close(term(env, **params), torch.tensor([True, False, False, False]))
+    torch.testing.assert_close(term.stability_counter, torch.tensor([2, 0, 0, 0], dtype=torch.int32))
+    joint_velocities.zero_()
+    linear_velocities.zero_()
+    angular_velocities.zero_()
+    torch.testing.assert_close(term(env, **params), torch.tensor([True, False, False, False]))
+    assert term(env, **params).all()
+    linear_velocities[0, 1, 0] = 0.2
+    torch.testing.assert_close(term(env, **params), torch.tensor([False, True, True, True]))
+    assert term.stability_counter[0] == 0
+
+
 @pytest.mark.isaacsim_ci
 def test_grasp_sampling_preserves_asset_masses():
     module = importlib.import_module(
