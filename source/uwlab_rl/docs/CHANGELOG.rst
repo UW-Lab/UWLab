@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.2.4 (2026-09-27)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Updated the pinned RSL-RL 5.4.1 integration to target separate actor and critic models for the upgraded UWLab stack.
+  The legacy combined ``ActorCritic`` interface is not provided; retain the pinned 3.x stack for old callers.
+  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
+
+
 0.2.3 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~
 
