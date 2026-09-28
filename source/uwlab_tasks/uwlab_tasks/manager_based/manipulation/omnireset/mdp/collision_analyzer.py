@@ -51,16 +51,17 @@ class CollisionAnalyzer:
 
         self.body_ids = []
         self.local_pts = []
+        template_path = RigidObjectHasher.resolve_prim_paths(env.num_envs, self.asset.cfg.prim_path)[0]
         for i, body_name in enumerate(body_names):
             # start = time.perf_counter()
             prim = get_first_matching_child_prim(
-                self.asset.cfg.prim_path.replace(".*", "0", 1),  # we use the 0th env prim as template
+                template_path,  # we use the 0th env prim as template
                 predicate=lambda p: p.GetName() == body_name and p.HasAPI(UsdPhysics.RigidBodyAPI),
             )
             local_pts = utils.sample_object_point_cloud(
                 num_envs=env.num_envs,
                 num_points=cfg.num_points,
-                prim_path_pattern=str(prim.GetPath()).replace("env_0", "env_.*", 1),
+                prim_path_pattern=self.asset.cfg.prim_path + str(prim.GetPath())[len(template_path) :],
                 device=env.device,
             )
             if local_pts is not None:
@@ -116,12 +117,12 @@ class CollisionAnalyzer:
 
     def __call__(self, env: ManagerBasedRLEnv, env_ids: torch.Tensor):
         pos_w = (
-            self.asset.data.body_link_pos_w[env_ids][:, self.body_ids]
+            self.asset.data.body_link_pos_w.torch[env_ids][:, self.body_ids]
             .unsqueeze(2)
             .expand(-1, -1, self.cfg.num_points, 3)
         )
         quat_w = (
-            self.asset.data.body_link_quat_w[env_ids][:, self.body_ids]
+            self.asset.data.body_link_quat_w.torch[env_ids][:, self.body_ids]
             .unsqueeze(2)
             .expand(-1, -1, self.cfg.num_points, 4)
         )
@@ -129,14 +130,16 @@ class CollisionAnalyzer:
 
         obstacles_pos_w = torch.cat(
             [
-                obstacle.data.root_pos_w[env_ids].view(-1, 1, 1, 3).expand(-1, -1, self.cfg.num_points, 3)
+                obstacle.data.root_pos_w.torch[env_ids].view(-1, 1, 1, 3).expand(-1, -1, self.cfg.num_points, 3)
                 for obstacle in self.obstacles
             ],
             dim=0,
         )
         obstacles_quat_w = torch.cat(
             [
-                obstacle.data.root_quat_w[env_ids].view(-1, 1, 1, 4).expand(-1, cloud.shape[1], self.cfg.num_points, 4)
+                obstacle.data.root_quat_w.torch[env_ids]
+                .view(-1, 1, 1, 4)
+                .expand(-1, cloud.shape[1], self.cfg.num_points, 4)
                 for obstacle in self.obstacles
             ],
             dim=0,

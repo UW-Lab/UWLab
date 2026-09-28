@@ -29,9 +29,9 @@ def invalid_state(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg) -> torch.Te
     """Return true if the RigidBody position reads nan"""
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
-    return torch.isnan(asset.data.body_pos_w).any(dim=-1).any(dim=-1)
+    return torch.isnan(asset.data.body_pos_w.torch).any(dim=-1).any(dim=-1)
 
 
 def abnormal_robot_state(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     robot: Articulation = env.scene[asset_cfg.name]
-    return (robot.data.joint_vel.abs() > (robot.data.joint_vel_limits * 2)).any(dim=1)
+    return (robot.data.joint_vel.torch.abs() > (robot.data.joint_vel_limits.torch * 2)).any(dim=1)

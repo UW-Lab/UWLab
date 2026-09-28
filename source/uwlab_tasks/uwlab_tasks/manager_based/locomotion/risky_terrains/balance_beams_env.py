@@ -5,7 +5,7 @@
 
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.utils import configclass
-from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+from isaaclab.utils.noise import UniformNoiseCfg as Unoise
 
 import uwlab_tasks.manager_based.locomotion.risky_terrains.mdp as mdp
 

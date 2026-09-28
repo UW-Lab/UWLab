@@ -54,7 +54,7 @@ def heading_tracking(env: ManagerBasedRLEnv, distance_threshold: float = 2.0, re
 def exploration_reward(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
     # Retrieve the robot and target data
     robot: Articulation = env.scene[robot_cfg.name]
-    base_velocity = robot.data.root_lin_vel_b  # Robot's current base velocity vector
+    base_velocity = robot.data.root_lin_vel_b.torch  # Robot's current base velocity vector
     target_position = env.command_manager.get_command("goal_point")[
         :, :2
     ]  # Target position vector relative to robot base
@@ -79,14 +79,14 @@ def stall_penalty(
     distance_threshold: float = 0.5,
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    base_vel = robot.data.root_lin_vel_b.norm(2, dim=-1)
+    base_vel = robot.data.root_lin_vel_b.torch.norm(2, dim=-1)
     distance_to_goal = env.command_manager.get_command("goal_point")[:, :2].norm(2, dim=-1)
     return (base_vel < base_vel_threshold) & (distance_to_goal > distance_threshold)
 
 
 def illegal_contact_penalty(env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg):
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]  # type: ignore
-    net_contact_forces = contact_sensor.data.net_forces_w_history
+    net_contact_forces = contact_sensor.data.net_forces_w_history.torch
     # check if any contact force exceeds the threshold
     return torch.any(
         torch.max(torch.norm(net_contact_forces[:, :, sensor_cfg.body_ids], dim=-1), dim=1)[0] > threshold,
@@ -96,13 +96,13 @@ def illegal_contact_penalty(env: ManagerBasedRLEnv, threshold: float, sensor_cfg
 
 def feet_lin_acc_l2(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
     robot: Articulation = env.scene[robot_cfg.name]
-    feet_acc = torch.sum(torch.square(robot.data.body_lin_acc_w[..., robot_cfg.body_ids, :]), dim=(1, 2))
+    feet_acc = torch.sum(torch.square(robot.data.body_lin_acc_w.torch[..., robot_cfg.body_ids, :]), dim=(1, 2))
     return feet_acc
 
 
 def feet_rot_acc_l2(env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot")):
     robot: Articulation = env.scene[robot_cfg.name]
-    feet_acc = torch.sum(torch.square(robot.data.body_ang_acc_w[..., robot_cfg.body_ids, :]), dim=(1, 2))
+    feet_acc = torch.sum(torch.square(robot.data.body_ang_acc_w.torch[..., robot_cfg.body_ids, :]), dim=(1, 2))
     return feet_acc
 
 
@@ -112,6 +112,6 @@ def stand_penalty(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
     robot: Articulation = env.scene[robot_cfg.name]
-    base_height = robot.data.root_link_pos_w[:, 2]  # z-coordinate of the base
+    base_height = robot.data.root_link_pos_w.torch[:, 2]  # z-coordinate of the base
     penalty = (base_height < height_threshold).float() * -1.0
     return penalty

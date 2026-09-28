@@ -63,7 +63,7 @@ FRANKA_PANDA_CFG = ArticulationCfg(
             "panda_finger_joint2": 0.04,
         },
         pos=(0.0, 0.0, 0.0),
-        rot=(1.0, 0.0, 0.0, 0.0),
+        rot=(0.0, 0.0, 0.0, 1.0),
     ),
     # Stiffness and dampness of the panda arm parts
     # will be set
@@ -106,7 +106,7 @@ TABLE_CFG = RigidObjectCfg(
         usd_path=f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Mounts/UWPatVention/pat_vention.usd",
         rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
     ),
-    init_state=RigidObjectCfg.InitialStateCfg(pos=(0.4, 0.0, -0.868), rot=(0.70711, 0.0, 0.0, -0.70711)),
+    init_state=RigidObjectCfg.InitialStateCfg(pos=(0.4, 0.0, -0.868), rot=(0.0, 0.0, -0.70711, 0.70711)),
 )
 
 # NIST Board
@@ -145,7 +145,7 @@ BOLT_M16_CFG = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.55, 0.0, 0.05), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.55, 0.0, 0.05), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )
@@ -171,7 +171,7 @@ NUT_M16_CFG = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.4, 0.3, 0.0), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.4, 0.3, 0.0), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )
@@ -198,7 +198,7 @@ HOLE_8MM_CFG: ArticulationCfg = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.6, 0.0, 0.05), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.6, 0.0, 0.05), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )
@@ -225,7 +225,7 @@ PEG_8MM_CFG: ArticulationCfg = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.4, 0.35, 0.0), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.4, 0.35, 0.0), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )
@@ -251,7 +251,7 @@ SMALL_GEAR_CFG: ArticulationCfg = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.4, 0.1), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.0, 0.4, 0.1), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )
@@ -278,7 +278,7 @@ LARGE_GEAR_CFG: ArticulationCfg = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.45, 0.1), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.0, 0.45, 0.1), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )
@@ -305,7 +305,7 @@ GEAR_BASE_CFG: ArticulationCfg = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.65, 0.0, 0.05), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.65, 0.0, 0.05), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )
@@ -332,7 +332,7 @@ MEDIUM_GEAR_CFG: ArticulationCfg = ArticulationCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.4, 0.40, 0.0), rot=(1.0, 0.0, 0.0, 0.0), joint_pos={}, joint_vel={}
+        pos=(0.4, 0.40, 0.0), rot=(0.0, 0.0, 0.0, 1.0), joint_pos={}, joint_vel={}
     ),
     actuators={},
 )

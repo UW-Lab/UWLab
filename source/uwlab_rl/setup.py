@@ -19,16 +19,27 @@ EXTENSION_TOML_DATA = toml.load(os.path.join(EXTENSION_PATH, "config", "extensio
 # Minimum dependencies required prior to installation
 INSTALL_REQUIRES = [
     # generic
-    "wandb>=0.19.6",
+    # rsl_rl's WandbSummaryWriter still passes ``wandb.Settings(start_method="thread")``;
+    # wandb removed that field and its Settings model rejects unknown fields, so newer
+    # releases fail at the first log call. 0.19.x is the last series that accepts it.
+    "wandb>=0.19.6,<0.20",
 ]
 
 PYTORCH_INDEX_URL = ["https://download.pytorch.org/whl/cu118"]
 
 # Extra dependencies for RL agents
+# Pinned to a commit, not a branch: an unpinned git dependency makes a rebuild
+# silently install a different API than the one this code was written against.
+# Must be a commit on UW-Lab/rsl_rl with the rsl-rl >= 5.0 API that Isaac Lab 3.0's
+# isaaclab_rl requires, including HeteroscedasticGaussianDistribution (rsl-rl 5.3).
+# Bump together with the Isaac Lab commit pinned in uwlab.sh.
+# Released UW-Lab/rsl_rl integration after UW-Lab/rsl_rl#6 merged.
+RSL_RL_REPO = "https://github.com/UW-Lab/rsl_rl.git"
+RSL_RL_COMMIT = "2c3bf18001a5e2a78527e9ea368b7ea31700a2c5"  # uw-v5.4.1 (UW-Lab/rsl_rl#6)
 EXTRAS_REQUIRE = {
     "rsl-rl": [
         # Update this pin alongside compatible UWLab changes.
-        "rsl-rl-lib @ git+https://github.com/UW-Lab/rsl_rl.git@e7cd3c77bdb3c94753612f208c725e1add38a655",
+        f"rsl-rl-lib @ git+{RSL_RL_REPO}@{RSL_RL_COMMIT}",
     ],
 }
 
@@ -48,15 +59,15 @@ setup(
     keywords=EXTENSION_TOML_DATA["package"]["keywords"],
     license="BSD-3-Clause",
     include_package_data=True,
-    python_requires=">=3.10",
+    python_requires=">=3.12,<3.13",
     install_requires=INSTALL_REQUIRES,
     dependency_links=PYTORCH_INDEX_URL,
     extras_require=EXTRAS_REQUIRE,
     packages=["uwlab_rl"],
     classifiers=[
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.10",
-        "Isaac Sim :: 4.5.0",
+        "Programming Language :: Python :: 3.12",
+        "Isaac Sim :: 6.1.0",
     ],
     zip_safe=False,
 )

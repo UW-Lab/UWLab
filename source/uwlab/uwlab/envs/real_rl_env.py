@@ -11,7 +11,6 @@ import torch
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, ClassVar
 
-import isaacsim.core.utils.torch as torch_utils
 from isaaclab.envs import ManagerBasedRLEnv
 from isaaclab.envs.common import VecEnvObs, VecEnvStepReturn
 from isaaclab.managers import (
@@ -24,6 +23,7 @@ from isaaclab.managers import (
     RewardManager,
     TerminationManager,
 )
+from isaaclab.utils.seed import configure_seed
 from isaaclab.utils.timer import Timer
 
 if TYPE_CHECKING:
@@ -235,7 +235,7 @@ class RealRLEnv(ManagerBasedRLEnv):
         return self.obs_buf, self.extras
 
     def seed(self, seed: int = -1) -> int:
-        return torch_utils.set_seed(seed)
+        return configure_seed(seed)
 
     def close(self) -> None:
         del self.command_manager

@@ -61,12 +61,22 @@ class TorchDatasetFileHandler(DatasetFileHandlerBase):
         """Get number of episodes in the file."""
         return self._episode_count
 
-    def write_episode(self, episode: EpisodeData, demo_id: int | None = None):
+    def write_episode(self, episode: EpisodeData, demo_id: int | None = None, dataset_compression: bool = True):
         """Add an episode to the dataset.
 
         Args:
             episode: The episode data to add.
             demo_id: Custom index for the episode. If None, uses default index.
+            dataset_compression: Accepted for interface compatibility and ignored.
+                Isaac Lab 3.0's RecorderManager passes ``cfg.dataset_compression``
+                positionally to every handler (see
+                :meth:`isaaclab.managers.RecorderManager.export_episodes`); omitting
+                it raises ``TypeError: write_episode() takes from 2 to 3 positional
+                arguments but 4 were given`` at the first episode export. It is
+                meaningful only for the HDF5 handler, which maps it onto gzip
+                per-dataset compression. This handler accumulates episodes in memory
+                and serializes them with ``torch.save`` in :meth:`flush`, which has no
+                equivalent option.
         """
         if episode.is_empty() or not episode.success:
             return
@@ -99,7 +109,8 @@ class TorchDatasetFileHandler(DatasetFileHandlerBase):
     def flush(self):
         """Flush any pending data to disk."""
         if self._file_path and self._episode_data:
-            torch.save(self._episode_data, self._file_path)
+            # Stamp the quaternion convention; loaders refuse files without it.
+            torch.save({**self._episode_data, "quat_convention": "xyzw"}, self._file_path)
 
     def close(self):
         """Close the dataset file handler."""

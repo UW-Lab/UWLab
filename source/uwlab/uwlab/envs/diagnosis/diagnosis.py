@@ -9,11 +9,21 @@ import torch
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
+import warp as wp
 from isaaclab.assets import Articulation
 from isaaclab.managers import SceneEntityCfg
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
+
+
+def _as_torch(value) -> torch.Tensor:
+    """Return a physics-view result (``wp.array`` in Isaac Lab 3.0) as a torch tensor."""
+    if hasattr(value, "torch"):
+        return value.torch
+    if isinstance(value, wp.array):
+        return wp.to_torch(value)
+    return value
 
 
 def get_link_incoming_joint_force(
@@ -33,7 +43,7 @@ def get_link_incoming_joint_force(
     asset: Articulation = env.scene[asset_cfg.name]
     if env_ids is None:
         env_ids = slice(None)
-    force_from_child_link_to_joints = asset.root_physx_view.get_link_incoming_joint_force().to(env.device)[env_ids]
+    force_from_child_link_to_joints = _as_torch(asset.root_view.get_link_incoming_joint_force()).to(env.device)[env_ids]
     return force_from_child_link_to_joints
 
 
@@ -56,7 +66,7 @@ def get_dof_projected_joint_forces(
     asset: Articulation = env.scene[asset_cfg.name]
     if env_ids is None:
         env_ids = slice(None)
-    projected_joint_forces = asset.root_physx_view.get_dof_projected_joint_forces().to(env.device)[env_ids]
+    projected_joint_forces = _as_torch(asset.root_view.get_dof_projected_joint_forces()).to(env.device)[env_ids]
     return projected_joint_forces
 
 
@@ -108,7 +118,7 @@ def get_dof_position(
     asset: Articulation = env.scene[asset_cfg.name]
     if env_ids is None:
         env_ids = slice(None)
-    joint_pos = asset.data.joint_pos[env_ids]
+    joint_pos = asset.data.joint_pos.torch[env_ids]
     return joint_pos
 
 
@@ -164,7 +174,7 @@ def get_joint_torque_utilization(
     if env_ids is None:
         env_ids = slice(None)
     applied_torque = asset.data.applied_torque[env_ids]
-    torque_max = asset.root_physx_view.get_dof_max_forces().to(env.device)[env_ids]
+    torque_max = asset.data.joint_effort_limits.torch.to(env.device)[env_ids]
     torque_utilization = torch.abs(applied_torque) / torque_max
     return torque_utilization
 
@@ -178,7 +188,7 @@ def get_joint_velocity_utilization(
     if env_ids is None:
         env_ids = slice(None)
     joint_vel = asset.data.joint_vel[env_ids]
-    max_vel = asset.root_physx_view.get_dof_max_velocities().to(env.device)[env_ids]
+    max_vel = asset.data.joint_vel_limits.torch.to(env.device)[env_ids]
     velocity_utilization = torch.abs(joint_vel) / max_vel
     return velocity_utilization
 
@@ -205,7 +215,7 @@ def get_joint_mechanical_work(
     asset: Articulation = env.scene[asset_cfg.name]
     if env_ids is None:
         env_ids = slice(None)
-    joint_pos = asset.data.joint_pos[env_ids]
+    joint_pos = asset.data.joint_pos.torch[env_ids]
     applied_torque = asset.data.applied_torque[env_ids]
     if "prev_joint_pos" in env.extensions:
         delta_joint_pos = joint_pos - env.extensions["prev_joint_pos"]
@@ -241,7 +251,7 @@ def effective_torque(
     applied_torque = asset.data.applied_torque[env_ids]  # Shape: (num_envs, num_joints)
 
     # Get projected joint forces
-    projected_joint_forces = asset.root_physx_view.get_dof_projected_joint_forces().to(env.device)[
+    projected_joint_forces = _as_torch(asset.root_view.get_dof_projected_joint_forces()).to(env.device)[
         env_ids
     ]  # Shape: (num_envs, num_joints)
 
@@ -275,6 +285,6 @@ def get_dof_weight_distribution(
     asset: Articulation = env.scene[asset_cfg.name]
     if env_ids is None:
         env_ids = slice(None)
-    force_from_child_link_to_joints = asset.root_physx_view.get_link_incoming_joint_force().to(env.device)[env_ids]
+    force_from_child_link_to_joints = _as_torch(asset.root_view.get_link_incoming_joint_force()).to(env.device)[env_ids]
     weight_forces = force_from_child_link_to_joints[..., 2]
     return weight_forces

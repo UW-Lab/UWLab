@@ -23,7 +23,7 @@ JOINT_IKDELTA: DifferentialInverseKinematicsActionCfg = DifferentialInverseKinem
     body_name="panda_hand",
     controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=True, ik_method="dls"),
     scale=0.5,
-    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.1034), rot=(1.0, 0.0, 0, 0)),
+    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.1034), rot=(0.0, 0.0, 0.0, 1.0)),
 )
 
 JOINT_IKABSOLUTE: DifferentialInverseKinematicsActionCfg = DifferentialInverseKinematicsActionCfg(
@@ -32,7 +32,7 @@ JOINT_IKABSOLUTE: DifferentialInverseKinematicsActionCfg = DifferentialInverseKi
     body_name="panda_hand",
     controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
     scale=1,
-    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.1034), rot=(1.0, 0.0, 0, 0)),
+    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.1034), rot=(0.0, 0.0, 0.0, 1.0)),
 )
 
 BINARY_GRIPPER = BinaryJointPositionActionCfg(

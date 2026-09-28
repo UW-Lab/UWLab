@@ -13,11 +13,15 @@ The following configurations are available:
 * :obj:`UR5E_ROBOTIQ_2F85`: Alias for ``EXPLICIT_UR5E_ROBOTIQ_2F85`` (backward compatibility).
 """
 
+import logging
+
 import isaaclab.sim as sim_utils
 from isaaclab.actuators import DelayedPDActuatorCfg, ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
 
 from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
+
+logger = logging.getLogger(__name__)
 
 ROBOTIQ_2F85_DEFAULT_JOINT_POS = {
     "finger_joint": 0.0,
@@ -27,6 +31,47 @@ ROBOTIQ_2F85_DEFAULT_JOINT_POS = {
     "left_inner_finger_knuckle_joint": 0.0,
     "right_inner_finger_knuckle_joint": 0.0,
 }
+
+
+def spawn_ur5e_without_physics_materials(prim_path, cfg, translation=None, orientation=None):
+    """Spawn the UR5e USD, then strip its two authored physics materials and their bindings.
+
+    PhysX 110 allocates a PxMaterial per env per USD material (107 shared them), so the pair hits the
+    hard 64K cap at 32768 envs; ``robot_material`` overwrites the finger friction at startup anyway.
+    """
+    from pxr import PhysxSchema, Sdf, Usd, UsdPhysics, UsdShade
+
+    prim = sim_utils.spawn_from_usd(prim_path, cfg, translation, orientation)
+    roots = sim_utils.find_matching_prims(prim_path) or [prim]
+    removed: list[str] = []
+    for root in roots:
+        stage = root.GetStage()
+        material_paths = {
+            str(child.GetPath())
+            for child in Usd.PrimRange(root)
+            if child.HasAPI(UsdPhysics.MaterialAPI) or child.HasAPI(PhysxSchema.PhysxMaterialAPI)
+        }
+        if not material_paths:
+            continue
+        for child in Usd.PrimRange(root):
+            if not child.HasAPI(UsdShade.MaterialBindingAPI):
+                continue
+            binding_api = UsdShade.MaterialBindingAPI(child)
+            rel = binding_api.GetDirectBindingRel("physics")
+            if rel and any(str(target) in material_paths for target in rel.GetTargets()):
+                binding_api.UnbindDirectBinding("physics")
+        for material_path in sorted(material_paths):
+            stage.RemovePrim(Sdf.Path(material_path))
+            # prim specs authored in the referenced asset survive RemovePrim; deactivating prunes
+            # them from composition (and from the PhysX parser) instead.
+            leftover = stage.GetPrimAtPath(Sdf.Path(material_path))
+            if leftover.IsValid():
+                leftover.SetActive(False)
+        removed.extend(sorted(material_paths))
+    if removed:
+        logger.info(f"Removed USD physics materials from spawned UR5e (PhysX 64K material cap): {removed}")
+    return prim
+
 
 UR5E_DEFAULT_JOINT_POS = {
     "shoulder_pan_joint": 0.0,
@@ -58,6 +103,7 @@ UR5E_EFFORT_LIMITS = {
 
 UR5E_ARTICULATION = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
+        func=spawn_ur5e_without_physics_materials,
         usd_path=f"{UWLAB_CLOUD_ASSETS_DIR}/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/ur5e_robotiq_gripper_d415_mount_safety_calibrated.usd",
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
@@ -68,7 +114,7 @@ UR5E_ARTICULATION = ArticulationCfg(
             enabled_self_collisions=True, solver_position_iteration_count=36, solver_velocity_iteration_count=0
         ),
     ),
-    init_state=ArticulationCfg.InitialStateCfg(pos=(0, 0, 0), rot=(1, 0, 0, 0), joint_pos=UR5E_DEFAULT_JOINT_POS),
+    init_state=ArticulationCfg.InitialStateCfg(pos=(0, 0, 0), rot=(0, 0, 0, 1), joint_pos=UR5E_DEFAULT_JOINT_POS),
     soft_joint_pos_limit_factor=1,
 )
 
@@ -87,7 +133,7 @@ ROBOTIQ_2F85 = ArticulationCfg(
         mass_props=sim_utils.MassPropertiesCfg(mass=0.5),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0, 0, 0.1), rot=(1, 0, 0, 0), joint_pos=ROBOTIQ_2F85_DEFAULT_JOINT_POS
+        pos=(0, 0, 0.1), rot=(0, 0, 0, 1), joint_pos=ROBOTIQ_2F85_DEFAULT_JOINT_POS
     ),
     actuators={
         "gripper": ImplicitActuatorCfg(

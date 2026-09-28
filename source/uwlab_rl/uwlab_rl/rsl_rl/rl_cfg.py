@@ -4,10 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from dataclasses import MISSING
-from typing import Literal
 
 from isaaclab.utils import configclass
-from isaaclab_rl.rsl_rl import RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg  # noqa: F401
+from isaaclab_rl.rsl_rl import RslRlMLPModelCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg  # noqa: F401
 
 
 @configclass
@@ -57,15 +56,12 @@ class OffPolicyAlgorithmCfg:
     """The configuration for the offline behavior cloning(dagger)."""
 
 
-@configclass
-class RslRlFancyActorCriticCfg(RslRlPpoActorCriticCfg):
-    """Configuration for the fancy actor-critic networks."""
-
-    state_dependent_std: bool = False
-    """Whether to use state-dependent standard deviation."""
-
-    noise_std_type: Literal["scalar", "log", "gsde"] = "scalar"
-    """The type of noise standard deviation for the policy. Default is scalar."""
+# Must stay an alias, not a subclass: isaaclab_rl's `policy` -> `actor`/`critic` shim
+# dispatches on `type(cfg.policy) is RslRlPpoActorCriticCfg`, so a subclass falls through
+# every branch and leaves `actor` MISSING (surfacing as `KeyError: 'class_name'` in
+# PPO.construct_algorithm). See isaaclab_rl/rsl_rl/utils.py.
+RslRlFancyActorCriticCfg = RslRlPpoActorCriticCfg
+"""Alias of :class:`RslRlPpoActorCriticCfg`; see the note above."""
 
 
 @configclass

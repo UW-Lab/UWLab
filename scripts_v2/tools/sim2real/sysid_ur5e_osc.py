@@ -53,7 +53,7 @@ simulation_app = app_launcher.app
 
 from isaaclab.actuators import DelayedPDActuatorCfg
 from isaaclab.assets import Articulation
-from isaaclab.utils.math import subtract_frame_transforms
+from isaaclab.utils.math import convert_quat, subtract_frame_transforms
 
 from uwlab_assets.robots.ur5e_robotiq_gripper.kinematics import ARM_JOINT_NAMES, EE_BODY_NAME, NUM_ARM_JOINTS
 
@@ -175,7 +175,8 @@ def main():
     initial_joint_pos = real_data["initial_joint_pos"]
     wp_step_indices = real_data["waypoint_step_indices"]
     wp_target_pos = real_data["waypoint_target_pos"]
-    wp_target_quat = real_data["waypoint_target_quat"]
+    # the real-robot collector (diffusion_policy) records (w, x, y, z)
+    wp_target_quat = convert_quat(real_data["waypoint_target_quat"], to="xyzw")
     dt = real_data["dt"]
 
     T_steps = real_joint_pos.shape[0]
@@ -183,7 +184,7 @@ def main():
         T_steps = min(T_steps, args.max_steps)
     W = wp_step_indices.shape[0]
 
-    print(f"  {T_steps} steps ({T_steps*dt:.2f}s), {W} waypoints, dt={dt*1000:.1f}ms")
+    print(f"  {T_steps} steps ({T_steps * dt:.2f}s), {W} waypoints, dt={dt * 1000:.1f}ms")
 
     # Move to GPU
     real_joint_pos = real_joint_pos[:T_steps].to(device_str).float()
@@ -234,8 +235,8 @@ def main():
     sim_dt = env_cfg.sim.dt
     action_dim = unwrapped.action_manager.total_action_dim  # 7 (arm 6 + gripper 1)
 
-    default_joint_pos = robot.data.default_joint_pos.clone()
-    default_joint_vel = robot.data.default_joint_vel.clone()
+    default_joint_pos = robot.data.default_joint_pos.torch.clone()
+    default_joint_vel = robot.data.default_joint_vel.torch.clone()
     default_joint_pos[:, arm_joint_ids] = initial_joint_pos_dev.unsqueeze(0).expand(N, -1)
     default_joint_vel[:] = 0.0
 
@@ -275,10 +276,10 @@ def main():
             while wp_idx + 1 < W and t >= wp_step_indices[wp_idx + 1]:
                 wp_idx += 1
 
-            ee_pos_w = robot.data.body_pos_w[:, ee_frame_idx]
-            ee_quat_w = robot.data.body_quat_w[:, ee_frame_idx]
+            ee_pos_w = robot.data.body_pos_w.torch[:, ee_frame_idx]
+            ee_quat_w = robot.data.body_quat_w.torch[:, ee_frame_idx]
             ee_pos_b, ee_quat_b = subtract_frame_transforms(
-                robot.data.root_pos_w, robot.data.root_quat_w, ee_pos_w, ee_quat_w
+                robot.data.root_pos_w.torch, robot.data.root_quat_w.torch, ee_pos_w, ee_quat_w
             )
             target_pos = wp_target_pos[wp_idx].unsqueeze(0).expand(N, -1)
             target_quat = wp_target_quat[wp_idx].unsqueeze(0).expand(N, -1)
@@ -287,7 +288,7 @@ def main():
             action = torch.cat([action_arm, torch.zeros(N, action_dim - 6, device=device)], dim=-1)
             env.step(action)
 
-            joint_pos = robot.data.joint_pos[:, arm_joint_ids]
+            joint_pos = robot.data.joint_pos.torch[:, arm_joint_ids]
             scores += torch.sum((joint_pos - real_joint_pos[t].unsqueeze(0)) ** 2, dim=1)
 
         scores = scores / T_steps
@@ -309,7 +310,7 @@ def main():
         best_delay = round(float(best_params_ever[24]))
         rmse_deg = np.degrees(np.sqrt(best_score_ever))
         print(
-            f"[{iteration+1:3d}/{args.max_iter}] "
+            f"[{iteration + 1:3d}/{args.max_iter}] "
             f"min={min_score:.6f} mean={mean_score:.6f} best={best_score_ever:.6f} "
             f"({rmse_deg:.3f}\u00b0 delay={best_delay}) {iter_time:.1f}s"
         )
@@ -323,14 +324,14 @@ def main():
                 "bounds": bounds,
                 "args": vars(args),
             }
-            ckpt_path = os.path.join(output_dir, f"checkpoint_{iteration+1:04d}.pt")
+            ckpt_path = os.path.join(output_dir, f"checkpoint_{iteration + 1:04d}.pt")
             torch.save(ckpt, ckpt_path)
             print(f"  -> {ckpt_path}")
 
     # Final results
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"DONE  RMSE: {np.degrees(np.sqrt(best_score_ever)):.4f}\u00b0")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     arm = best_params_ever[:6]
     sfric = best_params_ever[6:12]
@@ -342,7 +343,7 @@ def main():
     print(f"\n  {'Joint':<25s} {'Arm':>8s} {'SFric':>8s} {'DRat':>8s} {'DFric':>8s} {'VFric':>8s}")
     for i, name in enumerate(ARM_JOINT_NAMES):
         print(f"  {name:<25s} {arm[i]:8.4f} {sfric[i]:8.4f} {dratio[i]:8.4f} {dfric[i]:8.4f} {vfric[i]:8.4f}")
-    print(f"\n  Motor delay: {delay} steps ({delay*sim_dt*1000:.0f}ms at {1/sim_dt:.0f}Hz)")
+    print(f"\n  Motor delay: {delay} steps ({delay * sim_dt * 1000:.0f}ms at {1 / sim_dt:.0f}Hz)")
 
     final = {
         "best_params": best_params_ever,

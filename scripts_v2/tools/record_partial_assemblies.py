@@ -22,7 +22,10 @@ parser = argparse.ArgumentParser(description="Record partial assemblies for obje
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default="UW-FBLeg-PartialAssemblies-v0", help="Name of the task.")
 parser.add_argument(
-    "--dataset_dir", type=str, default="./Datasets/OmniReset/", help="Root Datasets/OmniReset/ directory."
+    "--dataset_dir",
+    type=str,
+    default="./Datasets/OmniReset_isaaclab3/",
+    help="Root Datasets/OmniReset_isaaclab3/ directory.",
 )
 parser.add_argument(
     "--num_trajectories", type=int, default=1, help="Number of physics trajectories to run for pose discovery."
@@ -196,7 +199,8 @@ def _save_poses_to_dataset(pose_batches: list, dataset_dir: str, pair_name: str)
     output_dir = os.path.join(dataset_dir, "Resets", pair_name)
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, "partial_assemblies.pt")
-    torch.save(all_poses, output_file)
+    # Stamp the quaternion convention; loaders refuse files without it.
+    torch.save({**all_poses, "quat_convention": "xyzw"}, output_file)
 
     print(f"Saved {len(all_poses['relative_position'])} poses to {output_file}")
 

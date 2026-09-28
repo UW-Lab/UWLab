@@ -42,7 +42,7 @@ HEBI_ARTICULATION = ArticulationCfg(
             enabled_self_collisions=False, solver_position_iteration_count=32, solver_velocity_iteration_count=1
         ),
     ),
-    init_state=ArticulationCfg.InitialStateCfg(rot=(0.7071068, 0, 0, 0.7071068), joint_pos=HEBI_DEFAULT_JOINTPOS),
+    init_state=ArticulationCfg.InitialStateCfg(rot=(0, 0, 0.7071068, 0.7071068), joint_pos=HEBI_DEFAULT_JOINTPOS),
     soft_joint_pos_limit_factor=1,
 )
 
@@ -75,7 +75,7 @@ FRAME_EE = FrameTransformerCfg(
             name="ee",
             offset=OffsetCfg(
                 pos=(0.0, 0.0, 0.0),
-                rot=(1.0, 0.0, 0.0, 0.0),
+                rot=(0.0, 0.0, 0.0, 1.0),
             ),
         ),
     ],

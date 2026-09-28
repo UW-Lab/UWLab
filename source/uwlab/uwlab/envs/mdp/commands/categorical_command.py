@@ -124,8 +124,8 @@ class CategoricalCommand(CommandTerm):
             return
         # get marker location
         # -- base state
-        base_pos_w = self.robot.data.root_pos_w.clone()
-        base_quat_w = self.robot.data.root_quat_w.clone()
+        base_pos_w = self.robot.data.root_pos_w.torch.clone()
+        base_quat_w = self.robot.data.root_quat_w.torch.clone()
         base_pos_w[:, 2] += 0.5
         # -- resolve the scales
         scale = self.command[:].repeat_interleave(3, 0).view(-1, 3)

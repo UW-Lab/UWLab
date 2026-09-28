@@ -59,12 +59,12 @@ class ee_asset_distance_tanh(ManagerTermBase):
         std: float = 0.1,
     ) -> torch.Tensor:
         root_asset_alignment_pos_w, root_asset_alignment_quat_w = self.root_asset_offset.combine(
-            self.root_asset.data.body_link_pos_w[:, root_asset_cfg.body_ids].view(-1, 3),
-            self.root_asset.data.body_link_quat_w[:, root_asset_cfg.body_ids].view(-1, 4),
+            self.root_asset.data.body_link_pos_w.torch[:, root_asset_cfg.body_ids].view(-1, 3),
+            self.root_asset.data.body_link_quat_w.torch[:, root_asset_cfg.body_ids].view(-1, 4),
         )
         if self.target_asset_offset is None:
-            target_asset_alignment_pos_w = self.target_asset.data.root_pos_w.view(-1, 3)
-            target_asset_alignment_quat_w = self.target_asset.data.root_quat_w.view(-1, 4)
+            target_asset_alignment_pos_w = self.target_asset.data.root_pos_w.torch.view(-1, 3)
+            target_asset_alignment_quat_w = self.target_asset.data.root_quat_w.torch.view(-1, 4)
         else:
             target_asset_alignment_pos_w, target_asset_alignment_quat_w = self.target_asset_offset.apply(
                 self.target_asset
@@ -112,7 +112,9 @@ class ProgressContext(ManagerTermBase):
 
     def reset(self, env_ids: torch.Tensor | None = None) -> None:
         super().reset(env_ids)
-        self.continuous_success_counter[:] = 0
+        if env_ids is None:
+            env_ids = slice(None)
+        self.continuous_success_counter[env_ids] = 0
 
     def __call__(
         self,

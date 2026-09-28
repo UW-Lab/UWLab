@@ -36,7 +36,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -45,29 +45,29 @@ Download our pretrained checkpoint and run evaluation.
                    env.scene.insertive_object=fbleg \
                    env.scene.receptive_object=fbtabletop
 
-         .. tab-item:: Seed 0
+         .. tab-item:: Seed 43
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed0.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
                    --num_envs 1 \
-                   --checkpoint leg_state_rl_expert_seed0.pt \
+                   --checkpoint leg_state_rl_expert_seed43.pt \
                    env.scene.insertive_object=fbleg \
                    env.scene.receptive_object=fbtabletop
 
-         .. tab-item:: Seed 1
+         .. tab-item:: Seed 44
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed1.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/leg_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
                    --num_envs 1 \
-                   --checkpoint leg_state_rl_expert_seed1.pt \
+                   --checkpoint leg_state_rl_expert_seed44.pt \
                    env.scene.insertive_object=fbleg \
                    env.scene.receptive_object=fbtabletop
 
@@ -88,7 +88,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -97,29 +97,29 @@ Download our pretrained checkpoint and run evaluation.
                    env.scene.insertive_object=fbdrawerbottom \
                    env.scene.receptive_object=fbdrawerbox
 
-         .. tab-item:: Seed 0
+         .. tab-item:: Seed 43
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed0.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
                    --num_envs 1 \
-                   --checkpoint drawer_state_rl_expert_seed0.pt \
+                   --checkpoint drawer_state_rl_expert_seed43.pt \
                    env.scene.insertive_object=fbdrawerbottom \
                    env.scene.receptive_object=fbdrawerbox
 
-         .. tab-item:: Seed 1
+         .. tab-item:: Seed 44
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed1.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/drawer_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
                    --num_envs 1 \
-                   --checkpoint drawer_state_rl_expert_seed1.pt \
+                   --checkpoint drawer_state_rl_expert_seed44.pt \
                    env.scene.insertive_object=fbdrawerbottom \
                    env.scene.receptive_object=fbdrawerbox
 
@@ -140,7 +140,7 @@ Download our pretrained checkpoint and run evaluation.
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed42.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed42.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
@@ -149,29 +149,29 @@ Download our pretrained checkpoint and run evaluation.
                    env.scene.insertive_object=peg \
                    env.scene.receptive_object=peghole
 
-         .. tab-item:: Seed 0
+         .. tab-item:: Seed 43
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed0.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed43.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
                    --num_envs 1 \
-                   --checkpoint peg_state_rl_expert_seed0.pt \
+                   --checkpoint peg_state_rl_expert_seed43.pt \
                    env.scene.insertive_object=peg \
                    env.scene.receptive_object=peghole
 
-         .. tab-item:: Seed 1
+         .. tab-item:: Seed 44
 
             .. code:: bash
 
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed1.pt
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/peg_state_rl_expert_seed44.pt
 
                python scripts/reinforcement_learning/rsl_rl/play.py \
                    --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
                    --num_envs 1 \
-                   --checkpoint peg_state_rl_expert_seed1.pt \
+                   --checkpoint peg_state_rl_expert_seed44.pt \
                    env.scene.insertive_object=peg \
                    env.scene.receptive_object=peghole
 
@@ -186,18 +186,53 @@ Download our pretrained checkpoint and run evaluation.
            </video>
          </div>
 
-      .. code:: bash
+      .. warning::
 
-         # Download checkpoint
-         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed0.pt
+         **Isaac Lab 3 regression:** Rectangle success stalls at 62-65%.
+         For now, use `UWLab v1.2.0 <https://github.com/UW-Lab/UWLab/tree/v1.2.0>`_
+         with Isaac Lab pinned to 2.x. Have a fix?
+         `Send a PR <https://github.com/UW-Lab/UWLab/pulls>`_. We'll take a look.
 
-         # Run evaluation
-         python scripts/reinforcement_learning/rsl_rl/play.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-             --num_envs 1 \
-             --checkpoint rectangle_state_rl_expert_seed0.pt \
-             env.scene.insertive_object=rectangle \
-             env.scene.receptive_object=wall
+      .. tab-set::
+
+         .. tab-item:: Seed 42
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed42.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint rectangle_state_rl_expert_seed42.pt \
+                   env.scene.insertive_object=rectangle \
+                   env.scene.receptive_object=wall
+
+         .. tab-item:: Seed 43
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed43.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint rectangle_state_rl_expert_seed43.pt \
+                   env.scene.insertive_object=rectangle \
+                   env.scene.receptive_object=wall
+
+         .. tab-item:: Seed 44
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/rectangle_state_rl_expert_seed44.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint rectangle_state_rl_expert_seed44.pt \
+                   env.scene.insertive_object=rectangle \
+                   env.scene.receptive_object=wall
 
    .. tab-item:: Cube Stacking
 
@@ -210,18 +245,46 @@ Download our pretrained checkpoint and run evaluation.
            </video>
          </div>
 
-      .. code:: bash
+      .. tab-set::
 
-         # Download checkpoint
-         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed42.pt
+         .. tab-item:: Seed 42
 
-         # Run evaluation
-         python scripts/reinforcement_learning/rsl_rl/play.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-             --num_envs 1 \
-             --checkpoint cube_state_rl_expert_seed42.pt \
-             env.scene.insertive_object=cube \
-             env.scene.receptive_object=cube
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed42.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint cube_state_rl_expert_seed42.pt \
+                   env.scene.insertive_object=cube \
+                   env.scene.receptive_object=cube
+
+         .. tab-item:: Seed 43
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed43.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint cube_state_rl_expert_seed43.pt \
+                   env.scene.insertive_object=cube \
+                   env.scene.receptive_object=cube
+
+         .. tab-item:: Seed 44
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cube_state_rl_expert_seed44.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint cube_state_rl_expert_seed44.pt \
+                   env.scene.insertive_object=cube \
+                   env.scene.receptive_object=cube
 
    .. tab-item:: Cupcake on Plate
 
@@ -234,18 +297,46 @@ Download our pretrained checkpoint and run evaluation.
            </video>
          </div>
 
-      .. code:: bash
+      .. tab-set::
 
-         # Download checkpoint
-         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed42.pt
+         .. tab-item:: Seed 42
 
-         # Run evaluation
-         python scripts/reinforcement_learning/rsl_rl/play.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-             --num_envs 1 \
-             --checkpoint cupcake_state_rl_expert_seed42.pt \
-             env.scene.insertive_object=cupcake \
-             env.scene.receptive_object=plate
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed42.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint cupcake_state_rl_expert_seed42.pt \
+                   env.scene.insertive_object=cupcake \
+                   env.scene.receptive_object=plate
+
+         .. tab-item:: Seed 43
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed43.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint cupcake_state_rl_expert_seed43.pt \
+                   env.scene.insertive_object=cupcake \
+                   env.scene.receptive_object=plate
+
+         .. tab-item:: Seed 44
+
+            .. code:: bash
+
+               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Policies/OmniReset/state_based_experts/cupcake_state_rl_expert_seed44.pt
+
+               python scripts/reinforcement_learning/rsl_rl/play.py \
+                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
+                   --num_envs 1 \
+                   --checkpoint cupcake_state_rl_expert_seed44.pt \
+                   env.scene.insertive_object=cupcake \
+                   env.scene.receptive_object=plate
 
 ----
 
@@ -282,8 +373,8 @@ The full OmniReset pipeline from custom task creation to real-robot deployment:
 
 - :doc:`new_task` -- Prepare USD assets, register object variants, verify in sim.
 - :doc:`rl_training` -- Collect reset states and train an RL policy from scratch. **Start here for most use cases.**
-- :doc:`sim2real` -- Robot calibration & USD, system identification, camera calibration, then ADR finetuning, or use our pre-finetuned checkpoints.
-- :doc:`distillation` -- Evaluate pretrained RGB checkpoints, or collect demos and train your own ResNet18-MLP vision policy. Deploy on real robot.
+- :doc:`sim2real` -- Robot calibration & USD, system identification, camera calibration, then ADR finetuning.
+- :doc:`distillation` -- Collect demos and train your own ResNet18-MLP vision policy. Deploy on real robot.
 
 .. toctree::
    :maxdepth: 1

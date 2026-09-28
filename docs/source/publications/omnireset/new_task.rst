@@ -16,6 +16,8 @@ In a single Blender session:
 2. Reorient so Z-axis points up when the object is resting on a table: ``Tab`` > Edit Mode, ``A`` to select all, rotate as needed (e.g. ``R X 90``).
 3. Set origin: right-click > Set Origin > Origin to Center of Mass (Volume).
 4. Place both objects in assembled pose, record the relative transform for ``assembled_pose`` to be used in Step 4.
+   Write its rotation as a quaternion in ``(x, y, z, w)`` order: Isaac Lab 3.0 changed the convention from
+   2.x's ``(w, x, y, z)``, so a quaternion written the old way is a different rotation, not an error.
 5. Export each object as ``.usdz``.
 
 .. raw:: html
@@ -89,6 +91,9 @@ The metadata has the following fields:
 
 - ``assembled_offset``: Transform from the insertive object to this object in the assembled pose. Always identity for the insertive object; for the receptive object, use the relative transform recorded in Step 1.
 - ``bottom_offset``: Transform from origin to the bottom of the object. The Z value is the **negative** of the script output from Step 3.
+- ``quat_convention``: Must be ``xyzw``. Since the Isaac Lab 3.0 bump, quaternions are ``(x, y, z, w)``
+  (identity is ``[0.0, 0.0, 0.0, 1.0]``, not ``[1.0, 0.0, 0.0, 0.0]``). UW Lab refuses metadata without this
+  key rather than silently applying a rotated offset.
 - ``success_thresholds`` (receptive only): How tightly the policy must align parts. Use ``position: 0.0025, orientation: 0.025`` for tight-fit tasks (e.g. screw insertion). For looser tasks (e.g. cube stacking), try ``position: 0.005, orientation: 0.05``. May need to tune depending on the task.
 
 **Insertive object** example:
@@ -97,10 +102,11 @@ The metadata has the following fields:
 
    assembled_offset:
      pos: [0.0, 0.0, 0.0]
-     quat: [1.0, 0.0, 0.0, 0.0]
+     quat: [0.0, 0.0, 0.0, 1.0]
    bottom_offset:
      pos: [0.0, 0.0, -0.056658]
-     quat: [1.0, 0.0, 0.0, 0.0]
+     quat: [0.0, 0.0, 0.0, 1.0]
+   quat_convention: xyzw
 
 **Receptive object** example:
 
@@ -108,13 +114,14 @@ The metadata has the following fields:
 
    assembled_offset:
      pos: [0.012, 0.0, 0.035]
-     quat: [1.0, 0.0, 0.0, 0.0]
+     quat: [0.0, 0.0, 0.0, 1.0]
    bottom_offset:
      pos: [0.0, 0.0, -0.010169]
-     quat: [1.0, 0.0, 0.0, 0.0]
+     quat: [0.0, 0.0, 0.0, 1.0]
    success_thresholds:
      position: 0.0025
      orientation: 0.025
+   quat_convention: xyzw
 
 ----
 
@@ -164,6 +171,9 @@ Add to ``variants["scene.receptive_object"]``:
 .. tip::
 
    Use local absolute paths during development. Switch to ``UWLAB_CLOUD_ASSETS_DIR`` when sharing.
+   Publish Isaac Lab 3.0 / Isaac Sim 6.1 assets on the ``isaaclab3`` branch of the asset repository
+   (``main`` holds the Isaac Lab 2.x files), then pin ``uwlab_assets.UWLAB_CLOUD_ASSETS_REVISION``
+   to a commit that contains them.
 
 ----
 
@@ -176,7 +186,7 @@ Step 6: Verify Setup
 
    python scripts_v2/tools/record_partial_assemblies.py \
        --task OmniReset-PartialAssemblies-v0 \
-       --num_envs 10 --num_trajectories 10 --headless \
+       --num_envs 10 --num_trajectories 10 --visualizer none \
        env.scene.insertive_object=my_insertive_object env.scene.receptive_object=my_receptive_object
 
 If objects are misaligned or upside down, revisit Step 1.
@@ -187,14 +197,14 @@ If objects are misaligned or upside down, revisit Step 1.
 
    python scripts_v2/tools/record_reset_states.py \
        --task OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
-       --num_envs 4 --num_reset_states 8 --headless \
+       --num_envs 4 --num_reset_states 8 --visualizer none \
        env.scene.insertive_object=my_insertive_object env.scene.receptive_object=my_receptive_object
 
 .. code:: bash
 
    python scripts_v2/tools/visualize_reset_states.py \
        --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-       --num_envs 4 --dataset_dir ./Datasets/OmniReset \
+       --num_envs 4 --dataset_dir ./Datasets/OmniReset_isaaclab3 \
        env.scene.insertive_object=my_insertive_object env.scene.receptive_object=my_receptive_object
 
 Confirm the receptive object sits flush on the table. If it's floating or clipping, adjust the ``bottom_offset`` in Step 4.

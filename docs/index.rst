@@ -28,7 +28,7 @@ deeply with our vision.
 
 
 LICENSE
-=======
+========
 
 The UW Lab framework is open-sourced under the BSD-3-Clause license.
 Please refer to :ref:`license` for more details.

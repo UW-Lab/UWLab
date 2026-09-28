@@ -45,9 +45,9 @@ class GraspRelativePoseRecorder(RecorderTerm):
         obj = self._env.scene[self.object_name]
 
         # Get object pose (root pose contains position and orientation)
-        obj_root_state = obj.data.root_state_w[env_ids]  # Shape: (num_envs, 13) - pos(3) + quat(4) + vel(6)
+        obj_root_state = obj.data.root_state_w.torch[env_ids]  # (num_envs, 13) - pos(3) + quat(4) + vel(6)
         obj_pos = obj_root_state[:, :3]  # Position
-        obj_quat = obj_root_state[:, 3:7]  # Quaternion (w, x, y, z)
+        obj_quat = obj_root_state[:, 3:7]
 
         # Get gripper body pose from the robot articulation
         # Find the gripper body index
@@ -58,14 +58,14 @@ class GraspRelativePoseRecorder(RecorderTerm):
                 break
 
         # Get specific body pose
-        gripper_pos = robot.data.body_state_w[env_ids, gripper_body_idx, :3]
-        gripper_quat = robot.data.body_state_w[env_ids, gripper_body_idx, 3:7]
+        gripper_pos = robot.data.body_state_w.torch[env_ids, gripper_body_idx, :3]
+        gripper_quat = robot.data.body_state_w.torch[env_ids, gripper_body_idx, 3:7]
 
         # Calculate relative transform: T_gripper_in_object = T_object^{-1} * T_gripper
         relative_pos, relative_quat = math_utils.subtract_frame_transforms(obj_pos, obj_quat, gripper_pos, gripper_quat)
 
         # Get gripper joint states as dict mapping joint names to positions
-        gripper_joint_pos = robot.data.joint_pos[env_ids].clone()
+        gripper_joint_pos = robot.data.joint_pos.torch[env_ids].clone()
         gripper_joint_dict = {joint_name: gripper_joint_pos[:, i] for i, joint_name in enumerate(robot.joint_names)}
 
         # Prepare data to record

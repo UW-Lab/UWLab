@@ -32,7 +32,7 @@ def reward_forward_velocity(
     """Reward tracking of linear velocity commands (xy axes) using exponential kernel."""
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
-    root_lin_vel_b = asset.data.root_lin_vel_b
+    root_lin_vel_b = asset.data.root_lin_vel_b.torch
     forward_velocity = root_lin_vel_b[:, 0]
     current_iter = int(env.common_step_counter / 48)
     distance = torch.norm(env.command_manager.get_command("goal_point")[:, :2], dim=1)
@@ -53,14 +53,14 @@ def air_time_reward(
     if contact_sensor.cfg.track_air_time is False:
         raise RuntimeError("Activate ContactSensor's track_air_time!")
     # compute the reward
-    current_air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
-    current_contact_time = contact_sensor.data.current_contact_time[:, sensor_cfg.body_ids]
+    current_air_time = contact_sensor.data.current_air_time.torch[:, sensor_cfg.body_ids]
+    current_contact_time = contact_sensor.data.current_contact_time.torch[:, sensor_cfg.body_ids]
 
     t_max = torch.max(current_air_time, current_contact_time)
     t_min = torch.clip(t_max, max=mode_time)
     stance_cmd_reward = torch.clip(current_contact_time - current_air_time, -mode_time, mode_time)
     distance = torch.norm(env.command_manager.get_command("goal_point")[:, :2], dim=1).unsqueeze(dim=1).expand(-1, 4)
-    body_vel = torch.linalg.norm(asset.data.root_com_lin_vel_b[:, :2], dim=1).unsqueeze(dim=1).expand(-1, 4)
+    body_vel = torch.linalg.norm(asset.data.root_com_lin_vel_b.torch[:, :2], dim=1).unsqueeze(dim=1).expand(-1, 4)
     reward = torch.where(
         torch.logical_or(distance > 0.4, body_vel > velocity_threshold),
         torch.where(t_max < mode_time, t_min, 0),
@@ -174,8 +174,8 @@ def air_time_variance_penalty(env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg
     if contact_sensor.cfg.track_air_time is False:
         raise RuntimeError("Activate ContactSensor's track_air_time!")
     # compute the reward
-    last_air_time = contact_sensor.data.last_air_time[:, sensor_cfg.body_ids]
-    last_contact_time = contact_sensor.data.last_contact_time[:, sensor_cfg.body_ids]
+    last_air_time = contact_sensor.data.last_air_time.torch[:, sensor_cfg.body_ids]
+    last_contact_time = contact_sensor.data.last_contact_time.torch[:, sensor_cfg.body_ids]
     return torch.var(torch.clip(last_air_time, max=0.5), dim=1) + torch.var(
         torch.clip(last_contact_time, max=0.5), dim=1
     )
@@ -190,9 +190,9 @@ def foot_slip_penalty(
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
 
     # check if contact force is above threshold
-    net_contact_forces = contact_sensor.data.net_forces_w_history
+    net_contact_forces = contact_sensor.data.net_forces_w_history.torch
     is_contact = torch.max(torch.norm(net_contact_forces[:, :, sensor_cfg.body_ids], dim=-1), dim=1)[0] > threshold
-    foot_planar_velocity = torch.linalg.norm(asset.data.body_com_lin_vel_w[:, asset_cfg.body_ids, :2], dim=2)
+    foot_planar_velocity = torch.linalg.norm(asset.data.body_com_lin_vel_w.torch[:, asset_cfg.body_ids, :2], dim=2)
 
     reward = is_contact * foot_planar_velocity
     return torch.sum(reward, dim=1)
@@ -205,6 +205,6 @@ def joint_position_penalty(
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     distance = torch.norm(env.command_manager.get_command("goal_point")[:, :2], dim=1)
-    body_vel = torch.linalg.norm(asset.data.root_lin_vel_b[:, :2], dim=1)
-    reward = torch.linalg.norm((asset.data.joint_pos - asset.data.default_joint_pos), dim=1)
+    body_vel = torch.linalg.norm(asset.data.root_lin_vel_b.torch[:, :2], dim=1)
+    reward = torch.linalg.norm((asset.data.joint_pos.torch - asset.data.default_joint_pos.torch), dim=1)
     return torch.where((distance > 0.4) | (body_vel > velocity_threshold), reward, stand_still_scale * reward)

@@ -35,7 +35,7 @@ XARM_LEAP_ARTICULATION = ArticulationCfg(
             enabled_self_collisions=True, solver_position_iteration_count=1, solver_velocity_iteration_count=0
         ),
     ),
-    init_state=ArticulationCfg.InitialStateCfg(pos=(0, 0, 0), rot=(1, 0, 0, 0), joint_pos=XARM_LEAP_DEFAULT_JOINT_POS),
+    init_state=ArticulationCfg.InitialStateCfg(pos=(0, 0, 0), rot=(0, 0, 0, 1), joint_pos=XARM_LEAP_DEFAULT_JOINT_POS),
     soft_joint_pos_limit_factor=1,
 )
 
@@ -77,7 +77,7 @@ FRAME_EE = FrameTransformerCfg(
             name="ee",
             offset=OffsetCfg(
                 pos=(-0.028, -0.04, -0.07),
-                rot=(1.0, 0.0, 0.0, 0.0),
+                rot=(0.0, 0.0, 0.0, 1.0),
             ),
         ),
     ],

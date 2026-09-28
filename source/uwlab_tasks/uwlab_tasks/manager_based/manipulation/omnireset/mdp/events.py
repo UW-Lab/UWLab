@@ -14,6 +14,7 @@ import torch
 import trimesh
 import trimesh.transformations as tra
 from collections.abc import Sequence
+from scipy.spatial.transform import Rotation as R
 
 import carb
 import isaaclab.sim as sim_utils
@@ -21,12 +22,17 @@ import isaaclab.utils.math as math_utils
 import omni.usd
 from isaaclab.assets import Articulation, RigidObject
 from isaaclab.controllers import DifferentialIKControllerCfg
-from isaaclab.envs import ManagerBasedEnv
+from isaaclab.envs import ManagerBasedEnv, ManagerBasedEnvCfg
 from isaaclab.envs.mdp.actions.task_space_actions import DifferentialInverseKinematicsAction
 from isaaclab.managers import EventTermCfg, ManagerTermBase, SceneEntityCfg
 from isaaclab.markers import VisualizationMarkers
 from isaaclab.markers.config import FRAME_MARKER_CFG
-from pxr import Gf, UsdGeom, UsdLux
+from isaaclab.sensors import CameraCfg
+from isaaclab_physx.renderers import IsaacRtxRendererCfg, IsaacRtxRendererGlobalSettingsCfg
+from isaaclab_physx.renderers.isaac_rtx_renderer_utils import apply_isaac_rtx_global_settings
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdLux, UsdShade
+
+from uwlab_assets.robots.ur5e_robotiq_gripper.kinematics import ARM_JOINT_NAMES
 
 from uwlab.envs.mdp.actions.actions_cfg import DifferentialInverseKinematicsActionCfg
 
@@ -34,6 +40,30 @@ from uwlab_tasks.manager_based.manipulation.omnireset.mdp import utils
 
 from ..assembly_keypoints import Offset
 from .success_monitor_cfg import SuccessMonitorCfg
+
+
+def apply_isaac_rtx_settings(
+    env: ManagerBasedEnv,
+    env_ids: torch.Tensor | None,
+    settings: IsaacRtxRendererGlobalSettingsCfg,
+):
+    """Apply process-global RTX settings during environment startup."""
+    if settings.antialiasing_mode is not None:
+        sim_utils.enable_extension("omni.replicator.core")
+    apply_isaac_rtx_global_settings(settings)
+
+
+def configure_isaac_rtx(env_cfg: ManagerBasedEnvCfg, **settings: bool | str):
+    """Preserve the task's renderer settings across the EA renderer API migration."""
+    global_settings = IsaacRtxRendererGlobalSettingsCfg(**settings)
+    env_cfg.events.render_settings = EventTermCfg(
+        func=apply_isaac_rtx_settings, mode="startup", params={"settings": global_settings}
+    )
+    for sensor_cfg in vars(env_cfg.scene).values():
+        if isinstance(sensor_cfg, CameraCfg):
+            sensor_cfg.renderer_cfg = IsaacRtxRendererCfg(
+                enable_scene_partitioning=False, global_settings=global_settings.copy()
+            )
 
 
 class grasp_sampling_event(ManagerTermBase):
@@ -141,7 +171,7 @@ class grasp_sampling_event(ManagerTermBase):
         stage = omni.usd.get_context().get_stage()
 
         # For multi-environment setups, we need to get the first environment's path
-        prim_path = asset.cfg.prim_path.replace(".*", "0", 1)
+        prim_path = utils.RigidObjectHasher.resolve_prim_paths(self._env.num_envs, asset.cfg.prim_path, stage=stage)[0]
 
         # Get the USD prim
         prim = stage.GetPrimAtPath(prim_path)
@@ -156,8 +186,6 @@ class grasp_sampling_event(ManagerTermBase):
         """Find the first mesh under a prim."""
         if prim.IsA(UsdGeom.Mesh):
             return UsdGeom.Mesh(prim)
-
-        from pxr import Usd
 
         for child in Usd.PrimRange(prim):
             if child.IsA(UsdGeom.Mesh):
@@ -326,8 +354,8 @@ class grasp_sampling_event(ManagerTermBase):
         """Apply grasp transform to gripper asset."""
         # Get object's current pose in world coordinates
         object_asset = env.scene[self.object_cfg.name]
-        object_pos = object_asset.data.root_pos_w[env_idx]
-        object_quat = object_asset.data.root_quat_w[env_idx]
+        object_pos = object_asset.data.root_pos_w.torch[env_idx]
+        object_quat = object_asset.data.root_quat_w.torch[env_idx]
 
         # Convert numpy transform matrix to torch tensors (object-local coordinates)
         transform_tensor = torch.tensor(grasp_transform, dtype=torch.float32, device=env.device)
@@ -341,20 +369,22 @@ class grasp_sampling_event(ManagerTermBase):
         )
 
         # Apply world transform to gripper asset for the specific environment
-        gripper_asset.data.root_pos_w[env_idx] = world_pos[0]
-        gripper_asset.data.root_quat_w[env_idx] = world_quat[0]
+        gripper_asset.data.root_pos_w.torch[env_idx] = world_pos[0]
+        gripper_asset.data.root_quat_w.torch[env_idx] = world_quat[0]
 
         # Write the new pose to simulation
         indices = torch.tensor([env_idx], device=env.device)
-        root_pose = torch.cat([gripper_asset.data.root_pos_w[indices], gripper_asset.data.root_quat_w[indices]], dim=-1)
+        root_pose = torch.cat(
+            [gripper_asset.data.root_pos_w.torch[indices], gripper_asset.data.root_quat_w.torch[indices]], dim=-1
+        )
         gripper_asset.write_root_pose_to_sim(root_pose, env_ids=indices)
 
     def _apply_grasp_transforms_vectorized(self, env, gripper_asset, grasp_transforms, env_ids):
         """Apply grasp transforms to gripper assets for multiple environments (vectorized)."""
         # Get object's current pose in world coordinates for all environments
         object_asset = env.scene[self.object_cfg.name]
-        object_pos = object_asset.data.root_pos_w[env_ids]
-        object_quat = object_asset.data.root_quat_w[env_ids]
+        object_pos = object_asset.data.root_pos_w.torch[env_ids]
+        object_quat = object_asset.data.root_quat_w.torch[env_ids]
 
         # Extract positions and quaternions from transform matrices (already tensors)
         local_positions = grasp_transforms[:, :3, 3]  # Extract translation
@@ -367,8 +397,8 @@ class grasp_sampling_event(ManagerTermBase):
         )
 
         # Apply world transforms to gripper assets (vectorized)
-        gripper_asset.data.root_pos_w[env_ids] = world_positions
-        gripper_asset.data.root_quat_w[env_ids] = world_quaternions
+        gripper_asset.data.root_pos_w.torch[env_ids] = world_positions
+        gripper_asset.data.root_quat_w.torch[env_ids] = world_quaternions
 
         # Write the new poses to simulation (single vectorized call)
         root_poses = torch.cat([world_positions, world_quaternions], dim=-1)
@@ -383,8 +413,8 @@ class grasp_sampling_event(ManagerTermBase):
         object_asset = env.scene[self.object_cfg.name]
 
         # Get object's current pose in world coordinates
-        object_pos = object_asset.data.root_pos_w[0]  # Use first environment
-        object_quat = object_asset.data.root_quat_w[0]  # Use first environment
+        object_pos = object_asset.data.root_pos_w.torch[0]  # Use first environment
+        object_quat = object_asset.data.root_quat_w.torch[0]  # Use first environment
 
         # Convert grasp transforms to poses and transform to world coordinates
         world_positions = []
@@ -414,7 +444,7 @@ class grasp_sampling_event(ManagerTermBase):
     def _open_gripper(self, env, gripper_asset, env_ids):
         """Open gripper to prepare for grasping."""
         # Get current joint positions
-        current_joint_pos = gripper_asset.data.joint_pos[env_ids].clone()
+        current_joint_pos = gripper_asset.data.joint_pos.torch[env_ids].clone()
 
         # Find joint indices using configurable joint names and positions
         joint_configs = []
@@ -443,13 +473,13 @@ class grasp_sampling_event(ManagerTermBase):
         gripper_asset.reset(env_ids)
 
         # 2. Reset to default root state (position and velocity)
-        default_root_state = gripper_asset.data.default_root_state[env_ids].clone()
+        default_root_state = gripper_asset.data.default_root_state.torch[env_ids].clone()
         default_root_state[:, 0:3] += env.scene.env_origins[env_ids]
         gripper_asset.write_root_state_to_sim(default_root_state, env_ids=env_ids)
 
         # 3. Reset all joints to default positions with zero velocities
-        default_joint_pos = gripper_asset.data.default_joint_pos[env_ids].clone()
-        zero_joint_vel = torch.zeros_like(gripper_asset.data.default_joint_vel[env_ids])
+        default_joint_pos = gripper_asset.data.default_joint_pos.torch[env_ids].clone()
+        zero_joint_vel = torch.zeros_like(gripper_asset.data.default_joint_vel.torch[env_ids])
         gripper_asset.write_joint_state_to_sim(default_joint_pos, zero_joint_vel, env_ids=env_ids)
 
         # 4. Set joint targets to default positions to prevent drift
@@ -561,8 +591,8 @@ class reset_end_effector_round_fixed_asset(ManagerTermBase):
             scale=1.0,
         )
         self.solver: DifferentialInverseKinematicsAction = robot_ik_solver_cfg.class_type(robot_ik_solver_cfg, env)  # type: ignore
-        self.reset_velocity = torch.zeros((env.num_envs, self.robot.data.joint_vel.shape[1]), device=env.device)
-        self.reset_position = torch.zeros((env.num_envs, self.robot.data.joint_pos.shape[1]), device=env.device)
+        self.reset_velocity = torch.zeros((env.num_envs, self.robot.data.joint_vel.torch.shape[1]), device=env.device)
+        self.reset_position = torch.zeros((env.num_envs, self.robot.data.joint_pos.torch.shape[1]), device=env.device)
 
     def __call__(
         self,
@@ -575,8 +605,8 @@ class reset_end_effector_round_fixed_asset(ManagerTermBase):
     ) -> None:
         if fixed_asset_offset is None:
             fixed_tip_pos_w, fixed_tip_quat_w = (
-                env.scene[fixed_asset_cfg.name].data.root_pos_w,
-                env.scene[fixed_asset_cfg.name].data.root_quat_w,
+                env.scene[fixed_asset_cfg.name].data.root_pos_w.torch,
+                env.scene[fixed_asset_cfg.name].data.root_quat_w.torch,
             )
         else:
             fixed_tip_pos_w, fixed_tip_quat_w = self.fixed_asset_offset.apply(self.fixed_asset)
@@ -587,16 +617,18 @@ class reset_end_effector_round_fixed_asset(ManagerTermBase):
         pos_w = fixed_tip_pos_w + samples[:, 0:3]
         quat_w = math_utils.quat_from_euler_xyz(samples[:, 3], samples[:, 4], samples[:, 5])
         pos_b, quat_b = math_utils.subtract_frame_transforms(
-            self.robot.data.root_link_pos_w, self.robot.data.root_link_quat_w, pos_w, quat_w
+            self.robot.data.root_link_pos_w.torch, self.robot.data.root_link_quat_w.torch, pos_w, quat_w
         )
         self.solver.process_actions(torch.cat([pos_b, quat_b], dim=1))
 
         # Error Rate 75% ^ 10 = 0.05 (final error)
         for i in range(10):
             self.solver.apply_actions()
-            delta_joint_pos = 0.25 * (self.robot.data.joint_pos_target[env_ids] - self.robot.data.joint_pos[env_ids])
+            delta_joint_pos = 0.25 * (
+                self.robot.data.joint_pos_target[env_ids] - self.robot.data.joint_pos.torch[env_ids]
+            )
             self.robot.write_joint_state_to_sim(
-                position=(delta_joint_pos + self.robot.data.joint_pos[env_ids])[:, self.joint_ids],
+                position=(delta_joint_pos + self.robot.data.joint_pos.torch[env_ids])[:, self.joint_ids],
                 velocity=torch.zeros((len(env_ids), self.n_joints), device=env.device),
                 joint_ids=self.joint_ids,
                 env_ids=env_ids,  # type: ignore
@@ -655,6 +687,7 @@ class reset_end_effector_from_grasp_dataset(ManagerTermBase):
         """Load Torch (.pt) grasp data and convert to optimized tensors."""
         local_path = utils.safe_retrieve_file_path(self.grasp_dataset_path)
         data = torch.load(local_path, map_location="cpu")
+        _require_isaaclab3_dataset(data, self.grasp_dataset_path)
 
         # TorchDatasetFileHandler stores nested dicts; grasp data likely under 'grasp_relative_pose'
         grasp_group = data.get("grasp_relative_pose", data)
@@ -719,8 +752,8 @@ class reset_end_effector_from_grasp_dataset(ManagerTermBase):
     ) -> None:
         """Apply grasp poses to reset end effector."""
         # RigidObject asset
-        object_pos_w = self.fixed_asset.data.root_pos_w[env_ids]
-        object_quat_w = self.fixed_asset.data.root_quat_w[env_ids]
+        object_pos_w = self.fixed_asset.data.root_pos_w.torch[env_ids]
+        object_quat_w = self.fixed_asset.data.root_quat_w.torch[env_ids]
 
         # Randomly sample grasp indices for each environment
         num_envs = len(env_ids)
@@ -759,9 +792,11 @@ class reset_end_effector_from_grasp_dataset(ManagerTermBase):
         # Solve IK iteratively for better convergence
         for i in range(25):
             self.solver.apply_actions()
-            delta_joint_pos = 0.25 * (self.robot.data.joint_pos_target[env_ids] - self.robot.data.joint_pos[env_ids])
+            delta_joint_pos = 0.25 * (
+                self.robot.data.joint_pos_target[env_ids] - self.robot.data.joint_pos.torch[env_ids]
+            )
             self.robot.write_joint_state_to_sim(
-                position=(delta_joint_pos + self.robot.data.joint_pos[env_ids])[:, self.joint_ids],
+                position=(delta_joint_pos + self.robot.data.joint_pos.torch[env_ids])[:, self.joint_ids],
                 velocity=torch.zeros((len(env_ids), self.n_joints), device=env.device),
                 joint_ids=self.joint_ids,
                 env_ids=env_ids,  # type: ignore
@@ -813,6 +848,7 @@ class reset_insertive_object_from_partial_assembly_dataset(ManagerTermBase):
         """Load Torch (.pt) partial assembly data and convert to optimized tensors."""
         local_path = utils.safe_retrieve_file_path(self.partial_assembly_dataset_path)
         data = torch.load(local_path, map_location="cpu")
+        _require_isaaclab3_dataset(data, self.partial_assembly_dataset_path)
 
         rel_pos = data.get("relative_position")
         rel_quat = data.get("relative_orientation")
@@ -845,8 +881,8 @@ class reset_insertive_object_from_partial_assembly_dataset(ManagerTermBase):
     ) -> None:
         """Reset the insertive object from a partial assembly dataset."""
         # Get receptive object pose (world coordinates)
-        receptive_pos_w = self.receptive_object.data.root_pos_w[env_ids]
-        receptive_quat_w = self.receptive_object.data.root_quat_w[env_ids]
+        receptive_pos_w = self.receptive_object.data.root_pos_w.torch[env_ids]
+        receptive_quat_w = self.receptive_object.data.root_quat_w.torch[env_ids]
 
         # Randomly sample partial assembly indices for each environment
         num_envs = len(env_ids)
@@ -906,10 +942,10 @@ class pose_logging_event(ManagerTermBase):
         """Collect pose data from all environments."""
 
         # Get object poses for all environments
-        receptive_pos = self.receptive_object.data.root_pos_w[env_ids]
-        receptive_quat = self.receptive_object.data.root_quat_w[env_ids]
-        insertive_pos = self.insertive_object.data.root_pos_w[env_ids]
-        insertive_quat = self.insertive_object.data.root_quat_w[env_ids]
+        receptive_pos = self.receptive_object.data.root_pos_w.torch[env_ids]
+        receptive_quat = self.receptive_object.data.root_quat_w.torch[env_ids]
+        insertive_pos = self.insertive_object.data.root_pos_w.torch[env_ids]
+        insertive_quat = self.insertive_object.data.root_quat_w.torch[env_ids]
 
         # Calculate relative transform
         relative_pos, relative_quat = math_utils.subtract_frame_transforms(
@@ -961,8 +997,8 @@ class assembly_sampling_event(ManagerTermBase):
         """Spawn insertive object at assembled offset position."""
 
         # Get receptive object poses
-        receptive_pos = self.receptive_object.data.root_pos_w[env_ids]
-        receptive_quat = self.receptive_object.data.root_quat_w[env_ids]
+        receptive_pos = self.receptive_object.data.root_pos_w.torch[env_ids]
+        receptive_quat = self.receptive_object.data.root_quat_w.torch[env_ids]
 
         # Apply receptive assembled offset to get target position
         target_pos, target_quat = self.receptive_assembled_offset.combine(receptive_pos, receptive_quat)
@@ -989,6 +1025,21 @@ class assembly_sampling_event(ManagerTermBase):
                 dim=-1,
             ),
             env_ids=env_ids,
+        )
+
+
+def _require_isaaclab3_dataset(data: dict, dataset_file: str) -> None:
+    """Refuse datasets that are not stamped with the Isaac Lab 3.0 quaternion convention.
+
+    Datasets recorded under Isaac Lab 2.x hold ``(w, x, y, z)`` quaternions; loading them
+    silently rotates every reset pose by 180 degrees about X. The converted datasets are published
+    as ``Datasets/OmniReset_isaaclab3`` on the ``isaaclab3`` branch of the cloud asset repository.
+    """
+    convention = data.pop("quat_convention", None)
+    if convention != "xyzw":
+        raise ValueError(
+            f"{dataset_file} is not an Isaac Lab 3.0 dataset (quat_convention={convention!r}, expected 'xyzw');"
+            " use Datasets/OmniReset_isaaclab3 from the isaaclab3 cloud asset branch"
         )
 
 
@@ -1026,6 +1077,7 @@ class MultiResetManager(ManagerTermBase):
                 raise FileNotFoundError(f"Dataset file {dataset_file} could not be accessed or downloaded.")
 
             dataset = torch.load(local_file_path)
+            _require_isaaclab3_dataset(dataset, dataset_file)
             num_states.append(len(dataset["initial_state"]["articulation"]["robot"]["joint_position"]))
             init_indices = torch.arange(num_states[-1], device=env.device)
             self.datasets.append(sample_state_data_set(dataset, init_indices, env.device))
@@ -1243,11 +1295,11 @@ class reset_root_states_uniform(ManagerTermBase):
                     torch.tensor(bottom_offset.get("pos"), device=env.device).unsqueeze(0).repeat(env.num_envs, 1)
                 )
                 assert tuple(bottom_offset.get("quat")) == (
+                    0.0,
+                    0.0,
+                    0.0,
                     1.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                ), "Bottom offset rotation must be (1.0, 0.0, 0.0, 0.0)"
+                ), "Bottom offset rotation must be identity"
 
     def __call__(
         self,
@@ -1279,14 +1331,14 @@ class reset_root_states_uniform(ManagerTermBase):
             asset: RigidObject | Articulation = env.scene[asset_cfg.name]
 
             # Get default root state for this asset
-            root_states = asset.data.default_root_state[env_ids].clone()
+            root_states = asset.data.default_root_state.torch[env_ids].clone()
 
             # Apply position offset
             positions = root_states[:, 0:3] + env.scene.env_origins[env_ids] + rand_pose_samples[:, 0:3]
 
             if self.offset_asset_cfg:
                 offset_asset: RigidObject | Articulation = env.scene[self.offset_asset_cfg.name]
-                offset_positions = offset_asset.data.default_root_state[env_ids].clone()
+                offset_positions = offset_asset.data.default_root_state.torch[env_ids].clone()
                 positions += offset_positions[:, 0:3]
 
             if self.use_bottom_offset:
@@ -1376,8 +1428,6 @@ class randomize_hdri(ManagerTermBase):
         # can map to the wrong schema attribute name depending on USD version.
         light_prim.GetAttribute("inputs:texture:file").Set(random_hdri)
         light_prim.GetAttribute("inputs:intensity").Set(float(intensity))
-
-        from scipy.spatial.transform import Rotation as R
 
         quat = R.random().as_quat()  # [x, y, z, w] scipy convention
         xformable = UsdGeom.Xformable(light_prim)
@@ -1483,6 +1533,27 @@ def randomize_camera_focal_length(
             focal_attr.Set(focal_length)
 
 
+def set_armature_from_sysid(env: ManagerBasedEnv, env_ids: torch.Tensor | None, asset_cfg: SceneEntityCfg) -> None:
+    """Set selected UR5e motor armatures [kg*m^2] from the robot's metadata.
+
+    Args:
+        env: Environment containing the robot.
+        env_ids: Environments to update, or all environments when None.
+        asset_cfg: Robot and joint-name selection for the calibrated motor inertia.
+    """
+    robot: Articulation = env.scene[asset_cfg.name]
+    metadata = utils.read_metadata_from_usd_directory(robot.cfg.spawn.usd_path)
+    nominal = metadata["sysid"]["armature"]
+    if len(nominal) != len(ARM_JOINT_NAMES):
+        raise ValueError("Expected one calibrated armature for each UR5e arm joint.")
+    joint_ids, joint_names = robot.find_joints(asset_cfg.joint_names)
+    values = torch.tensor(
+        [nominal[ARM_JOINT_NAMES.index(name)] for name in joint_names], device=robot.device, dtype=torch.float32
+    )
+    count = env.num_envs if env_ids is None else len(env_ids)
+    robot.write_joint_armature_to_sim_index(armature=values.repeat(count, 1), joint_ids=joint_ids, env_ids=env_ids)
+
+
 class randomize_arm_from_sysid(ManagerTermBase):
     """Randomize arm joint dynamics around sysid nominal values.
 
@@ -1490,8 +1561,9 @@ class randomize_arm_from_sysid(ManagerTermBase):
     next to the robot USD.  ``scale_range = (lo, hi)`` scales each nominal:
     ``nominal * uniform(lo, hi)`` per env per joint.
 
-    When used with ADR, ``scale_progress`` (0→1) linearly interpolates armature,
-    friction, and motor delay from 0 to the full sysid-randomized values.
+    When used with ADR, ``scale_progress`` (0 to 1) interpolates armature from
+    its startup value [kg*m^2] to the randomized calibration. Friction and motor
+    delay retain their zero-to-calibrated ramp.
     """
 
     def __init__(self, cfg: EventTermCfg, env: ManagerBasedEnv):
@@ -1509,8 +1581,9 @@ class randomize_arm_from_sysid(ManagerTermBase):
         self.dynamic_ratio = sysid["dynamic_ratio"]
         self.viscous_friction = sysid["viscous_friction"]
 
-        # ADR progress: 0 = armature/friction are 0, 1 = full sysid randomization
+        # ADR progress: 0 = startup armature and zero friction, 1 = full sysid randomization
         self.scale_progress: float = cfg.params.get("initial_scale_progress", 0.0)
+        self._initial_armature: torch.Tensor | None = None
 
     def __call__(
         self,
@@ -1535,16 +1608,18 @@ class randomize_arm_from_sysid(ManagerTermBase):
             val = torch.as_tensor(nominal, device=device, dtype=torch.float32)
             return val * (lo + torch.rand(N, n_joints, device=device) * (hi - lo))
 
-        # Armature and friction: scaled by ADR progress (0 → sysid)
-        arm_vals = _scale(self.armature) * p
+        # Armature and friction: interpolate from the startup model to sysid
+        if self._initial_armature is None:
+            self._initial_armature = self.robot.data.joint_armature.torch[:, self.joint_ids].clone()
+        arm_vals = self._initial_armature[env_ids] * (1.0 - p) + _scale(self.armature) * p
         sfric_vals = _scale(self.static_friction) * p
         dratio_vals = _scale(self.dynamic_ratio) * p
         dfric_vals = torch.minimum(dratio_vals * sfric_vals, sfric_vals)
         vfric_vals = _scale(self.viscous_friction) * p
 
-        self.robot.write_joint_armature_to_sim(arm_vals, joint_ids=self.joint_ids, env_ids=env_ids)
-        self.robot.write_joint_friction_coefficient_to_sim(
-            sfric_vals,
+        self.robot.write_joint_armature_to_sim_index(armature=arm_vals, joint_ids=self.joint_ids, env_ids=env_ids)
+        self.robot.write_joint_friction_coefficient_to_sim_index(
+            joint_friction_coeff=sfric_vals,
             joint_dynamic_friction_coeff=dfric_vals,
             joint_viscous_friction_coeff=vfric_vals,
             joint_ids=self.joint_ids,
@@ -1633,10 +1708,12 @@ class randomize_gripper_from_sysid(ManagerTermBase):
         gripper_actuator = self.robot.actuators[self.actuator_name]
         gripper_actuator.stiffness[env_ids] = stiff_vals
         gripper_actuator.damping[env_ids] = damp_vals
-        self.robot.write_joint_stiffness_to_sim(stiff_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids)
-        self.robot.write_joint_damping_to_sim(damp_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids)
-        self.robot.write_joint_armature_to_sim(arm_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids)
-        self.robot.write_joint_friction_coefficient_to_sim(fric_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids)
+        self.robot.write_joint_stiffness_to_sim_index(stiff_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids)
+        self.robot.write_joint_damping_to_sim_index(damp_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids)
+        self.robot.write_joint_armature_to_sim_index(arm_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids)
+        self.robot.write_joint_friction_coefficient_to_sim_index(
+            fric_vals, joint_ids=self.gripper_joint_ids, env_ids=env_ids
+        )
 
 
 class randomize_rel_cartesian_osc_gains(ManagerTermBase):
@@ -1739,7 +1816,7 @@ class adr_sysid_curriculum(ManagerTermBase):
 
     Monitors the mean success rate from ``MultiResetManager``'s ``SuccessMonitor``
     and linearly ramps the ``scale_progress`` attribute of the target event terms
-    from 0 (no friction/armature) to 1 (full sysid randomization).
+    from 0 (startup dynamics) to 1 (full sysid randomization).
 
     Updates are gated by ``update_every_n_steps`` (env steps via ``common_step_counter``)
     to ensure the update rate is independent of the number of environments.
@@ -1933,7 +2010,7 @@ class obs_noise_curriculum(ManagerTermBase):
     """Curriculum that gradually increases uniform noise on observation terms.
 
     Monitors success rate and linearly ramps the half-range on the specified
-    observation terms' ``AdditiveUniformNoiseCfg`` from ``initial_half_range``
+    observation terms' ``UniformNoiseCfg`` from ``initial_half_range``
     to ``target_half_range`` as progress goes from 0 to 1.  At full progress
     the noise is U(-target_half_range, +target_half_range).
     """
@@ -1964,7 +2041,7 @@ class obs_noise_curriculum(ManagerTermBase):
             cfg = name_to_cfg[name]
             if cfg.noise is None:
                 raise ValueError(
-                    f"Obs term '{name}' has no noise config. Set noise=AdditiveUniformNoiseCfg(n_min=0.0, n_max=0.0)."
+                    f"Obs term '{name}' has no noise config. Set noise=UniformNoiseCfg(n_min=0.0, n_max=0.0)."
                 )
             self._obs_term_cfgs.append(cfg)
 
@@ -2047,7 +2124,7 @@ class randomize_visual_appearance_multiple_meshes(ManagerTermBase):
         """Initialize the randomization term."""
         super().__init__(cfg, env)
 
-        from isaacsim.core.utils.extensions import enable_extension
+        from isaaclab.sim.utils import enable_extension
 
         enable_extension("omni.replicator.core")
         import omni.replicator.core as rep
@@ -2158,8 +2235,6 @@ class randomize_visual_appearance_multiple_meshes(ManagerTermBase):
         self._texture_verified = False
 
         # Cache shader prims for direct USD access (avoids Replicator pipeline race conditions)
-        from pxr import Sdf, UsdShade
-
         self._shader_prims = []
         for i, mat_prim in enumerate(self.material_prims):
             mat_path = str(mat_prim.GetPath()) if hasattr(mat_prim, "GetPath") else str(mat_prim)
@@ -2180,6 +2255,11 @@ class randomize_visual_appearance_multiple_meshes(ManagerTermBase):
             "reflection_roughness_constant": Sdf.ValueTypeNames.Float,
             "metallic_constant": Sdf.ValueTypeNames.Float,
             "specular_level": Sdf.ValueTypeNames.Float,
+            # Isaac Sim 6 material templates do not author these until first use; USD 25.11
+            # refuses Set() on an untyped attribute, so create them up front too.
+            "diffuse_texture": Sdf.ValueTypeNames.Asset,
+            "diffuse_tint": Sdf.ValueTypeNames.Color3f,
+            "diffuse_color_constant": Sdf.ValueTypeNames.Color3f,
         }
         for shader_prim in self._shader_prims:
             shader = UsdShade.Shader(shader_prim)
@@ -2219,8 +2299,6 @@ class randomize_visual_appearance_multiple_meshes(ManagerTermBase):
     ):
         if not self._shader_prims:
             return
-
-        from pxr import Sdf
 
         rng = self.texture_rng.generator
         num_prims = len(self._shader_prims)

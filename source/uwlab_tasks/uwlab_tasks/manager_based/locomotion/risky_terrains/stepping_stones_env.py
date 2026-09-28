@@ -20,7 +20,8 @@ from isaaclab.sensors import ContactSensorCfg, RayCasterCfg, patterns
 from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
-from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+from isaaclab.utils.noise import UniformNoiseCfg as Unoise
+from isaaclab_physx.physics import PhysxCfg
 
 import uwlab_tasks.manager_based.locomotion.risky_terrains.mdp as mdp
 
@@ -336,10 +337,12 @@ class SteppingStoneLocomotionEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.render_interval = self.decimation
         self.sim.disable_contact_processing = True
         self.sim.physics_material = self.scene.terrain.physics_material
-        self.sim.physx.gpu_total_aggregate_pairs_capacity = 2**24
-        self.sim.physx.gpu_found_lost_pairs_capacity = 2**24
-        self.sim.physx.gpu_collision_stack_size = 2**27
-        self.sim.physx.gpu_max_rigid_patch_count = 6 * 2**15
+        if self.sim.physics is None:
+            self.sim.physics = PhysxCfg()
+        self.sim.physics.gpu_total_aggregate_pairs_capacity = 2**24
+        self.sim.physics.gpu_found_lost_pairs_capacity = 2**24
+        self.sim.physics.gpu_collision_stack_size = 2**27
+        self.sim.physics.gpu_max_rigid_patch_count = 6 * 2**15
 
         self.viewer.resolution = (1920, 1080)
 

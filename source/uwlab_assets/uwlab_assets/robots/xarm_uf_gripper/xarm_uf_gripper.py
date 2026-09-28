@@ -37,7 +37,7 @@ XARM_UF_GRIPPER_ARTICULATION = ArticulationCfg(
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0, 0, 0), rot=(1, 0, 0, 0), joint_pos=XARM_UF_GRIPPER_DEFAULT_JOINT_POS
+        pos=(0, 0, 0), rot=(0, 0, 0, 1), joint_pos=XARM_UF_GRIPPER_DEFAULT_JOINT_POS
     ),
     soft_joint_pos_limit_factor=1,
 )

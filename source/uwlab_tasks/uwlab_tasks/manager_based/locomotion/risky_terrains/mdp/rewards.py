@@ -17,8 +17,8 @@ def joint_vel_limit_pen(
     env: ManagerBasedRLEnv, robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"), limits_factor: float = 0.9
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    joint_vel = robot.data.joint_vel[:, robot_cfg.joint_ids]
-    joint_vel_limit = robot.data.soft_joint_vel_limits[:, robot_cfg.joint_ids]
+    joint_vel = robot.data.joint_vel.torch[:, robot_cfg.joint_ids]
+    joint_vel_limit = robot.data.soft_joint_vel_limits.torch[:, robot_cfg.joint_ids]
     return torch.sum((joint_vel.abs() - limits_factor * joint_vel_limit).clamp_min_(0), dim=-1)
 
 
@@ -28,8 +28,8 @@ def base_accel_pen(
     ratio: float = 0.02,
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    base_angle_accel = robot.data.body_ang_acc_w[:, robot_cfg.body_ids].norm(2, dim=-1).pow(2)
-    base_lin_accel = robot.data.body_lin_acc_w[:, robot_cfg.body_ids].norm(2, dim=-1).pow(2)
+    base_angle_accel = robot.data.body_ang_acc_w.torch[:, robot_cfg.body_ids].norm(2, dim=-1).pow(2)
+    base_lin_accel = robot.data.body_lin_acc_w.torch[:, robot_cfg.body_ids].norm(2, dim=-1).pow(2)
     return (base_lin_accel + ratio * base_angle_accel).squeeze(-1)
 
 
@@ -38,7 +38,7 @@ def feet_accel_l1_pen(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot", body_names=".*FOOT"),
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    feet_acc = robot.data.body_lin_acc_w[:, robot_cfg.body_ids].norm(2, dim=-1)
+    feet_acc = robot.data.body_lin_acc_w.torch[:, robot_cfg.body_ids].norm(2, dim=-1)
     return torch.sum(feet_acc, dim=-1)
 
 
@@ -46,7 +46,7 @@ def contact_forces_pen(
     env: ManagerBasedRLEnv, threshold: float = 700, sensor_cfg: SceneEntityCfg = SceneEntityCfg("contact_sensor")
 ):
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    net_contact_forces = contact_sensor.data.net_forces_w_history
+    net_contact_forces = contact_sensor.data.net_forces_w_history.torch
     force = torch.norm(net_contact_forces[:, 0, sensor_cfg.body_ids], dim=-1)
     return torch.clamp(force - threshold, 0, threshold).pow(2).sum(-1)
 
@@ -80,7 +80,7 @@ def dont_wait(
 ):
     robot: Articulation = env.scene[robot_cfg.name]
     dist_to_goal = env.command_manager.get_command("target_cmd")[:, :2].norm(2, -1)
-    return (dist_to_goal > d).float() * (robot.data.root_lin_vel_w.norm(2, -1) < velocity_threshold).float()
+    return (dist_to_goal > d).float() * (robot.data.root_lin_vel_w.torch.norm(2, -1) < velocity_threshold).float()
 
 
 def move_in_dir(
@@ -89,7 +89,7 @@ def move_in_dir(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    lin_vel_b = robot.data.root_lin_vel_b[:, :2]
+    lin_vel_b = robot.data.root_lin_vel_b.torch[:, :2]
     target_dir = env.command_manager.get_command("target_cmd")[:, :2]
     current_iter = int(env.common_step_counter / 48)
     return torch.cosine_similarity(lin_vel_b, target_dir, dim=-1) * float(current_iter < max_iter)
@@ -97,7 +97,9 @@ def move_in_dir(
 
 def foot_on_ground(env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, d: float = 0.25, tr: float = 1.0):
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    foot_on_ground_rew = 1 - torch.tanh(contact_sensor.data.current_air_time[:, sensor_cfg.body_ids].sum(-1) / 0.5)
+    foot_on_ground_rew = 1 - torch.tanh(
+        contact_sensor.data.current_air_time.torch[:, sensor_cfg.body_ids].sum(-1) / 0.5
+    )
 
     distance_succ_mask = (env.command_manager.get_command("target_cmd")[:, :2].norm(2, -1)) < d
     rew_window_scaler = (
@@ -120,7 +122,9 @@ def stand_still(
     tr: float = 1.0,
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    movement_penalty = 2.5 * robot.data.root_lin_vel_w.norm(2, -1) + 1.0 * robot.data.root_ang_vel_w.norm(2, -1)
+    movement_penalty = 2.5 * robot.data.root_lin_vel_w.torch.norm(2, -1) + 1.0 * robot.data.root_ang_vel_w.torch.norm(
+        2, -1
+    )
 
     heading_succ_mask = (env.command_manager.get_command("target_cmd")[:, 3].abs()) < phi
     distance_succ_mask = (env.command_manager.get_command("target_cmd")[:, :2].norm(2, -1)) < d
@@ -138,7 +142,7 @@ def stand_still(
 
 def illegal_contact_penalty(env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg):
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    net_contact_forces = contact_sensor.data.net_forces_w_history
+    net_contact_forces = contact_sensor.data.net_forces_w_history.torch
     # check if any contact force exceeds the threshold
     return torch.any(
         torch.max(torch.norm(net_contact_forces[:, :, sensor_cfg.body_ids], dim=-1), dim=1)[0] > threshold, dim=1
@@ -221,7 +225,7 @@ def aggressive_motion(
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ):
     robot: Articulation = env.scene[robot_cfg.name]
-    horizontal_velocity = robot.data.root_lin_vel_w[:, :2].norm(2, -1)
+    horizontal_velocity = robot.data.root_lin_vel_w.torch[:, :2].norm(2, -1)
     return (horizontal_velocity - threshold).pow(2) * (horizontal_velocity > threshold).float()
 
 
@@ -236,7 +240,10 @@ def stand_pos(
 ):
     robot: Articulation = env.scene[robot_cfg.name]
     return (
-        ((robot.data.root_pos_w[:, -1] - base_height).abs() + robot.data.projected_gravity_b[:, :2].pow(2).sum(-1))
+        (
+            (robot.data.root_pos_w.torch[:, -1] - base_height).abs()
+            + robot.data.projected_gravity_b.torch[:, :2].pow(2).sum(-1)
+        )
         * ((env.command_manager.get_command("target_cmd")[:, :2].norm(2, -1)) < d).float()
         * (
             1
@@ -257,7 +264,7 @@ def torque_limits(
     ratio: float = 1.0,
 ) -> torch.Tensor:
     asset: Articulation = env.scene[asset_cfg.name]
-    computed_torque = asset.data.computed_torque[:, asset_cfg.joint_ids].abs()  # shape: [batch, joint]
+    computed_torque = asset.data.computed_torque.torch[:, asset_cfg.joint_ids].abs()  # shape: [batch, joint]
     limits = ratio * asset.actuators.get(actuator_name).effort_limit
     out_of_limits = torch.clamp(computed_torque - limits, min=0)
     return torch.sum(out_of_limits, dim=1)
@@ -270,8 +277,8 @@ def torque_limits_knee(
     env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), ratio: float = 1.0
 ) -> torch.Tensor:
     asset: Articulation = env.scene[asset_cfg.name]
-    computed_torque = asset.data.computed_torque[:, asset_cfg.joint_ids]  # shape: [batch, joint]
-    applied_torque = asset.data.applied_torque[:, asset_cfg.joint_ids]
+    computed_torque = asset.data.computed_torque.torch[:, asset_cfg.joint_ids]  # shape: [batch, joint]
+    applied_torque = asset.data.applied_torque.torch[:, asset_cfg.joint_ids]
     out_of_limits = ratio * (computed_torque - applied_torque).abs()
     return torch.sum(out_of_limits, dim=1)
 
@@ -288,7 +295,7 @@ def reward_forward_velocity(
     """Reward tracking of linear velocity commands (xy axes) using exponential kernel."""
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
-    root_lin_vel_b = asset.data.root_lin_vel_b
+    root_lin_vel_b = asset.data.root_lin_vel_b.torch
     forward_velocity = root_lin_vel_b * torch.tensor(forward_vector, device=env.device, dtype=root_lin_vel_b.dtype)
     forward_reward = torch.sum(forward_velocity, dim=1)
     current_iter = int(env.common_step_counter / 48)
@@ -311,14 +318,14 @@ def air_time_reward(
     if contact_sensor.cfg.track_air_time is False:
         raise RuntimeError("Activate ContactSensor's track_air_time!")
     # compute the reward
-    current_air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
-    current_contact_time = contact_sensor.data.current_contact_time[:, sensor_cfg.body_ids]
+    current_air_time = contact_sensor.data.current_air_time.torch[:, sensor_cfg.body_ids]
+    current_contact_time = contact_sensor.data.current_contact_time.torch[:, sensor_cfg.body_ids]
 
     t_max = torch.max(current_air_time, current_contact_time)
     t_min = torch.clip(t_max, max=mode_time)
     stance_cmd_reward = torch.clip(current_contact_time - current_air_time, -mode_time, mode_time)
     # cmd = torch.norm(env.command_manager.get_command("base_velocity"), dim=1).unsqueeze(dim=1).expand(-1, 4)
-    body_vel = torch.linalg.norm(asset.data.root_com_lin_vel_b[:, :2], dim=1).unsqueeze(dim=1).expand(-1, 4)
+    body_vel = torch.linalg.norm(asset.data.root_com_lin_vel_b.torch[:, :2], dim=1).unsqueeze(dim=1).expand(-1, 4)
     distance = torch.norm(env.command_manager.get_command("target_cmd")[:, :2], dim=1)
     reward = torch.where(
         (distance > 0.4) & (body_vel > velocity_threshold),
@@ -435,8 +442,8 @@ def joint_position_penalty(
     """Penalize joint position error from default on the articulation."""
     asset: Articulation = env.scene[asset_cfg.name]
     distance = torch.norm(env.command_manager.get_command("target_cmd")[:, :2], dim=1)
-    body_vel = torch.linalg.norm(asset.data.root_lin_vel_b[:, :2], dim=1)
-    reward = torch.linalg.norm((asset.data.joint_pos - asset.data.default_joint_pos), dim=1)
+    body_vel = torch.linalg.norm(asset.data.root_lin_vel_b.torch[:, :2], dim=1)
+    reward = torch.linalg.norm((asset.data.joint_pos.torch - asset.data.default_joint_pos.torch), dim=1)
     return torch.where(
         torch.logical_or(distance > 0.4, body_vel > velocity_threshold), reward, stand_still_scale * reward
     )

@@ -1,6 +1,21 @@
 Changelog
 ---------
 
+0.2.0 (2026-09-28)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Migrated to the official UW-Lab RSL-RL 5.4.1 release (``uw-v5.4.1``), using separate
+  actor and critic models with Isaac Lab 3.0 Early Access, Isaac Sim 6.1 and Python 3.12.
+* Updated JIT export to support heteroscedastic Gaussian policies and their distributions.
+
+Run ``./uwlab.sh --install`` to install the pinned dependencies and use the compatible
+checkpoints linked in the OmniReset quick start. Use ``isaaclab2`` / ``v1.3.0`` for
+legacy RSL-RL 3.x callers, including the combined ``ActorCritic`` interface.
+
+
 0.1.4 (2026-09-14)
 ~~~~~~~~~~~~~~~~~~
 

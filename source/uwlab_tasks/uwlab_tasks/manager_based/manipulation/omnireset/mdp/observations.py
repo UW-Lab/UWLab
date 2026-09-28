@@ -7,6 +7,7 @@ import torch
 import torch.nn.functional as F
 
 import isaaclab.utils.math as math_utils
+import warp as wp
 from isaaclab.assets import Articulation, RigidObject
 from isaaclab.envs import ManagerBasedEnv, ManagerBasedRLEnv
 from isaaclab.managers import ManagerTermBase, ObservationTermCfg, SceneEntityCfg
@@ -30,10 +31,10 @@ def target_asset_pose_in_root_asset_frame(
     target_body_idx = 0 if isinstance(target_asset_cfg.body_ids, slice) else target_asset_cfg.body_ids
     root_body_idx = 0 if isinstance(root_asset_cfg.body_ids, slice) else root_asset_cfg.body_ids
 
-    target_pos = target_asset.data.body_link_pos_w[:, target_body_idx].view(-1, 3)
-    target_quat = target_asset.data.body_link_quat_w[:, target_body_idx].view(-1, 4)
-    root_pos = root_asset.data.body_link_pos_w[:, root_body_idx].view(-1, 3)
-    root_quat = root_asset.data.body_link_quat_w[:, root_body_idx].view(-1, 4)
+    target_pos = target_asset.data.body_link_pos_w.torch[:, target_body_idx].view(-1, 3)
+    target_quat = target_asset.data.body_link_quat_w.torch[:, target_body_idx].view(-1, 4)
+    root_pos = root_asset.data.body_link_pos_w.torch[:, root_body_idx].view(-1, 3)
+    root_quat = root_asset.data.body_link_quat_w.torch[:, root_body_idx].view(-1, 4)
 
     if root_asset_offset is not None:
         root_pos, root_quat = root_asset_offset.combine(root_pos, root_quat)
@@ -102,10 +103,10 @@ class target_asset_pose_in_root_asset_frame_with_metadata(ManagerTermBase):
         target_body_idx = 0 if isinstance(self.target_asset_cfg.body_ids, slice) else self.target_asset_cfg.body_ids
         root_body_idx = 0 if isinstance(self.root_asset_cfg.body_ids, slice) else self.root_asset_cfg.body_ids
 
-        target_pos = self.target_asset.data.body_link_pos_w[:, target_body_idx].view(-1, 3)
-        target_quat = self.target_asset.data.body_link_quat_w[:, target_body_idx].view(-1, 4)
-        root_pos = self.root_asset.data.body_link_pos_w[:, root_body_idx].view(-1, 3)
-        root_quat = self.root_asset.data.body_link_quat_w[:, root_body_idx].view(-1, 4)
+        target_pos = self.target_asset.data.body_link_pos_w.torch[:, target_body_idx].view(-1, 3)
+        target_quat = self.target_asset.data.body_link_quat_w.torch[:, target_body_idx].view(-1, 4)
+        root_pos = self.root_asset.data.body_link_pos_w.torch[:, root_body_idx].view(-1, 3)
+        root_quat = self.root_asset.data.body_link_quat_w.torch[:, root_body_idx].view(-1, 4)
 
         if self.root_asset_offset is not None:
             root_pos, root_quat = self.root_asset_offset.combine(root_pos, root_quat)
@@ -133,26 +134,42 @@ def asset_link_velocity_in_root_asset_frame(
 
     target_body_idx = 0 if isinstance(target_asset_cfg.body_ids, slice) else target_asset_cfg.body_ids
 
-    asset_lin_vel_b, _ = math_utils.subtract_frame_transforms(
-        root_asset.data.root_pos_w,
-        root_asset.data.root_quat_w,
-        target_asset.data.body_lin_vel_w[:, target_body_idx].view(-1, 3),
+    root_quat_w = root_asset.data.root_quat_w.torch
+
+    asset_lin_vel_b = math_utils.quat_apply_inverse(
+        root_quat_w,
+        target_asset.data.body_lin_vel_w.torch[:, target_body_idx].view(-1, 3),
     )
-    asset_ang_vel_b, _ = math_utils.subtract_frame_transforms(
-        root_asset.data.root_pos_w,
-        root_asset.data.root_quat_w,
-        target_asset.data.body_ang_vel_w[:, target_body_idx].view(-1, 3),
+    asset_ang_vel_b = math_utils.quat_apply_inverse(
+        root_quat_w,
+        target_asset.data.body_ang_vel_w.torch[:, target_body_idx].view(-1, 3),
     )
 
     return torch.cat([asset_lin_vel_b, asset_ang_vel_b], dim=1)
+
+
+def _as_torch(value) -> torch.Tensor:
+    """Return ``value`` as a torch tensor.
+
+    Isaac Lab 3.0 hands back warp-backed data from both asset ``.data`` properties
+    (as :class:`ProxyArray`) and physics view accessors (as raw ``wp.array``).
+    Neither supports torch instance methods such as ``view()`` -- ``wp.array.view()``
+    is a dtype reinterpret with a different signature -- so convert explicitly.
+    """
+    if hasattr(value, "torch"):  # ProxyArray
+        return value.torch
+    if isinstance(value, wp.array):
+        return wp.to_torch(value)
+    return value
 
 
 def get_material_properties(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
 ):
+    """Per-shape (static friction, dynamic friction, restitution), flattened."""
     asset: RigidObject | Articulation = env.scene[asset_cfg.name]
-    return asset.root_physx_view.get_material_properties().view(env.num_envs, -1)
+    return _as_torch(asset.root_view.get_material_properties()).view(env.num_envs, -1)
 
 
 def get_mass(
@@ -160,7 +177,7 @@ def get_mass(
     asset_cfg: SceneEntityCfg,
 ):
     asset: RigidObject | Articulation = env.scene[asset_cfg.name]
-    return asset.root_physx_view.get_masses().view(env.num_envs, -1)
+    return _as_torch(asset.root_view.get_masses()).view(env.num_envs, -1)
 
 
 def get_joint_friction(
@@ -168,7 +185,7 @@ def get_joint_friction(
     asset_cfg: SceneEntityCfg,
 ):
     asset: RigidObject | Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_friction_coeff.view(env.num_envs, -1)
+    return asset.data.joint_friction_coeff.torch.view(env.num_envs, -1)
 
 
 def get_joint_armature(
@@ -176,7 +193,7 @@ def get_joint_armature(
     asset_cfg: SceneEntityCfg,
 ):
     asset: RigidObject | Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_armature.view(env.num_envs, -1)
+    return asset.data.joint_armature.torch.view(env.num_envs, -1)
 
 
 def get_joint_stiffness(
@@ -184,7 +201,7 @@ def get_joint_stiffness(
     asset_cfg: SceneEntityCfg,
 ):
     asset: RigidObject | Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_stiffness.view(env.num_envs, -1)
+    return asset.data.joint_stiffness.torch.view(env.num_envs, -1)
 
 
 def get_joint_damping(
@@ -192,7 +209,7 @@ def get_joint_damping(
     asset_cfg: SceneEntityCfg,
 ):
     asset: RigidObject | Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_damping.view(env.num_envs, -1)
+    return asset.data.joint_damping.torch.view(env.num_envs, -1)
 
 
 def time_left(env) -> torch.Tensor:
@@ -275,27 +292,26 @@ def process_image(
 
 def binary_force_contact(
     env: ManagerBasedEnv,
-    asset_cfg: SceneEntityCfg,
+    sensor_cfg: SceneEntityCfg = SceneEntityCfg("joint_wrench"),
     body_name: str = "wrist_3_link",
     force_threshold: float = 25.0,
 ) -> torch.Tensor:
-    """Binary contact detection from force norm at a body.
+    """Binary contact detection from the incoming joint force norm at a body.
 
-    Reads body_incoming_joint_wrench_b, computes ||F|| from the force
-    components (first 3), and returns 1.0 if above threshold, else 0.0.
+    Reads the force reported by a :class:`~isaaclab.sensors.JointWrenchSensor` on the
+    robot, computes ||F|| and returns 1.0 if above threshold, else 0.0.
 
     Args:
         env: The environment.
-        asset_cfg: Scene entity config for the robot articulation.
-        body_name: Name of the body to read wrench from.
+        sensor_cfg: Scene entity config for the joint-wrench sensor on the robot.
+        body_name: Name of the body to read the wrench from.
         force_threshold: Force norm threshold (N) for contact detection.
 
     Returns:
         Tensor of shape (num_envs, 1): 1.0 if contact, 0.0 otherwise.
     """
-    robot: Articulation = env.scene[asset_cfg.name]
-    body_idx = robot.body_names.index(body_name)
-    wrench_b = robot.data.body_incoming_joint_wrench_b[:, body_idx, :]  # (N, 6)
-    force_norm = torch.norm(wrench_b[:, :3], dim=-1)  # (N,)
+    sensor = env.scene.sensors[sensor_cfg.name]
+    body_idx = sensor.find_bodies(body_name)[0][0]
+    force_norm = torch.norm(sensor.data.force.torch[:, body_idx], dim=-1)  # (N,)
     contact = (force_norm > force_threshold).float()
     return contact.unsqueeze(-1)  # (N, 1)

@@ -160,7 +160,7 @@ class ViewportCameraController:
         # set origin type to asset_root
         self.cfg.origin_type = "asset_root"
         # update the camera origins
-        self.viewer_origin = self._env.scene[self.cfg.asset_name].data.root_pos_w[self.cfg.env_index]
+        self.viewer_origin = self._env.scene[self.cfg.asset_name].data.root_pos_w.torch[self.cfg.env_index]
         # update the camera view
         self.update_view_location()
 
@@ -193,7 +193,9 @@ class ViewportCameraController:
         # set origin type to asset_body
         self.cfg.origin_type = "asset_body"
         # update the camera origins
-        self.viewer_origin = self._env.scene[self.cfg.asset_name].data.body_pos_w[self.cfg.env_index, body_id].view(3)
+        self.viewer_origin = (
+            self._env.scene[self.cfg.asset_name].data.body_pos_w.torch[self.cfg.env_index, body_id].view(3)
+        )
         # update the camera view
         self.update_view_location()
 

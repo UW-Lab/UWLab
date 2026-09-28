@@ -32,7 +32,7 @@ LEAP_ARTICULATION = ArticulationCfg(
         ),
         joint_drive_props=sim_utils.JointDrivePropertiesCfg(drive_type="force"),
     ),
-    init_state=ArticulationCfg.InitialStateCfg(pos=(0, 0, 0), rot=(1, 0, 0, 0), joint_pos=LEAP_DEFAULT_JOINT_POS),
+    init_state=ArticulationCfg.InitialStateCfg(pos=(0, 0, 0), rot=(0, 0, 0, 1), joint_pos=LEAP_DEFAULT_JOINT_POS),
     soft_joint_pos_limit_factor=1,
 )
 
@@ -67,7 +67,7 @@ FRAME_EE = FrameTransformerCfg(
             name="ee",
             offset=OffsetCfg(
                 pos=(-0.028, -0.04, -0.07),
-                rot=(1.0, 0.0, 0.0, 0.0),
+                rot=(0.0, 0.0, 0.0, 1.0),
             ),
         ),
     ],

@@ -43,50 +43,6 @@ install_system_deps() {
     fi
 }
 
-# Returns success (exit code 0 / "true") if the detected Isaac Sim version starts with 4.5,
-# otherwise returns non-zero ("false"). Works with both symlinked binary installs and pip installs.
-is_isaacsim_version_4_5() {
-    local version=""
-    local python_exe
-    python_exe=$(extract_python_exe)
-
-    # 0) Fast path: read VERSION file from the symlinked _isaac_sim directory (binary install)
-    # If the repository has _isaac_sim → <IsaacSimRoot> symlink, the VERSION file is the simplest source of truth.
-    if [[ -f "${UWLAB_PATH}/_isaac_sim/VERSION" ]]; then
-        # Read first line of the VERSION file; don't fail the whole script on errors.
-        version=$(head -n1 "${UWLAB_PATH}/_isaac_sim/VERSION" || true)
-    fi
-
-    # 1) Package-path probe: import isaacsim and walk up to ../../VERSION (pip or nonstandard layouts)
-    # If we still don't know the version, ask Python where the isaacsim package lives
-    if [[ -z "$version" ]]; then
-        local sim_file=""
-        # Print isaacsim.__file__; suppress errors so set -e won't abort.
-        sim_file=$("${python_exe}" -c 'import isaacsim, os; print(isaacsim.__file__)' 2>/dev/null || true)
-        if [[ -n "$sim_file" ]]; then
-            local version_path
-            version_path="$(dirname "$sim_file")/../../VERSION"
-            # If that VERSION file exists, read it.
-            [[ -f "$version_path" ]] && version=$(head -n1 "$version_path" || true)
-        fi
-    fi
-
-    # 2) Fallback: use package metadata via importlib.metadata.version("isaacsim")
-    if [[ -z "$version" ]]; then
-        version=$("${python_exe}" <<'PY' 2>/dev/null || true
-from importlib.metadata import version, PackageNotFoundError
-try:
-    print(version("isaacsim"))
-except PackageNotFoundError:
-    pass
-PY
-)
-    fi
-
-    # Final decision: return success if version begins with "4.5", 0 if match, 1 otherwise.
-    [[ "$version" == 4.5* ]]
-}
-
 # check if running in docker
 is_docker() {
     [ -f /.dockerenv ] || \
@@ -111,12 +67,17 @@ ensure_cuda_torch() {
     # choose pins per arch
     local torch_ver tv_ver cuda_ver
     if is_arm; then
-        torch_ver="2.9.0"
-        tv_ver="0.24.0"
+        torch_ver="2.11.0"
+        tv_ver="0.26.0"
         cuda_ver="130"
     else
-        torch_ver="2.7.0"
-        tv_ver="0.22.0"
+        # isaacsim-core 6.1 (Isaac Lab 3.0) requires torch==2.11.0. Its default
+        # PyPI wheel is built against CUDA 13.0 and silently yields
+        # torch.cuda.is_available() == False on CUDA 12.x drivers, so this pin is
+        # re-applied after the Isaac Lab install below (the +cu128 suffix check
+        # catches the swap). Bump together with ISAACLAB_COMMIT.
+        torch_ver="2.11.0"
+        tv_ver="0.26.0"
         cuda_ver="128"
     fi
 
@@ -356,20 +317,7 @@ setup_conda_env() {
         echo -e "[INFO] Creating conda environment named '${env_name}'..."
         echo -e "[INFO] Installing dependencies from ${UWLAB_PATH}/environment.yml"
 
-        # patch Python version if needed, but back up first
-        cp "${UWLAB_PATH}/environment.yml"{,.bak}
-        if is_isaacsim_version_4_5; then
-            echo "[INFO] Detected Isaac Sim 4.5 → forcing python=3.10"
-            sed -i 's/^  - python=3\.11/  - python=3.10/' "${UWLAB_PATH}/environment.yml"
-        else
-            echo "[INFO] Isaac Sim >= 5.0 detected, installing python=3.11"
-        fi
-
         conda env create -y --file ${UWLAB_PATH}/environment.yml -n ${env_name}
-        # (optional) restore original environment.yml:
-        if [[ -f "${UWLAB_PATH}/environment.yml.bak" ]]; then
-            mv "${UWLAB_PATH}/environment.yml.bak" "${UWLAB_PATH}/environment.yml"
-        fi
     fi
 
     # cache current paths for later
@@ -582,23 +530,85 @@ while [[ $# -gt 0 ]]; do
             export -f extract_pip_command
             export -f extract_pip_uninstall_command
             export -f install_uwlab_extension
-            # --- NEW: install upstream isaaclab (GitHub main, editable) ---
-            echo "[INFO] Installing upstream IsaacLab packages from GitHub (main) in editable mode into ${UWLAB_PATH}/_isaaclab ..."
+            # --- install upstream isaaclab (pinned commit, editable) ---
+            #
+            # Pinned, not tracking main: Isaac Lab and rsl-rl-lib move together
+            # (isaaclab_rl's cfg schema follows the rsl-rl API), so the commit here
+            # and the rsl-rl-lib commit in source/uwlab_rl/setup.py must be bumped
+            # as a pair. Override for experiments with UWLAB_ISAACLAB_COMMIT=<sha>.
+            ISAACLAB_COMMIT="${UWLAB_ISAACLAB_COMMIT:-ae37b028ea415c91ea2bc32609efcd759ed2b974}"  # 3.0.0-EA
+            echo "[INFO] Installing upstream IsaacLab (pinned ${ISAACLAB_COMMIT:0:9}) in editable mode into ${UWLAB_PATH}/_isaaclab ..."
             repo_root="${UWLAB_PATH}/_isaaclab/IsaacLab"
             mkdir -p "${UWLAB_PATH}/_isaaclab"
             if [ ! -d "${repo_root}/.git" ]; then
-                echo "[INFO] Cloning IsaacLab repository (branch: main) into ${repo_root} ..."
-                git clone --depth 1 --branch main https://github.com/isaac-sim/IsaacLab.git "${repo_root}"
+                echo "[INFO] Initializing IsaacLab repository at ${repo_root} ..."
+                git init -q "${repo_root}"
+                git -C "${repo_root}" remote add origin https://github.com/isaac-sim/IsaacLab.git
+            elif [ -n "$(git -C "${repo_root}" status --porcelain)" ]; then
+                echo "[ERROR] IsaacLab checkout has local changes; refusing to replace them."
+                exit 1
             else
-                echo "[INFO] Found existing IsaacLab clone at ${repo_root}; using it."
+                echo "[INFO] Found existing IsaacLab clone at ${repo_root}; checking out the pin."
             fi
-            ${pip_command} -e "${repo_root}/source/isaaclab" --extra-index-url https://pypi.nvidia.com
-            ${pip_command} -e "${repo_root}/source/isaaclab_assets" --extra-index-url https://pypi.nvidia.com
-            ${pip_command} -e "${repo_root}/source/isaaclab_tasks" --extra-index-url https://pypi.nvidia.com
-            ${pip_command} -e "${repo_root}/source/isaaclab_rl[all]" --extra-index-url https://pypi.nvidia.com
+            git -C "${repo_root}" fetch -q --depth 1 origin "${ISAACLAB_COMMIT}"
+            git -C "${repo_root}" checkout -q --detach FETCH_HEAD
+
+            # Fail here rather than at the first training run: uwlab_rl targets the
+            # rsl-rl-lib >= 5.0 API, whose Isaac Lab side is recognisable by the
+            # `optimizer` field on RslRlPpoAlgorithmCfg.
+            if ! grep -q '^    optimizer' \
+                "${repo_root}/source/isaaclab_rl/isaaclab_rl/rsl_rl/rl_cfg.py" 2>/dev/null; then
+                echo "[ERROR] Pinned IsaacLab (${ISAACLAB_COMMIT:0:9}) predates rsl-rl-lib 5.0 (no 'optimizer' field in"
+                echo "[ERROR] RslRlPpoAlgorithmCfg) but source/uwlab_rl/setup.py targets the 5.0+ API. Bump both pins together."
+                exit 1
+            fi
+            # Isaac Lab 3.0 splits the core into per-backend packages; isaaclab
+            # imports isaaclab_physx/isaaclab_newton/isaaclab_ov at runtime, so all
+            # of them are required even for a single-backend install.
+            requirements_file=$(mktemp)
+            "${python_exe}" - "${repo_root}" "${UWLAB_PATH}" "${2:-all}" > "${requirements_file}" <<'PY'
+import platform
+import re
+import sys
+import tomllib
+from pathlib import Path
+
+isaaclab_root, uwlab_root = (Path(value).resolve() for value in sys.argv[1:3])
+framework = sys.argv[3].replace("_", "-")
+metadata = tomllib.loads((isaaclab_root / "pyproject.toml").read_text())
+project = metadata["project"]
+sources = metadata["tool"]["uv"]["sources"]
+requirements = list(project["dependencies"])
+for extra in ("isaacsim", "video"):
+    requirements.extend(project["optional-dependencies"][extra])
+if framework not in ("all", "none", "rsl-rl"):
+    requirements.extend(project["optional-dependencies"][framework])
+for requirement in dict.fromkeys(requirements):
+    name = re.match(r"[A-Za-z0-9_.-]+", requirement).group().replace("_", "-").lower()
+    source = sources.get(name)
+    if isinstance(source, dict) and "path" in source:
+        print("-e " + (isaaclab_root / source["path"]).resolve().as_uri())
+    else:
+        print(requirement)
+for extension in sorted((uwlab_root / "source").iterdir()):
+    if not (extension / "setup.py").is_file():
+        continue
+    extra = ""
+    if extension.name == "uwlab_rl" and framework != "none":
+        extra = f"[{framework}]"
+    if extension.name == "uwlab_tasks" and platform.machine() == "x86_64":
+        extra = "[collision]"
+    print("-e " + extension.as_uri() + extra)
+PY
+            ${pip_command} -r "${requirements_file}" --extra-index-url https://pypi.nvidia.com
+            rm "${requirements_file}"
             echo "[INFO] Upstream IsaacLab packages installed (editable) from local clone at ${repo_root}."
             # source directory
             find -L "${UWLAB_PATH}/source" -mindepth 1 -maxdepth 1 -type d -exec bash -c 'install_uwlab_extension "{}"' \;
+            # collision analyzer (dataset generation) needs pytorch3d; prebuilt wheels exist for linux x86_64 only
+            if [ "$(uname -m)" = "x86_64" ]; then
+                ${pip_command} -e "${UWLAB_PATH}/source/uwlab_tasks[collision]"
+            fi
             # install the python packages for supported reinforcement learning frameworks
             echo "[INFO] Installing extra requirements such as learning frameworks..."
             # check if specified which rl-framework to install

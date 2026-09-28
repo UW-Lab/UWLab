@@ -24,7 +24,7 @@ IKDELTA: DifferentialInverseKinematicsActionCfg = DifferentialInverseKinematicsA
     body_name="static_chop_tip",
     controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=True, ik_method="dls"),
     scale=0.05,
-    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(1.0, 0.0, 0, 0)),
+    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(0.0, 0.0, 0.0, 1.0)),
 )
 
 
@@ -34,7 +34,7 @@ IKABSOLUTE: DifferentialInverseKinematicsActionCfg = DifferentialInverseKinemati
     body_name="static_chop_tip",  # Do not work if this is not end_effector
     controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
     scale=1,
-    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(1, 0, 0, 0)),
+    body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(0, 0, 0, 1)),
 )
 
 

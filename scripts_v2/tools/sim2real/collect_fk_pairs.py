@@ -119,12 +119,12 @@ def main():
             obs, _, _, _, _ = env.step(zero_action)
 
         # Read all envs at once
-        joint_pos = robot.data.joint_pos[:, :6].cpu().numpy()  # (N, 6)
-        ee_pos_w = robot.data.body_link_pos_w[:, ee_idx]  # (N, 3)
-        ee_quat_w = robot.data.body_link_quat_w[:, ee_idx]  # (N, 4)
+        joint_pos = robot.data.joint_pos.torch[:, :6].cpu().numpy()  # (N, 6)
+        ee_pos_w = robot.data.body_link_pos_w.torch[:, ee_idx]  # (N, 3)
+        ee_quat_w = robot.data.body_link_quat_w.torch[:, ee_idx]  # (N, 4)
         ee_pos_b, ee_quat_b = math_utils.subtract_frame_transforms(
-            robot.data.root_pos_w,
-            robot.data.root_quat_w,
+            robot.data.root_pos_w.torch,
+            robot.data.root_quat_w.torch,
             ee_pos_w,
             ee_quat_w,
         )
@@ -132,10 +132,11 @@ def main():
 
         all_joint_pos.append(joint_pos)
         all_ee_pos.append(ee_pos_b.cpu().numpy())
-        all_ee_quat.append(ee_quat_b.cpu().numpy())
+        # diffusion_policy's FK code (test_fk_comparison.py) uses (w, x, y, z)
+        all_ee_quat.append(math_utils.convert_quat(ee_quat_b, to="wxyz").cpu().numpy())
         all_ee_aa.append(ee_aa_b.cpu().numpy())
 
-        print(f"  Reset {r+1}/{args_cli.num_resets}: collected {len(joint_pos)} pairs")
+        print(f"  Reset {r + 1}/{args_cli.num_resets}: collected {len(joint_pos)} pairs")
 
     all_joint_pos = np.concatenate(all_joint_pos, axis=0)
     all_ee_pos = np.concatenate(all_ee_pos, axis=0)

@@ -21,7 +21,7 @@ parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument(
     "--dataset_dir",
     type=str,
-    default="./Datasets/OmniReset",
+    default="./Datasets/OmniReset_isaaclab3",
     help="Base dataset directory (contains Resets/<Pair>/ subdirectories).",
 )
 parser.add_argument(
@@ -35,8 +35,9 @@ parser.add_argument("--reset_interval", type=float, default=0.1, help="Time inte
 AppLauncher.add_app_launcher_args(parser)
 args_cli, remaining_args = parser.parse_known_args()
 
-# launch omniverse app
-app_launcher = AppLauncher(headless=args_cli.headless)
+# launch omniverse app -- pass the whole namespace: forwarding only `headless` parses
+# the other AppLauncher flags (--viz, --device, --enable_cameras, ...) and drops them.
+app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 
 """Rest everything else."""
