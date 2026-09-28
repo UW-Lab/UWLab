@@ -1,5 +1,5 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -12,7 +12,7 @@ PhysX. This helps perform parallelized computation of the inverse kinematics.
 .. code-block:: bash
 
     # Usage
-    ./isaaclab.sh -p scripts/tutorials/05_controllers/run_diff_ik.py
+    uv run python scripts/tutorials/05_controllers/run_diff_ik.py
 
 """
 
@@ -46,8 +46,8 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.markers import VisualizationMarkers
 from isaaclab.markers.config import FRAME_MARKER_CFG
 from isaaclab.scene import InteractiveScene, InteractiveSceneCfg
+from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
-from isaaclab.utils.configclass import configclass
 from isaaclab.utils.math import subtract_frame_transforms
 
 ##

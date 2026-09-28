@@ -1,5 +1,5 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -9,7 +9,7 @@ This script demonstrates how to create a rigid object and interact with it.
 .. code-block:: bash
 
     # Usage
-    ./isaaclab.sh -p scripts/tutorials/01_assets/run_rigid_object.py
+    uv run python scripts/tutorials/01_assets/run_rigid_object.py
 
 """
 

@@ -1,5 +1,5 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -9,7 +9,7 @@ This script demonstrates the FrameTransformer sensor by visualizing the frames t
 .. code-block:: bash
 
     # Usage
-    ./isaaclab.sh -p scripts/tutorials/04_sensors/run_frame_transformer.py --viz kit
+    uv run python scripts/tutorials/04_sensors/run_frame_transformer.py --viz kit
 
 """
 
@@ -36,7 +36,7 @@ import math
 
 import torch
 
-from isaacsim.core.experimental.utils.app import enable_extension
+from isaaclab.sim.utils import enable_extension
 
 enable_extension("isaacsim.util.debug_draw")
 

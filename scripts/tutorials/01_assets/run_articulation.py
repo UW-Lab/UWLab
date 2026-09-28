@@ -1,5 +1,5 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -8,7 +8,7 @@
 .. code-block:: bash
 
     # Usage
-    ./isaaclab.sh -p scripts/tutorials/01_assets/run_articulation.py
+    uv run python scripts/tutorials/01_assets/run_articulation.py
 
 """
 
@@ -110,7 +110,7 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
         # -- generate random joint efforts
         efforts = torch.randn_like(robot.data.joint_pos.torch) * 5.0
         # -- apply action to the robot
-        robot.set_joint_effort_target_index(target=efforts)
+        robot.actuators.target_command.set_effort_index(value=efforts)
         # -- write data to sim
         robot.write_data_to_sim()
         # Perform step

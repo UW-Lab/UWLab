@@ -1,5 +1,5 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -8,7 +8,7 @@
 .. code-block:: bash
 
     # Usage
-    ./isaaclab.sh -p scripts/tutorials/01_assets/run_surface_gripper.py --device=cpu
+    uv run python scripts/tutorials/01_assets/run_surface_gripper.py --device=cpu
 
 When running this script make sure the --device flag is set to cpu. This is because the surface gripper is
 currently only supported on the CPU.
