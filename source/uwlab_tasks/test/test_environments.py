@@ -19,11 +19,15 @@ import importlib
 import math
 import torch
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
 from env_test_utils import _run_environments, setup_environment
+from isaaclab.assets import BaseArticulation, BaseRigidObject, BaseRigidObjectCollection
 from isaaclab.managers import EventManager, ObservationManager, ObservationTermCfg, SceneEntityCfg
 from isaaclab.sensors import CameraCfg
+from isaaclab.sim.utils import find_matching_prim_paths, get_all_matching_child_prims
+from pxr import Usd, UsdGeom, UsdPhysics
 
 import uwlab_tasks  # noqa: F401
 
@@ -180,9 +184,6 @@ def test_progress_context_reset_is_per_environment(env_ids, expected):
 @pytest.mark.parametrize("pattern", ["/World/envs/env_.*/Object", "/World/envs/env_[^/]+/Object"])
 @pytest.mark.isaacsim_ci
 def test_collision_asset_paths_and_frames(monkeypatch, pattern):
-    from isaaclab.sim.utils import find_matching_prim_paths, get_all_matching_child_prims
-    from pxr import Usd, UsdGeom, UsdPhysics
-
     module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.rigid_object_hasher")
     stage = Usd.Stage.CreateInMemory()
     for index in (10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11):
@@ -218,10 +219,6 @@ def test_collision_asset_paths_and_frames(monkeypatch, pattern):
 @pytest.mark.parametrize("object_kind", ["rigid", "collection"])
 @pytest.mark.isaacsim_ci
 def test_dataset_success_requires_backend_asset_stability(term_name, object_kind):
-    from unittest.mock import Mock
-
-    from isaaclab.assets import BaseArticulation, BaseRigidObject, BaseRigidObjectCollection
-
     module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.terminations")
     positions = torch.tensor([[0.0, 0.0, 0.1]]).repeat(4, 1)
     quaternions = torch.tensor([[0.0, 0.0, 0.0, 1.0]]).repeat(4, 1)
@@ -331,8 +328,6 @@ def test_omnireset_published_expert_robot_defaults(contract):
 
 @pytest.mark.isaacsim_ci
 def test_sysid_armature_startup_selects_wrist_joints(monkeypatch):
-    from isaaclab.managers import SceneEntityCfg
-
     module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.events")
     names = [
         "shoulder_pan_joint",

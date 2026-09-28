@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.14.9 (2026-09-28)
+~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Moved required OmniReset helper imports to module scope while retaining deferred
+  imports for optional collision dependencies and extension-dependent features.
+  No task configuration or caller changes are required.
+
+
 0.14.8 (2026-09-27)
 ~~~~~~~~~~~~~~~~~~~
 

@@ -14,6 +14,7 @@ import torch
 import trimesh
 import trimesh.transformations as tra
 from collections.abc import Sequence
+from scipy.spatial.transform import Rotation as R
 
 import carb
 import isaaclab.sim as sim_utils
@@ -28,7 +29,8 @@ from isaaclab.markers import VisualizationMarkers
 from isaaclab.markers.config import FRAME_MARKER_CFG
 from isaaclab.sensors import CameraCfg
 from isaaclab_physx.renderers import IsaacRtxRendererCfg, IsaacRtxRendererGlobalSettingsCfg
-from pxr import Gf, UsdGeom, UsdLux
+from isaaclab_physx.renderers.isaac_rtx_renderer_utils import apply_isaac_rtx_global_settings
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdLux, UsdShade
 
 from uwlab_assets.robots.ur5e_robotiq_gripper.kinematics import ARM_JOINT_NAMES
 
@@ -46,8 +48,6 @@ def apply_isaac_rtx_settings(
     settings: IsaacRtxRendererGlobalSettingsCfg,
 ):
     """Apply process-global RTX settings during environment startup."""
-    from isaaclab_physx.renderers.isaac_rtx_renderer_utils import apply_isaac_rtx_global_settings
-
     if settings.antialiasing_mode is not None:
         sim_utils.enable_extension("omni.replicator.core")
     apply_isaac_rtx_global_settings(settings)
@@ -186,8 +186,6 @@ class grasp_sampling_event(ManagerTermBase):
         """Find the first mesh under a prim."""
         if prim.IsA(UsdGeom.Mesh):
             return UsdGeom.Mesh(prim)
-
-        from pxr import Usd
 
         for child in Usd.PrimRange(prim):
             if child.IsA(UsdGeom.Mesh):
@@ -1431,8 +1429,6 @@ class randomize_hdri(ManagerTermBase):
         light_prim.GetAttribute("inputs:texture:file").Set(random_hdri)
         light_prim.GetAttribute("inputs:intensity").Set(float(intensity))
 
-        from scipy.spatial.transform import Rotation as R
-
         quat = R.random().as_quat()  # [x, y, z, w] scipy convention
         xformable = UsdGeom.Xformable(light_prim)
         xformable.ClearXformOpOrder()
@@ -2239,8 +2235,6 @@ class randomize_visual_appearance_multiple_meshes(ManagerTermBase):
         self._texture_verified = False
 
         # Cache shader prims for direct USD access (avoids Replicator pipeline race conditions)
-        from pxr import Sdf, UsdShade
-
         self._shader_prims = []
         for i, mat_prim in enumerate(self.material_prims):
             mat_path = str(mat_prim.GetPath()) if hasattr(mat_prim, "GetPath") else str(mat_prim)
@@ -2305,8 +2299,6 @@ class randomize_visual_appearance_multiple_meshes(ManagerTermBase):
     ):
         if not self._shader_prims:
             return
-
-        from pxr import Sdf
 
         rng = self.texture_rng.generator
         num_prims = len(self._shader_prims)

@@ -12,9 +12,11 @@ import os
 import random
 import shutil
 import tempfile
+import time
 import torch
 import trimesh
 import yaml
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from functools import lru_cache
 from pathlib import PurePosixPath
@@ -28,7 +30,7 @@ from isaaclab.utils.seed import configure_seed
 from isaaclab.utils.warp import convert_to_warp_mesh
 from pxr import UsdGeom
 
-from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
+from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR, _extract_relative_path, resolve_cloud_path
 
 from .rigid_object_hasher import RigidObjectHasher
 
@@ -354,8 +356,6 @@ def safe_retrieve_file_path(url: str, download_dir: str | None = None) -> str:
     handles download + persistent caching.  Nucleus (``omniverse://``)
     paths still fall back to Isaac Lab's :func:`retrieve_file_path`.
     """
-    from uwlab_assets import resolve_cloud_path
-
     if url.startswith(("http://", "https://")) or os.path.isfile(url):
         return resolve_cloud_path(url)
 
@@ -535,11 +535,6 @@ def _download_cloud_assets(cloud_urls: list[str], cache_subdir: str = "", num_wo
     Downloads are parallelized with *num_workers* threads and a live
     progress line with elapsed time is printed.
     """
-    import time
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-
-    from uwlab_assets import resolve_cloud_path
-
     n = len(cloud_urls)
     to_download = [u for u in cloud_urls if not os.path.isfile(_cached_local_path(u))]
     needs_download = len(to_download)
@@ -576,8 +571,6 @@ def _download_cloud_assets(cloud_urls: list[str], cache_subdir: str = "", num_wo
 
 def _cached_local_path(url: str) -> str:
     """Return the expected local cache path for a cloud URL without downloading."""
-    from uwlab_assets import _extract_relative_path
-
     rel = _extract_relative_path(url)
     return os.path.join(os.path.expanduser("~"), ".cache", "uwlab", "assets", rel)
 
