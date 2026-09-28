@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.6.4 (2026-09-28)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Consolidated Isaac Lab 3.0 / Isaac Sim 6.1 asset publication on the ``isaaclab3``
+  Hugging Face branch. The existing pinned commit and asset contents were unchanged.
+  Publish new assets on ``isaaclab3`` and update the commit pin deliberately;
+  ``main`` remains the legacy Isaac Lab 2.x asset line.
+
+
 0.6.3 (2026-09-26)
 ~~~~~~~~~~~~~~~~~~
 

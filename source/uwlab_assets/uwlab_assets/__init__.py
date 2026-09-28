@@ -24,13 +24,12 @@ UWLAB_ASSETS_METADATA = toml.load(os.path.join(UWLAB_ASSETS_EXT_DIR, "config", "
 UWLAB_CLOUD_ASSETS_REPO = "https://huggingface.co/datasets/UW-Lab/uwlab-assets"
 """HuggingFace dataset repository holding the cloud assets."""
 
-UWLAB_CLOUD_ASSETS_REVISION = "83860532010b2737aa80d6e8621235ee554186f0"  # branch isaaclab3-ea
+UWLAB_CLOUD_ASSETS_REVISION = "83860532010b2737aa80d6e8621235ee554186f0"  # branch isaaclab3
 """Pinned commit of :data:`UWLAB_CLOUD_ASSETS_REPO`.
 
 Pinned rather than a branch name so that asset changes on HuggingFace are opt-in: bump this
-constant deliberately when new assets or datasets are published. Isaac Lab 3.0 EA assets and
-converted state checkpoints live on ``isaaclab3-ea``. The ``isaaclab3`` branch retains beta
-checkpoints with the legacy observation order; ``main`` keeps the Isaac Lab 2.x files.
+constant deliberately when new assets or datasets are published. Isaac Lab 3.0 EA / Isaac Sim 6.1
+assets and compatible state checkpoints live on ``isaaclab3``; ``main`` keeps the Isaac Lab 2.x files.
 """
 
 UWLAB_CLOUD_ASSETS_DIR = f"{UWLAB_CLOUD_ASSETS_REPO}/resolve/{UWLAB_CLOUD_ASSETS_REVISION}"

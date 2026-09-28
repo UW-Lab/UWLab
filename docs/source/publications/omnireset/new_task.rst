@@ -171,8 +171,9 @@ Add to ``variants["scene.receptive_object"]``:
 .. tip::
 
    Use local absolute paths during development. Switch to ``UWLAB_CLOUD_ASSETS_DIR`` when sharing.
-   Published EA assets go on the ``isaaclab3-ea`` branch of the asset repository (``main`` holds the Isaac Lab 2.x
-   files), and ``uwlab_assets.UWLAB_CLOUD_ASSETS_REVISION`` has to be bumped to a commit that contains them.
+   Publish Isaac Lab 3.0 / Isaac Sim 6.1 assets on the ``isaaclab3`` branch of the asset repository
+   (``main`` holds the Isaac Lab 2.x files), then pin ``uwlab_assets.UWLAB_CLOUD_ASSETS_REVISION``
+   to a commit that contains them.
 
 ----
 
