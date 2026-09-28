@@ -3,9 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Random-action agent executable for Isaac Lab environments."""
-
-# PLACEHOLDER: Extension template (do not remove this comment)
+"""Unified playback executable for Isaac Lab reinforcement learning workflows."""
 
 # Warp captures ``enable_backward`` when a module is created, which happens at import
 # time, so it has to be set before importing anything that defines Warp kernels.
@@ -15,14 +13,12 @@ import warp as wp
 
 wp.config.enable_backward = False
 
-from isaaclab_rl.entrypoints import run_random_agent_cli  # noqa: E402
-
-import uwlab_tasks  # noqa: F401
+from isaaclab_rl.entrypoints import run_play_cli  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run an environment with a random-action agent."""
-    return run_random_agent_cli(argv)
+    """Run the selected reinforcement learning play library."""
+    return run_play_cli(argv)
 
 
 if __name__ == "__main__":

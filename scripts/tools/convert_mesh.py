@@ -1,5 +1,5 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -31,7 +31,8 @@ optional arguments:
   -h, --help                    Show this help message and exit
   --make-instanceable,          Make the asset instanceable for efficient cloning. (default: False)
   --collision-approximation     The method used for approximating collision mesh. Defaults to convexDecomposition.
-                                Set to \"none\" to not add a collision mesh to the converted mesh. (default: convexDecomposition)
+                                Set to \"none\" to not add a collision mesh to the converted mesh.
+                                (default: convexDecomposition)
   --mass                        The mass (in kg) to assign to the converted asset. (default: None)
 
 """
@@ -89,13 +90,9 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
-import contextlib
 import os
 
-import carb
-from isaaclab.sim.utils import open_stage
-import omni.kit.app
-
+import isaaclab.sim as sim_utils
 from isaaclab.sim.converters import MeshConverter, MeshConverterCfg
 from isaaclab.sim.schemas import schemas_cfg
 from isaaclab.utils.assets import check_file_path
@@ -176,25 +173,9 @@ def main():
     print("-" * 80)
     print("-" * 80)
 
-    # Determine if there is a GUI to update:
-    # acquire settings interface
-    carb_settings_iface = carb.settings.get_settings()
-    # read flag for whether a local GUI is enabled
-    local_gui = carb_settings_iface.get("/app/window/enabled")
-    # read flag for whether livestreaming GUI is enabled
-    livestream_gui = carb_settings_iface.get("/app/livestream/enabled")
-
-    # Simulate scene (if not headless)
-    if local_gui or livestream_gui:
-        # Open the stage with USD
-        open_stage(mesh_converter.usd_path)
-        # Reinitialize the simulation
-        app = omni.kit.app.get_app_interface()
-        # Run simulation
-        with contextlib.suppress(KeyboardInterrupt):
-            while app.is_running():
-                # perform step
-                app.update()
+    # Show the converted asset if the launch resolved to a window or livestream
+    if AppLauncher.has_gui():
+        sim_utils.show_stage_in_viewport(mesh_converter.usd_path)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -11,46 +11,39 @@ It uses the `warp` library to run the state machine in parallel on the GPU.
 
 .. code-block:: bash
 
-    ./isaaclab.sh -p scripts/environments/state_machine/lift_teddy_bear.py
+    # Kitless run with the Newton OpenGL viewer (default).
+    uv run python scripts/environments/state_machine/lift_franka_soft.py
+
+    # Headless.
+    uv run python scripts/environments/state_machine/lift_franka_soft.py --viz none
 
 """
 
-"""Launch Omniverse Toolkit first."""
-
 import argparse
-
-from isaaclab.app import AppLauncher
-
-# add argparse arguments
-parser = argparse.ArgumentParser(description="Pick and lift a teddy bear with a robotic arm.")
-parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
-# append AppLauncher cli args
-AppLauncher.add_app_launcher_args(parser)
-# parse the arguments
-args_cli = parser.parse_args()
-
-# launch omniverse app
-app_launcher = AppLauncher(headless=args_cli.headless)
-simulation_app = app_launcher.app
-
-# disable metrics assembler due to scene graph instancing
-from isaacsim.core.experimental.utils.app import enable_extension
-
-enable_extension("omni.usd.metrics.assembler.ui", enabled=False)
-
-"""Rest everything else."""
-
+import sys
 from collections.abc import Sequence
 
 import gymnasium as gym
 import torch
 import warp as wp
 
-from isaaclab.assets.rigid_object.rigid_object_data import RigidObjectData
+from isaaclab.app import add_launcher_args, launch_simulation
+from isaaclab.assets.deformable_object.deformable_object_data import DeformableObjectData
+from isaaclab.visualizers import VisualizerCfg
 
 import isaaclab_tasks  # noqa: F401
-from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import LiftEnvCfg
-from isaaclab_tasks.utils.parse_cfg import parse_env_cfg
+from isaaclab_tasks.utils import resolve_task_config, setup_preset_cli
+
+# add argparse arguments
+parser = argparse.ArgumentParser(description="Pick and lift a deformable with a robotic arm.")
+parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
+parser.add_argument("--num_steps", type=int, default=1000, help="Number of environment steps to run.")
+parser.add_argument("--task", type=str, default="Isaac-Lift-Soft-Franka", help="The task to run.")
+add_launcher_args(parser)
+# the task runs on Newton, so default to the kitless viewer
+parser.set_defaults(visualizer=["newton"])
+args_cli, hydra_args = setup_preset_cli(parser)
+sys.argv = [sys.argv[0]] + hydra_args
 
 # initialize warp
 wp.init()
@@ -72,17 +65,6 @@ class PickSmState:
     GRASP_OBJECT = wp.constant(3)
     LIFT_OBJECT = wp.constant(4)
     OPEN_GRIPPER = wp.constant(5)
-
-
-class PickSmWaitTime:
-    """Additional wait times (in s) for states for before switching."""
-
-    REST = wp.constant(0.2)
-    APPROACH_ABOVE_OBJECT = wp.constant(0.5)
-    APPROACH_OBJECT = wp.constant(0.6)
-    GRASP_OBJECT = wp.constant(0.6)
-    LIFT_OBJECT = wp.constant(1.0)
-    OPEN_GRIPPER = wp.constant(0.0)
 
 
 @wp.func
@@ -175,6 +157,20 @@ def infer_state_machine(
     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
 
 
+class PickSmWaitTime:
+    """Additional wait times (in s) for states for before switching.
+
+    Wait times are generous because the low-PD Franka takes a while to settle on each IK target.
+    """
+
+    REST = wp.constant(0.2)
+    APPROACH_ABOVE_OBJECT = wp.constant(1.0)
+    APPROACH_OBJECT = wp.constant(1.5)
+    GRASP_OBJECT = wp.constant(1.5)
+    LIFT_OBJECT = wp.constant(1.5)
+    OPEN_GRIPPER = wp.constant(0.0)
+
+
 class PickAndLiftSm:
     """A simple state machine in a robot's task space to pick and lift an object.
 
@@ -190,7 +186,7 @@ class PickAndLiftSm:
     5. LIFT_OBJECT: The robot lifts the object to the desired pose. This is the final state.
     """
 
-    def __init__(self, dt: float, num_envs: int, device: torch.device | str = "cpu", position_threshold=0.01):
+    def __init__(self, dt: float, num_envs: int, device: torch.device | str = "cpu", position_threshold=0.03):
         """Initialize the state machine.
 
         Args:
@@ -214,7 +210,7 @@ class PickAndLiftSm:
 
         # approach above object offset
         self.offset = torch.zeros((self.num_envs, 7), device=self.device)
-        self.offset[:, 2] = 0.2
+        self.offset[:, 2] = 0.1
         self.offset[:, -1] = 1.0  # warp expects quaternion as (x, y, z, w)
 
         # convert to warp
@@ -264,74 +260,98 @@ class PickAndLiftSm:
 
 
 def main():
-    # parse configuration
-    env_cfg: LiftEnvCfg = parse_env_cfg(
-        "Isaac-Lift-Teddy-Bear-Franka-IK-Abs-v0",
-        device=args_cli.device,
-        num_envs=args_cli.num_envs,
-    )
+    # parse configuration via Hydra, so presets can be selected on the CLI (e.g. presets=isaacsim_physx)
+    env_cfg, _ = resolve_task_config(args_cli.task, "")
+    env_cfg.sim.device = args_cli.device
+    env_cfg.scene.num_envs = args_cli.num_envs
+    # Scripted demo: keep only the time-out, extended to 10 s so the slow low-PD Franka can finish a
+    # pick-and-lift, and drop the failure terminations so a transient bound or velocity spike does
+    # not cut a run short.
+    env_cfg.episode_length_s = 10.0
+    for term_name in list(vars(env_cfg.terminations)):
+        if term_name != "time_out":
+            setattr(env_cfg.terminations, term_name, None)
+    # the state machine emits absolute end-effector poses, so pick the task's own IK action preset
+    # (e.g. the cloth closes the gripper fully); the env otherwise defaults to relative joint
+    # targets, which RL trains on.
+    env_cfg.actions = type(env_cfg)().actions.ik
+    env_cfg.viewer.eye = (1.3, 0.6, 0.5)
+    env_cfg.viewer.lookat = (0.5, 0.0, 0.05)
+    env_cfg.sim.default_visualizer_cfg = VisualizerCfg(eye=env_cfg.viewer.eye, lookat=env_cfg.viewer.lookat)
 
-    env_cfg.viewer.eye = (2.1, 1.0, 1.3)
+    with launch_simulation(env_cfg, args_cli):
+        env = gym.make(args_cli.task, cfg=env_cfg)
+        is_cable = "cable" in env.unwrapped.scene.keys()
 
-    # create environment
-    env = gym.make("Isaac-Lift-Teddy-Bear-Franka-IK-Abs-v0", cfg=env_cfg)
-    # reset environment at start
-    env.reset()
+        # reset environment at start
+        env.reset()
 
-    # create action buffers (position + quaternion)
-    actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
-    actions[:, 3] = 1.0
-    # desired rotation after grasping
-    desired_orientation = torch.zeros((env.unwrapped.num_envs, 4), device=env.unwrapped.device)
-    desired_orientation[:, 1] = 1.0
+        # create action buffers (position + quaternion)
+        actions = torch.zeros(env.unwrapped.action_space.shape, device=env.unwrapped.device)
+        actions[:, 3] = 1.0
+        # desired rotation after grasping
+        desired_orientation = torch.zeros((env.unwrapped.num_envs, 4), device=env.unwrapped.device)
+        desired_orientation[:, 0] = 1.0
 
-    object_grasp_orientation = torch.zeros((env.unwrapped.num_envs, 4), device=env.unwrapped.device)
-    # z-axis pointing down and 45 degrees rotation
-    object_grasp_orientation[:, 1] = 0.9238795
-    object_grasp_orientation[:, 2] = -0.3826834
-    object_local_grasp_position = torch.tensor([0.02, -0.08, 0.0], device=env.unwrapped.device)
+        # Top-down approach: identity quaternion (wxyz, w=1) aligns panda_hand with the Franka root,
+        # giving the canonical top-down grasp pose. The bar lies along world-X, so the gripper
+        # closes across its short side without any wrist twist.
+        object_grasp_orientation = torch.zeros((env.unwrapped.num_envs, 4), device=env.unwrapped.device)
+        object_grasp_orientation[:, 0] = 1.0
+        # Grasp 1 cm below the deformable's centre of mass, so the fingers close around its lower half.
+        # The cloth drapes over a support cube, so its COM sits well below the graspable fold; reach
+        # 8 cm higher to close on the raised cloth instead of the table.
+        grasp_z = -0.01 + (0.08 if "Cloth" in args_cli.task else 0.0)
+        object_local_grasp_position = torch.tensor([0.0, 0.0, grasp_z], device=env.unwrapped.device)
 
-    # create state machine
-    pick_sm = PickAndLiftSm(env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device)
+        # create state machine
+        pick_sm = PickAndLiftSm(env_cfg.sim.dt * env_cfg.decimation, env.unwrapped.num_envs, env.unwrapped.device)
 
-    while simulation_app.is_running():
-        # run everything in inference mode
-        with torch.inference_mode():
-            # step environment
-            dones = env.step(actions)[-2]
+        for _ in range(args_cli.num_steps):
+            # run everything in inference mode
+            with torch.inference_mode():
+                # step environment
+                _, _, terminated, time_outs, _ = env.step(actions)
+                dones = terminated | time_outs
 
-            # observations
-            # -- end-effector frame
-            ee_frame_sensor = env.unwrapped.scene["ee_frame"]
-            tcp_rest_position = (
-                ee_frame_sensor.data.target_pos_w.torch[..., 0, :].clone() - env.unwrapped.scene.env_origins
-            )
-            tcp_rest_orientation = ee_frame_sensor.data.target_quat_w.torch[..., 0, :].clone()
-            # -- object frame
-            object_data: RigidObjectData = env.unwrapped.scene["object"].data
-            object_position = object_data.root_pos_w.torch - env.unwrapped.scene.env_origins
-            object_position += object_local_grasp_position
+                # reset state machine
+                if dones.any():
+                    pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
 
-            # -- target object frame
-            desired_position = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
+                # observations
+                # -- end-effector frame
+                ee_frame_sensor = env.unwrapped.scene["ee_frame"]
+                tcp_rest_position = (
+                    ee_frame_sensor.data.target_pos_w.torch[..., 0, :].clone() - env.unwrapped.scene.env_origins
+                )
+                tcp_rest_orientation = ee_frame_sensor.data.target_quat_w.torch[..., 0, :].clone()
+                # -- object frame
+                if is_cable:
+                    segment_index = env_cfg.commands.cable_pose.segment_index
+                    object_position = (
+                        env.unwrapped.scene["cable"].data.segment_pose_w.torch[:, segment_index, :3]
+                        - env.unwrapped.scene.env_origins
+                    )
+                    command_name = "cable_pose"
+                else:
+                    object_data: DeformableObjectData = env.unwrapped.scene["deformable"].data
+                    object_position = object_data.root_pos_w.torch - env.unwrapped.scene.env_origins
+                    object_position += object_local_grasp_position
+                    command_name = "deformable_pose"
 
-            # advance state machine
-            actions = pick_sm.compute(
-                torch.cat([tcp_rest_position, tcp_rest_orientation], dim=-1),
-                torch.cat([object_position, object_grasp_orientation], dim=-1),
-                torch.cat([desired_position, desired_orientation], dim=-1),
-            )
+                # -- target object frame
+                desired_position = env.unwrapped.command_manager.get_command(command_name)[..., :3]
 
-            # reset state machine
-            if dones.any():
-                pick_sm.reset_idx(dones.nonzero(as_tuple=False).squeeze(-1))
+                # advance state machine
+                actions = pick_sm.compute(
+                    torch.cat([tcp_rest_position, tcp_rest_orientation], dim=-1),
+                    torch.cat([object_position, object_grasp_orientation], dim=-1),
+                    torch.cat([desired_position, desired_orientation], dim=-1),
+                )
 
-    # close the environment
-    env.close()
+        # close the environment
+        env.close()
 
 
 if __name__ == "__main__":
-    # run the main function
     main()
-    # close sim app
-    simulation_app.close()
