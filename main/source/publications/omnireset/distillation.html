@@ -59,12 +59,12 @@
     <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Available Environments" href="../../overview/isaac_environments.html" />
+    <link rel="next" title="Isaac Lab Environments" href="../../overview/isaac_environments.html" />
     <link rel="prev" title="Sim2Real: SysID &amp; RL Finetuning" href="sim2real.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Sep 15, 2026"/>
+  <meta name="docsearch:version" content="2.0.0" />
+    <meta name="docbuild:last-update" content="Sep 28, 2026"/>
   </head>
   
   
@@ -160,6 +160,8 @@
           </div>
           <select id="version-select" class="version-dropdown" style="margin: 0 auto; display: block;" onchange="location = this.value;">
             <option value="distillation.html" selected>main</option>
+            <option value="../../../../isaaclab2/source/publications/omnireset/distillation.html" >isaaclab2</option>
+            <option value="../../../../v1.3.0/source/publications/omnireset/distillation.html" >v1.3.0</option>
             <option value="../../../../v1.2.0/source/publications/omnireset/distillation.html" >v1.2.0</option>
             <option value="../../../../v1.1.0/index.html" >v1.1.0</option>
             <option value="../../../../v1.0.0/index.html" >v1.0.0</option>
@@ -192,7 +194,7 @@
           
           
           
-          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
+          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-6.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
         </li>
         <li class="nav-item">
           
@@ -263,8 +265,7 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../overview/isaac_environments.html">Available Environments</a></li>
-
+<li class="toctree-l1"><a class="reference internal" href="../../overview/isaac_environments.html">Isaac Lab Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview/uw_environments.html">Available UW Environments</a></li>
 
 </ul>
@@ -488,7 +489,6 @@
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-time-setup">One-Time Setup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start-evaluate-pretrained-rgb-policies">Quick Start: Evaluate Pretrained RGB Policies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-your-own">Train Your Own</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#collect-demonstrations">Collect Demonstrations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-vision-policy">Train Vision Policy</a></li>
@@ -509,6 +509,11 @@
                   
   <section id="distillation-deployment">
 <h1>Distillation &amp; Deployment<a class="headerlink" href="#distillation-deployment" title="Permalink to this heading">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This workflow is expected to work with Isaac Lab 3.0 but has not yet been tested.
+Validation is planned; use UWLab <code class="docutils literal notranslate"><span class="pre">v1.3.0</span></code> as the legacy reference.</p>
+</div>
 <p>This guide covers distilling a state-based RL expert into a vision-based policy, evaluating it in simulation, and deploying on a real robot.</p>
 <section id="one-time-setup">
 <span id="distillation-install"></span><h2>One-Time Setup<a class="headerlink" href="#one-time-setup" title="Permalink to this heading">#</a></h2>
@@ -526,69 +531,8 @@ git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </spa
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;parent_dir&gt;/diffusion_policy
 conda<span class="w"> </span>activate<span class="w"> </span>env_uwlab
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
-python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>dill<span class="w"> </span>hydra-core<span class="w"> </span>omegaconf<span class="w"> </span>zarr<span class="w"> </span>einops<span class="w"> </span><span class="s2">"diffusers&lt;0.37"</span><span class="w"> </span>wandb<span class="w"> </span>accelerate
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>dill<span class="w"> </span>hydra-core<span class="w"> </span>omegaconf<span class="w"> </span>zarr<span class="w"> </span>einops<span class="w"> </span><span class="s2">"diffusers&lt;0.37"</span><span class="w"> </span>wandb<span class="w"> </span>accelerate<span class="w"> </span>pandas
 </pre></div>
-</div>
-</section>
-<hr class="docutils" />
-<section id="quick-start-evaluate-pretrained-rgb-policies">
-<h2>Quick Start: Evaluate Pretrained RGB Policies<a class="headerlink" href="#quick-start-evaluate-pretrained-rgb-policies" title="Permalink to this heading">#</a></h2>
-<p>Download our pretrained vision policy checkpoints and evaluate immediately. All commands in this section run in <code class="docutils literal notranslate"><span class="pre">env_uwlab</span></code> from the UWLab directory.</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-Peg Insertion</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/distilled_rgb_policies/peg_distilled_rgb.ckpt
-
-python<span class="w"> </span>scripts_v2/tools/eval_distilled_policy.py<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-Play-v0<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--checkpoint<span class="w"> </span>peg_distilled_rgb.ckpt<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--save_video<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.insertive_object<span class="o">=</span>peg<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.receptive_object<span class="o">=</span>peghole
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-Leg Twisting</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/distilled_rgb_policies/leg_distilled_rgb.ckpt
-
-python<span class="w"> </span>scripts_v2/tools/eval_distilled_policy.py<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-Play-v0<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--checkpoint<span class="w"> </span>leg_distilled_rgb.ckpt<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--save_video<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbleg<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbtabletop
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-Drawer Assembly</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/distilled_rgb_policies/drawer_distilled_rgb.ckpt
-
-python<span class="w"> </span>scripts_v2/tools/eval_distilled_policy.py<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-Play-v0<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--checkpoint<span class="w"> </span>drawer_distilled_rgb.ckpt<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--save_video<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbdrawerbottom<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbdrawerbox
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 <hr class="docutils" />
@@ -601,19 +545,19 @@ python<span class="w"> </span>scripts_v2/tools/eval_distilled_policy.py<span cla
 </div>
 <section id="collect-demonstrations">
 <h3>Collect Demonstrations<a class="headerlink" href="#collect-demonstrations" title="Permalink to this heading">#</a></h3>
-<p><strong>Step 1 — Export the expert policy</strong></p>
-<p>Run <code class="docutils literal notranslate"><span class="pre">play.py</span></code> on a <strong>Stage 2</strong> (finetuned) checkpoint to export a JIT-traced <code class="docutils literal notranslate"><span class="pre">policy.pt</span></code>. You can finetune your own (see <a class="reference internal" href="sim2real.html"><span class="doc">Sim2Real: SysID &amp; RL Finetuning</span></a>) or download a pre-finetuned checkpoint from the <a class="reference internal" href="sim2real.html#use-finetuned-checkpoints"><span class="std std-ref">finetuned checkpoints</span></a> section.</p>
+<p><strong>Step 1: Export the expert policy</strong></p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">play.py</span></code> on a <strong>Stage 2</strong> (finetuned) checkpoint to export a JIT-traced <code class="docutils literal notranslate"><span class="pre">policy.pt</span></code>. You can finetune your own (see <a class="reference internal" href="sim2real.html"><span class="doc">Sim2Real: SysID &amp; RL Finetuning</span></a>).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>env_uwlab
 <span class="nb">cd</span><span class="w"> </span>&lt;parent_dir&gt;/UWLab
 python<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/play.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--checkpoint<span class="w"> </span>&lt;stage2_checkpoint.pt&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless
+<span class="w">    </span>--visualizer<span class="w"> </span>none
 </pre></div>
 </div>
 <p>This saves <code class="docutils literal notranslate"><span class="pre">policy.pt</span></code> (and <code class="docutils literal notranslate"><span class="pre">policy.onnx</span></code>) under <code class="docutils literal notranslate"><span class="pre">&lt;checkpoint_dir&gt;/exported/</span></code>.</p>
-<p><strong>Step 2 — Collect RGB demonstrations</strong></p>
+<p><strong>Step 2: Collect RGB demonstrations</strong></p>
 <p>Use the exported <code class="docutils literal notranslate"><span class="pre">policy.pt</span></code> to roll out the expert and record RGB observations in Zarr format. Only successful trajectories are saved.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -621,48 +565,45 @@ python<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/play.py<span
 10K demos takes ~2 hours on a 3090 GPU. 32 envs fits on 24 GB VRAM.</p>
 </div>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-3">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
 Peg Insertion</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/collect_demos.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-DataCollection-v0<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--dataset_file<span class="w"> </span>datasets/peg/rgb0.zarr<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_demos<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>peg<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>peghole<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path<span class="o">=</span><span class="s1">'["exported/policy.pt"]'</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
 Leg Twisting</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/collect_demos.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-DataCollection-v0<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--dataset_file<span class="w"> </span>datasets/leg/rgb0.zarr<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_demos<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbleg<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbtabletop<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path<span class="o">=</span><span class="s1">'["exported/policy.pt"]'</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
 Drawer Assembly</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/collect_demos.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--task<span class="w"> </span>OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-DataCollection-v0<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--dataset_file<span class="w"> </span>datasets/drawer/rgb0.zarr<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_demos<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbdrawerbottom<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbdrawerbox<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path<span class="o">=</span><span class="s1">'["exported/policy.pt"]'</span>
@@ -739,8 +680,8 @@ python<span class="w"> </span>train.py<span class="w"> </span><span class="se">\
 <h3>Evaluate in Simulation<a class="headerlink" href="#evaluate-in-simulation" title="Permalink to this heading">#</a></h3>
 <p>Evaluate the trained vision policy in simulation. All commands below run in <code class="docutils literal notranslate"><span class="pre">env_uwlab</span></code> from the UWLab directory.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
+<input checked="checked" id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
 Peg Insertion</label><div class="sd-tab-content docutils">
 <p><strong>In-distribution:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/eval_distilled_policy.py<span class="w"> </span><span class="se">\</span>
@@ -748,8 +689,7 @@ Peg Insertion</label><div class="sd-tab-content docutils">
 <span class="w">    </span>--checkpoint<span class="w"> </span>&lt;path_to_checkpoint&gt;.ckpt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--save_video<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>peg<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>peghole
@@ -761,15 +701,14 @@ Peg Insertion</label><div class="sd-tab-content docutils">
 <span class="w">    </span>--checkpoint<span class="w"> </span>&lt;path_to_checkpoint&gt;.ckpt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>peg<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>peghole
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-7" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
+<input id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
 Leg Twisting</label><div class="sd-tab-content docutils">
 <p><strong>In-distribution:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/eval_distilled_policy.py<span class="w"> </span><span class="se">\</span>
@@ -777,8 +716,7 @@ Leg Twisting</label><div class="sd-tab-content docutils">
 <span class="w">    </span>--checkpoint<span class="w"> </span>&lt;path_to_checkpoint&gt;.ckpt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--save_video<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbleg<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbtabletop
@@ -790,15 +728,14 @@ Leg Twisting</label><div class="sd-tab-content docutils">
 <span class="w">    </span>--checkpoint<span class="w"> </span>&lt;path_to_checkpoint&gt;.ckpt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbleg<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbtabletop
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
+<input id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
 Drawer Assembly</label><div class="sd-tab-content docutils">
 <p><strong>In-distribution:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts_v2/tools/eval_distilled_policy.py<span class="w"> </span><span class="se">\</span>
@@ -806,8 +743,7 @@ Drawer Assembly</label><div class="sd-tab-content docutils">
 <span class="w">    </span>--checkpoint<span class="w"> </span>&lt;path_to_checkpoint&gt;.ckpt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--save_video<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbdrawerbottom<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbdrawerbox
@@ -819,8 +755,7 @@ Drawer Assembly</label><div class="sd-tab-content docutils">
 <span class="w">    </span>--checkpoint<span class="w"> </span>&lt;path_to_checkpoint&gt;.ckpt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_envs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_trajectories<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--headless<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--enable_cameras<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--visualizer<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.insertive_object<span class="o">=</span>fbdrawerbottom<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>env.scene.receptive_object<span class="o">=</span>fbdrawerbox
 </pre></div>
@@ -876,7 +811,7 @@ python<span class="w"> </span>eval_real_robot.py<span class="w"> </span><span cl
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Available Environments</p>
+        <p class="prev-next-title">Isaac Lab Environments</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -898,7 +833,6 @@ python<span class="w"> </span>eval_real_robot.py<span class="w"> </span><span cl
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-time-setup">One-Time Setup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start-evaluate-pretrained-rgb-policies">Quick Start: Evaluate Pretrained RGB Policies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-your-own">Train Your Own</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#collect-demonstrations">Collect Demonstrations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-vision-policy">Train Vision Policy</a></li>
@@ -939,7 +873,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Sep 15, 2026.
+  Last updated on Sep 28, 2026.
   <br/>
 </p>
   </div>

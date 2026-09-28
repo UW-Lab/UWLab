@@ -27,8 +27,7 @@ instead of *./uwlab.sh -p* or *uwlab.bat -p*.
 
    The Python version of the virtual environment must match the Python version of Isaac Sim.
 
-   - For Isaac Sim 5.X, the required Python version is 3.11.
-   - For Isaac Sim 4.X, the required Python version is 3.10.
+   - For Isaac Sim 6.X, the required Python version is 3.12.
 
    Using a different Python version will result in errors when running UW Lab.
 
@@ -62,8 +61,8 @@ instead of *./uwlab.sh -p* or *uwlab.bat -p*.
             :sync: windows
 
             .. warning::
-               Windows support for UV is currently unavailable. Please check
-               `issue #3483 <https://github.com/uw-lab/UWLab/issues/3438>`_ to track progress.
+               UWLab does not ship a Windows batch helper. Upstream Isaac Lab's Windows
+               UV support is discussed in `issue #3438 <https://github.com/isaac-sim/IsaacLab/issues/3438>`_.
 
    .. tab-item::  Conda Environment
 

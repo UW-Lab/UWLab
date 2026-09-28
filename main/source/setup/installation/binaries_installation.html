@@ -63,8 +63,8 @@
     <link rel="prev" title="Installation using Isaac Sim Pip Package" href="pip_installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Sep 15, 2026"/>
+  <meta name="docsearch:version" content="2.0.0" />
+    <meta name="docbuild:last-update" content="Sep 28, 2026"/>
   </head>
   
   
@@ -160,6 +160,8 @@
           </div>
           <select id="version-select" class="version-dropdown" style="margin: 0 auto; display: block;" onchange="location = this.value;">
             <option value="binaries_installation.html" selected>main</option>
+            <option value="../../../../isaaclab2/source/setup/installation/binaries_installation.html" >isaaclab2</option>
+            <option value="../../../../v1.3.0/source/setup/installation/binaries_installation.html" >v1.3.0</option>
             <option value="../../../../v1.2.0/source/setup/installation/binaries_installation.html" >v1.2.0</option>
             <option value="../../../../v1.1.0/source/setup/installation/binaries_installation.html" >v1.1.0</option>
             <option value="../../../../v1.0.0/index.html" >v1.0.0</option>
@@ -192,7 +194,7 @@
           
           
           
-          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
+          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-6.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
         </li>
         <li class="nav-item">
           
@@ -263,8 +265,7 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../overview/isaac_environments.html">Available Environments</a></li>
-
+<li class="toctree-l1"><a class="reference internal" href="../../overview/isaac_environments.html">Isaac Lab Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview/uw_environments.html">Available UW Environments</a></li>
 
 </ul>
@@ -521,8 +522,8 @@
 <h3>Downloading pre-built binaries<a class="headerlink" href="#downloading-pre-built-binaries" title="Permalink to this heading">#</a></h3>
 <p>Isaac Sim binaries can be downloaded directly as a zip file from
 <a class="reference external" href="https://docs.isaacsim.omniverse.nvidia.com/latest/installation/download.html">here</a>.
-If you wish to use the older Isaac Sim 4.5 release, please check the older download page
-<a class="reference external" href="https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/download.html">here</a>.</p>
+Use Isaac Sim 6.1 with this release. For the older Isaac Lab 2.x / Isaac Sim 5.1
+stack, use UWLab’s <code class="docutils literal notranslate"><span class="pre">isaaclab2</span></code> branch or <code class="docutils literal notranslate"><span class="pre">v1.3.0</span></code> tag and its installation instructions.</p>
 <p>Once the zip file is downloaded, you can unzip it to the desired directory.
 As an example set of instructions for unzipping the Isaac Sim binaries,
 please refer to the <a class="reference external" href="https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_workstation.html#example-installation">Isaac Sim documentation</a>.</p>
@@ -643,12 +644,11 @@ and the
 <h3>Cloning UW Lab<a class="headerlink" href="#cloning-uw-lab" title="Permalink to this heading">#</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We recommend making a <a class="reference external" href="https://github.com/uw-lab/UWLab/fork">fork</a> of the UW Lab repository to contribute
-to the project but this is not mandatory to use the framework. If you
-make a fork, please replace <code class="docutils literal notranslate"><span class="pre">isaac-sim</span></code> with your username
-in the following instructions.</p>
+<p>We recommend making a <a class="reference external" href="https://github.com/uw-lab/UWLab/fork">fork</a> to contribute,
+but this is not required to use the framework. When using your fork, replace
+<code class="docutils literal notranslate"><span class="pre">uw-lab</span></code> with your GitHub username in the clone commands.</p>
 </div>
-<p>Clone the UW Lab repository into your project’s workspace:</p>
+<p>Clone UW Lab into your project’s workspace:</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-10" name="sd-tab-set-5" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-10">
@@ -665,55 +665,17 @@ HTTPS</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
-<p>We provide a helper executable <a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/uwlab.sh">uwlab.sh</a>
-and <a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/uwlab.bat">uwlab.bat</a> for Linux and Windows
-respectively that provides utilities to manage extensions.</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-6" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-12">
-<i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>./uwlab.sh --help
-
-usage: uwlab.sh [-h] [-i] [-f] [-p] [-s] [-t] [-o] [-v] [-d] [-n] [-c] -- Utility to manage UW Lab.
-
-optional arguments:
-   -h, --help           Display the help content.
-   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is 'all'.
-   -f, --format         Run pre-commit to format the code and check lints.
-   -p, --python         Run the python executable provided by Isaac Sim or virtual environment (if active).
-   -s, --sim            Run the simulator executable (isaac-sim.sh) provided by Isaac Sim.
-   -t, --test           Run all python pytest tests.
-   -o, --docker         Run the docker container helper script (docker/container.sh).
-   -v, --vscode         Generate the VSCode settings file from template.
-   -d, --docs           Build the documentation from source using sphinx.
-   -n, --new            Create a new external project or internal task from template.
-   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is 'env_uwlab'.
-   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is 'env_uwlab'.
+<p>We provide the Linux helper <a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/uwlab.sh">uwlab.sh</a>
+to manage installation, Python execution, tests, and documentation. From the checkout,
+print the supported commands with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--help
 </pre></div>
 </div>
-</div>
-<input id="sd-tab-item-13" name="sd-tab-set-6" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-13">
-<i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>uwlab.bat --help
-
-usage: uwlab.bat [-h] [-i] [-f] [-p] [-s] [-v] [-d] [-n] [-c] -- Utility to manage UW Lab.
-
-optional arguments:
-   -h, --help           Display the help content.
-   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is 'all'.
-   -f, --format         Run pre-commit to format the code and check lints.
-   -p, --python         Run the python executable provided by Isaac Sim or virtual environment (if active).
-   -s, --sim            Run the simulator executable (isaac-sim.bat) provided by Isaac Sim.
-   -t, --test           Run all python pytest tests.
-   -v, --vscode         Generate the VSCode settings file from template.
-   -d, --docs           Build the documentation from source using sphinx.
-   -n, --new            Create a new external project or internal task from template.
-   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is 'env_uwlab'.
-   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is 'env_uwlab'.
-</pre></div>
-</div>
-</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This repository does not ship <code class="docutils literal notranslate"><span class="pre">uwlab.bat</span></code>. Do not assume that Isaac Lab’s
+Windows batch commands have UWLab equivalents; the helper instructions here
+use the Linux shell entry point.</p>
 </div>
 </section>
 <section id="creating-the-isaac-sim-symbolic-link">
@@ -722,8 +684,8 @@ optional arguments:
 and <code class="docutils literal notranslate"><span class="pre">_isaac_sim</span></code> in the UW Lab directory. This makes it convenient
 to index the python modules and look for extensions shipped with Isaac Sim.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-14" name="sd-tab-set-7" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-14">
+<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-12">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># enter the cloned repository</span>
 <span class="nb">cd</span><span class="w"> </span>UWLab
@@ -739,8 +701,8 @@ ln<span class="w"> </span>-s<span class="w"> </span><span class="si">${</span><s
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-15" name="sd-tab-set-7" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-15">
+<input id="sd-tab-item-13" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-13">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: enter the cloned repository</span>
 <span class="k">cd</span> UWLab
@@ -785,20 +747,19 @@ instead of <em>./uwlab.sh -p</em> or <em>uwlab.bat -p</em>.</p>
 <p class="admonition-title">Caution</p>
 <p>The Python version of the virtual environment must match the Python version of Isaac Sim.</p>
 <ul class="simple">
-<li><p>For Isaac Sim 5.X, the required Python version is 3.11.</p></li>
-<li><p>For Isaac Sim 4.X, the required Python version is 3.10.</p></li>
+<li><p>For Isaac Sim 6.X, the required Python version is 3.12.</p></li>
 </ul>
 <p>Using a different Python version will result in errors when running UW Lab.</p>
 </div>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-16" name="sd-tab-set-8" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-16">
+<input checked="checked" id="sd-tab-item-14" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-14">
 UV Environment</label><div class="sd-tab-content docutils">
 <p>To install <code class="docutils literal notranslate"><span class="pre">uv</span></code>, please follow the instructions <a class="reference external" href="https://docs.astral.sh/uv/getting-started/installation/">here</a>.
 You can create the UW Lab environment using the following commands:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-18" name="sd-tab-set-9" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-18">
+<input checked="checked" id="sd-tab-item-16" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-16">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name 'env_uwlab'</span>
 ./uwlab.sh<span class="w"> </span>--uv<span class="w">  </span><span class="c1"># or "./uwlab.sh -u"</span>
@@ -811,27 +772,27 @@ You can create the UW Lab environment using the following commands:</p>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-19" name="sd-tab-set-9" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-19">
+<input id="sd-tab-item-17" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-17">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Windows support for UV is currently unavailable. Please check
-<a class="reference external" href="https://github.com/uw-lab/UWLab/issues/3438">issue #3483</a> to track progress.</p>
+<p>UWLab does not ship a Windows batch helper. Upstream Isaac Lab’s Windows
+UV support is discussed in <a class="reference external" href="https://github.com/isaac-sim/IsaacLab/issues/3438">issue #3438</a>.</p>
 </div>
 </div>
 </div>
 </div>
-<input id="sd-tab-item-17" name="sd-tab-set-8" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-17">
+<input id="sd-tab-item-15" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-15">
 Conda Environment</label><div class="sd-tab-content docutils">
 <p>To install conda, please follow the instructions <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html">here</a>.
 You can create the UW Lab environment using the following commands.</p>
 <p>We recommend using <a class="reference external" href="https://www.anaconda.com/docs/getting-started/miniconda/main/">Miniconda</a>,
 since it is light-weight and resource-efficient environment management system.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-20" name="sd-tab-set-10" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-20">
+<input checked="checked" id="sd-tab-item-18" name="sd-tab-set-9" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-18">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Default environment name 'env_uwlab'</span>
 ./uwlab.sh<span class="w"> </span>--conda<span class="w">  </span><span class="c1"># or "./uwlab.sh -c"</span>
@@ -844,8 +805,8 @@ conda<span class="w"> </span>activate<span class="w"> </span>env_uwlab<span clas
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-21" name="sd-tab-set-10" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-21">
+<input id="sd-tab-item-19" name="sd-tab-set-9" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-19">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Option 1: Default environment name 'env_uwlab'</span>
 uwlab.bat --conda  :: or <span class="s2">"uwlab.bat -c"</span>
@@ -878,15 +839,15 @@ sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> <
 <li><p>Run the install command that iterates over all the extensions in <code class="docutils literal notranslate"><span class="pre">source</span></code> directory and installs them
 using pip (with <code class="docutils literal notranslate"><span class="pre">--editable</span></code> flag):</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-22" name="sd-tab-set-11" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-22">
+<input checked="checked" id="sd-tab-item-20" name="sd-tab-set-10" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-20">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--install<span class="w"> </span><span class="c1"># or "./uwlab.sh -i"</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-23" name="sd-tab-set-11" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-23">
+<input id="sd-tab-item-21" name="sd-tab-set-10" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-21">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat --install :: or <span class="s2">"uwlab.bat -i"</span>
 </pre></div>
@@ -898,15 +859,15 @@ using pip (with <code class="docutils literal notranslate"><span class="pre">--e
 <p>If you want to install only a specific framework, you can pass the name of the framework
 as an argument. For example, to install only the <code class="docutils literal notranslate"><span class="pre">rl_games</span></code> framework, you can run:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-24" name="sd-tab-set-12" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-24">
+<input checked="checked" id="sd-tab-item-22" name="sd-tab-set-11" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-22">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--install<span class="w"> </span>rl_games<span class="w">  </span><span class="c1"># or "./uwlab.sh -i rl_games"</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-25" name="sd-tab-set-12" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-25">
+<input id="sd-tab-item-23" name="sd-tab-set-11" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-23">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat --install rl_games :: or <span class="s2">"uwlab.bat -i rl_games"</span>
 </pre></div>
@@ -923,8 +884,8 @@ and <code class="docutils literal notranslate"><span class="pre">none</span></co
 <p>To verify that the installation was successful, run the following command from the
 top of the repository:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-26" name="sd-tab-set-13" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-26">
+<input checked="checked" id="sd-tab-item-24" name="sd-tab-set-12" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-24">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Using the uwlab.sh executable</span>
 <span class="c1"># note: this works for both the bundled python and the virtual environment</span>
@@ -935,8 +896,8 @@ python<span class="w"> </span>scripts/tutorials/00_sim/create_empty.py
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-27" name="sd-tab-set-13" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-27">
+<input id="sd-tab-item-25" name="sd-tab-set-12" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-25">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="c1">: Option 1: Using the uwlab.bat executable</span>
 <span class="p">:</span><span class="c1">: note: this works for both the bundled python and the virtual environment</span>
@@ -967,15 +928,15 @@ environment is activated and <code class="docutils literal notranslate"><span cl
 <p>You can now use UW Lab to train a robot through Reinforcement Learning! The quickest way to use UW Lab is through the predefined workflows using one of our <strong>Batteries-included</strong> robot tasks. Execute the following command to quickly train an ant to walk!
 We recommend adding <code class="docutils literal notranslate"><span class="pre">--headless</span></code> for faster training.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-28" name="sd-tab-set-14" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-28">
+<input checked="checked" id="sd-tab-item-26" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-26">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>-p<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/train.py<span class="w"> </span>--task<span class="o">=</span>Isaac-Ant-v0<span class="w"> </span>--headless
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-29" name="sd-tab-set-14" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-29">
+<input id="sd-tab-item-27" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-27">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Ant-v0 --headless
 </pre></div>
@@ -984,15 +945,15 @@ We recommend adding <code class="docutils literal notranslate"><span class="pre"
 </div>
 <p>… Or a robot dog!</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-30" name="sd-tab-set-15" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-30">
+<input checked="checked" id="sd-tab-item-28" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-28">
 <i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>-p<span class="w"> </span>scripts/reinforcement_learning/rsl_rl/train.py<span class="w"> </span>--task<span class="o">=</span>Isaac-Velocity-Rough-Anymal-C-v0<span class="w"> </span>--headless
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-31" name="sd-tab-set-15" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-31">
+<input id="sd-tab-item-29" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-29">
 <i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span>uwlab.bat -p scripts/reinforcement_learning/rsl_rl/train.py --task=Isaac-Velocity-Rough-Anymal-C-v0 --headless
 </pre></div>
@@ -1096,7 +1057,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Sep 15, 2026.
+  Last updated on Sep 28, 2026.
   <br/>
 </p>
   </div>

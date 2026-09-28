@@ -61,8 +61,8 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
-    <meta name="docbuild:last-update" content="Sep 15, 2026"/>
+  <meta name="docsearch:version" content="2.0.0" />
+    <meta name="docbuild:last-update" content="Sep 28, 2026"/>
   </head>
   
   
@@ -160,6 +160,8 @@
           </div>
           <select id="version-select" class="version-dropdown" style="margin: 0 auto; display: block;" onchange="location = this.value;">
             <option value="src_clone_uwlab.html" selected>main</option>
+            <option value="../../../../../isaaclab2/source/setup/installation/include/src_clone_uwlab.html" >isaaclab2</option>
+            <option value="../../../../../v1.3.0/source/setup/installation/include/src_clone_uwlab.html" >v1.3.0</option>
             <option value="../../../../../v1.2.0/source/setup/installation/include/src_clone_uwlab.html" >v1.2.0</option>
             <option value="../../../../../v1.1.0/source/setup/installation/include/src_clone_uwlab.html" >v1.1.0</option>
             <option value="../../../../../v1.0.0/index.html" >v1.0.0</option>
@@ -192,7 +194,7 @@
           
           
           
-          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
+          <a href="https://developer.nvidia.com/isaac-sim" title="Isaac Sim" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://img.shields.io/badge/IsaacSim-6.1.0-silver.svg" class="icon-link-image" alt="Isaac Sim"/></a>
         </li>
         <li class="nav-item">
           
@@ -263,8 +265,7 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../../overview/isaac_environments.html">Available Environments</a></li>
-
+<li class="toctree-l1"><a class="reference internal" href="../../../overview/isaac_environments.html">Isaac Lab Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../overview/uw_environments.html">Available UW Environments</a></li>
 
 </ul>
@@ -493,12 +494,11 @@
 <h1>Cloning UW Lab<a class="headerlink" href="#cloning-uw-lab" title="Permalink to this heading">#</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We recommend making a <a class="reference external" href="https://github.com/uw-lab/UWLab/fork">fork</a> of the UW Lab repository to contribute
-to the project but this is not mandatory to use the framework. If you
-make a fork, please replace <code class="docutils literal notranslate"><span class="pre">isaac-sim</span></code> with your username
-in the following instructions.</p>
+<p>We recommend making a <a class="reference external" href="https://github.com/uw-lab/UWLab/fork">fork</a> to contribute,
+but this is not required to use the framework. When using your fork, replace
+<code class="docutils literal notranslate"><span class="pre">uw-lab</span></code> with your GitHub username in the clone commands.</p>
 </div>
-<p>Clone the UW Lab repository into your project’s workspace:</p>
+<p>Clone UW Lab into your project’s workspace:</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
@@ -515,55 +515,17 @@ HTTPS</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
-<p>We provide a helper executable <a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/uwlab.sh">uwlab.sh</a>
-and <a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/uwlab.bat">uwlab.bat</a> for Linux and Windows
-respectively that provides utilities to manage extensions.</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="linux" for="sd-tab-item-2">
-<i class="fa-brands fa-linux"></i> Linux</label><div class="sd-tab-content docutils">
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>./uwlab.sh --help
-
-usage: uwlab.sh [-h] [-i] [-f] [-p] [-s] [-t] [-o] [-v] [-d] [-n] [-c] -- Utility to manage UW Lab.
-
-optional arguments:
-   -h, --help           Display the help content.
-   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is 'all'.
-   -f, --format         Run pre-commit to format the code and check lints.
-   -p, --python         Run the python executable provided by Isaac Sim or virtual environment (if active).
-   -s, --sim            Run the simulator executable (isaac-sim.sh) provided by Isaac Sim.
-   -t, --test           Run all python pytest tests.
-   -o, --docker         Run the docker container helper script (docker/container.sh).
-   -v, --vscode         Generate the VSCode settings file from template.
-   -d, --docs           Build the documentation from source using sphinx.
-   -n, --new            Create a new external project or internal task from template.
-   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is 'env_uwlab'.
-   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is 'env_uwlab'.
+<p>We provide the Linux helper <a class="reference external" href="https://github.com/uw-lab/UWLab/blob/main/uwlab.sh">uwlab.sh</a>
+to manage installation, Python execution, tests, and documentation. From the checkout,
+print the supported commands with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./uwlab.sh<span class="w"> </span>--help
 </pre></div>
 </div>
-</div>
-<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" data-sync-group="os" data-sync-id="windows" for="sd-tab-item-3">
-<i class="fa-brands fa-windows"></i> Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>uwlab.bat --help
-
-usage: uwlab.bat [-h] [-i] [-f] [-p] [-s] [-v] [-d] [-n] [-c] -- Utility to manage UW Lab.
-
-optional arguments:
-   -h, --help           Display the help content.
-   -i, --install [LIB]  Install the extensions inside UW Lab and learning frameworks (rl_games, rsl_rl, sb3, skrl) as extra dependencies. Default is 'all'.
-   -f, --format         Run pre-commit to format the code and check lints.
-   -p, --python         Run the python executable provided by Isaac Sim or virtual environment (if active).
-   -s, --sim            Run the simulator executable (isaac-sim.bat) provided by Isaac Sim.
-   -t, --test           Run all python pytest tests.
-   -v, --vscode         Generate the VSCode settings file from template.
-   -d, --docs           Build the documentation from source using sphinx.
-   -n, --new            Create a new external project or internal task from template.
-   -c, --conda [NAME]   Create the conda environment for UW Lab. Default name is 'env_uwlab'.
-   -u, --uv [NAME]      Create the uv environment for UW Lab. Default name is 'env_uwlab'.
-</pre></div>
-</div>
-</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This repository does not ship <code class="docutils literal notranslate"><span class="pre">uwlab.bat</span></code>. Do not assume that Isaac Lab’s
+Windows batch commands have UWLab equivalents; the helper instructions here
+use the Linux shell entry point.</p>
 </div>
 </section>
 
@@ -613,7 +575,7 @@ By The UW Lab Project Developers.
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Sep 15, 2026.
+  Last updated on Sep 28, 2026.
   <br/>
 </p>
   </div>
