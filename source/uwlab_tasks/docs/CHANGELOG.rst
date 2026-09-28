@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.14.10 (2026-09-28)
+~~~~~~~~~~~~~~~~~~~~
+
+Fixed
+^^^^^
+
+* Vectorized OmniReset OBB corner computation and debug drawing across environments,
+  avoiding per-environment host transfers. The termination decision and task settings
+  were unchanged; existing configurations require no migration.
+
+
 0.14.9 (2026-09-28)
 ~~~~~~~~~~~~~~~~~~~
 

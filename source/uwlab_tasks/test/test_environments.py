@@ -18,6 +18,7 @@ simulation_app = app_launcher.app
 import importlib
 import math
 import torch
+from itertools import product
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -387,3 +388,78 @@ def test_armature_curriculum_preserves_startup_baseline():
         expected = initial[ids] * (1.0 - progress) + torch.tensor(term.armature).repeat(2, 1) * progress
         torch.testing.assert_close(written[-1], expected, rtol=0, atol=0)
         torch.testing.assert_close(current[[0, 2]], initial[[0, 2]], rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("num_envs", [0, 1, 7])
+@pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+@pytest.mark.isaacsim_ci
+def test_obb_corners_stay_batched_on_device(monkeypatch, num_envs, dtype):
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.terminations")
+    term = module.check_obb_no_overlap_termination.__new__(module.check_obb_no_overlap_termination)
+    generator = torch.Generator().manual_seed(42)
+    centroids = torch.randn(num_envs, 3, generator=generator, dtype=dtype, requires_grad=True)
+    axes = torch.randn(num_envs, 3, 3, generator=generator, dtype=dtype, requires_grad=True)
+    extents = torch.tensor([0.3, 0.0 if num_envs == 1 else 0.7, 1.2], dtype=dtype)
+    expected = torch.empty(num_envs, 8, 3, dtype=torch.float32)
+    for index in range(num_envs):
+        for corner, signs in enumerate(product((-1, 1), repeat=3)):
+            expected[index, corner] = centroids[index] + sum(
+                signs[axis] * extents[axis] * axes[index, axis] for axis in range(3)
+            )
+    with monkeypatch.context() as guard:
+        guard.setattr(torch.Tensor, "cpu", Mock(side_effect=AssertionError("OBB math transferred to host")))
+        guard.setattr(torch.Tensor, "numpy", Mock(side_effect=AssertionError("OBB math used NumPy")))
+        actual = term._compute_obb_corners_batch(centroids, axes, extents)
+    assert actual.device == centroids.device and actual.dtype == torch.float32 and not actual.requires_grad
+    torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-6)
+
+
+@pytest.mark.parametrize("num_envs", [0, 1, 7])
+@pytest.mark.isaacsim_ci
+def test_obb_wireframes_transfer_one_batch(monkeypatch, num_envs):
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.terminations")
+    term = module.check_obb_no_overlap_termination.__new__(module.check_obb_no_overlap_termination)
+    corners = torch.arange(num_envs * 24, dtype=torch.float32).reshape(num_envs, 8, 3)
+    draw = Mock()
+    transfers = []
+    original = torch.Tensor.cpu
+
+    def copy_to_cpu(tensor, *args, **kwargs):
+        transfers.append(tensor.shape)
+        return original(tensor, *args, **kwargs)
+
+    with monkeypatch.context() as guard:
+        guard.setattr(torch.Tensor, "cpu", copy_to_cpu)
+        guard.setattr(torch.Tensor, "numpy", Mock(side_effect=AssertionError("Per-edge NumPy conversion")))
+        term._draw_obb_wireframe(corners[0] if num_envs == 1 else corners, draw_interface=draw)
+    assert len(transfers) == 1
+    draw.draw_lines.assert_called_once()
+    starts, ends, colors, widths = draw.draw_lines.call_args.args
+    assert len(starts) == len(ends) == len(colors) == len(widths) == 24 * num_envs
+    for index in range(num_envs):
+        assert starts[24 * index] == corners[index, 0].tolist()
+        assert ends[24 * index] == corners[index, 1].tolist()
+
+
+@pytest.mark.isaacsim_ci
+def test_obb_visualization_submits_whole_environment_batches():
+    module = importlib.import_module("uwlab_tasks.manager_based.manipulation.omnireset.mdp.terminations")
+    term = module.check_obb_no_overlap_termination.__new__(module.check_obb_no_overlap_termination)
+    env = SimpleNamespace(num_envs=5)
+    positions = torch.zeros(5, 3)
+    quaternions = torch.tensor([[0.0, 0.0, 0.0, 1.0]]).repeat(5, 1)
+    term.insertive_object = SimpleNamespace(
+        data=SimpleNamespace(
+            root_pos_w=SimpleNamespace(torch=positions), root_quat_w=SimpleNamespace(torch=quaternions)
+        )
+    )
+    term._insertive_initial_pos, term._insertive_initial_quat = positions, quaternions
+    term._insertive_obb_centroid = torch.zeros(3)
+    term._insertive_obb_axes = torch.eye(3)
+    term._insertive_obb_half_extents = torch.ones(3)
+    term._omni_debug_draw = SimpleNamespace(acquire_debug_draw_interface=lambda: Mock())
+    term._compute_obb_corners_batch = lambda centroids, axes, extents: centroids[:, None, :].expand(-1, 8, -1)
+    term._draw_obb_wireframe = Mock()
+    term._visualize_bounding_boxes(env)
+    assert term._draw_obb_wireframe.call_count == 2
+    assert all(call.args[0].shape == (5, 8, 3) for call in term._draw_obb_wireframe.call_args_list)
