@@ -363,6 +363,6 @@ To run an example within the container, run:
 .. _`several streaming clients`: https://docs.isaacsim.omniverse.nvidia.com/latest/installation/manual_livestream_clients.html
 .. _`known issue`: https://forums.developer.nvidia.com/t/unable-to-use-webrtc-when-i-run-runheadless-webrtc-sh-in-remote-headless-container/222916
 .. _`profile`: https://docs.docker.com/compose/compose-file/15-profiles/
-.. _`apt package`: https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html#install-ros-2-packages
+.. _`apt package`: https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html#install-ros-2-packages
 .. _`various middleware`: https://docs.ros.org/en/humble/How-To-Guides/Working-with-multiple-RMW-implementations.html
 .. _`tuned`: https://docs.ros.org/en/foxy/How-To-Guides/DDS-tuning.html

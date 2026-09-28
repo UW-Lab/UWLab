@@ -76,11 +76,12 @@ The DGX spark is a standalone machine learning device with aarch64 architecture.
 features of UW Lab are not currently supported on the DGX spark. The most noteworthy is that the architecture *requires* CUDA ≥ 13, and thus the cu13 build of PyTorch or newer.
 Other notable limitations with respect to UW Lab include...
 
-#. `SkillGen <https://uw-lab.github.io/UWLab/main/source/overview/imitation-learning/skillgen.html>`_ is not supported out of the box. This
+#. `SkillGen <https://isaac-sim.github.io/IsaacLab/main/source/overview/imitation-learning/skillgen.html>`_ is not supported out of the box. This
    is because cuRobo builds native CUDA/C++ extensions that requires specific tooling and library versions which are not validated for use with DGX spark.
 
-#. Extended reality teleoperation tools such as `OpenXR <https://uw-lab.github.io/UWLab/release/2.3.0/source/api/lab/uwlab.devices.html#openxr>`_ is not supported. This is due
-   to encoding performance limitations that have not yet been fully investigated.
+#. Extended reality teleoperation tools such as OpenXR are not supported. See the
+   `upstream platform limitations <https://isaac-sim.github.io/IsaacLab/develop/source/setup/installation/index.html>`_
+   for the currently documented restrictions.
 
 #. SKRL training with `JAX <https://docs.jax.dev/en/latest/notebooks/thinking_in_jax.html>`_ has not been explicitly validated or tested in UW Lab on the DGX Spark.
    JAX provides pre-built CUDA wheels only for Linux on x86_64, so on aarch64 systems (e.g., DGX Spark) it runs on CPU only by default.

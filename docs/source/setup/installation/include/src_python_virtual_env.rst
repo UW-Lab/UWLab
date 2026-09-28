@@ -61,8 +61,8 @@ instead of *./uwlab.sh -p* or *uwlab.bat -p*.
             :sync: windows
 
             .. warning::
-               Windows support for UV is currently unavailable. Please check
-               `issue #3483 <https://github.com/uw-lab/UWLab/issues/3438>`_ to track progress.
+               UWLab does not ship a Windows batch helper. Upstream Isaac Lab's Windows
+               UV support is discussed in `issue #3438 <https://github.com/isaac-sim/IsaacLab/issues/3438>`_.
 
    .. tab-item::  Conda Environment
 
