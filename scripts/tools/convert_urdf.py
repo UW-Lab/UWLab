@@ -15,6 +15,9 @@ For more information on the URDF importer, see the documentation for the extensi
 https://docs.isaacsim.omniverse.nvidia.com/latest/robot_setup/ext_isaacsim_asset_importer_urdf.html
 
 
+The requested output file is a USD entry layer. Keep the importer-generated asset
+directory beside it so its relative references remain available.
+
 positional arguments:
   input               The path to the input URDF file.
   output              The path to store the USD file.
@@ -100,6 +103,7 @@ from isaaclab.physics import PhysicsCfg  # noqa: E402
 from isaaclab.sim.converters import UrdfConverter, UrdfConverterCfg  # noqa: E402
 from isaaclab.utils.assets import check_file_path  # noqa: E402
 from isaaclab.utils.dict import print_dict  # noqa: E402
+from usd_output import write_usd_entry_layer
 
 
 def preview(usd_path: str, physics_cfg: PhysicsCfg) -> None:
@@ -149,11 +153,11 @@ def main():
         dest_path = os.path.abspath(dest_path)
 
     # Create Urdf converter config
-    # Note: usd_file_name is determined by the URDF importer 3.0 based on the robot name
-    # and cannot be overridden. The output is placed under dest_path as usd_dir.
+    # The importer owns its structured asset filenames and relative references.
+    # An entry layer below preserves the requested output filename.
     urdf_converter_cfg = UrdfConverterCfg(
         asset_path=urdf_path,
-        usd_dir=dest_path,
+        usd_dir=os.path.dirname(dest_path),
         fix_base=args_cli.fix_base,
         merge_fixed_joints=args_cli.merge_joints,
         force_usd_conversion=True,
@@ -178,13 +182,14 @@ def main():
     with launch_simulation(cfg=PhysicsCfg(), launcher_args=args_cli) as physics_cfg:
         # Create Urdf converter and import the file
         urdf_converter = UrdfConverter(urdf_converter_cfg)
+        output_path = write_usd_entry_layer(urdf_converter.usd_path, dest_path)
         # print output
         print("URDF importer output:")
-        print(f"Generated USD file: {urdf_converter.usd_path}")
+        print(f"Generated USD file: {output_path}")
         print("-" * 80)
         print("-" * 80)
 
-        preview(urdf_converter.usd_path, physics_cfg)
+        preview(output_path, physics_cfg)
 
 
 if __name__ == "__main__":

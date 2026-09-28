@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import argparse
+import ast
 import runpy
 import sys
 from pathlib import Path
@@ -65,3 +66,72 @@ def test_rsl_cli_overrides_only_requested_values(arguments, resume):
     assert cfg.experiment_name == ("custom" if "--experiment_name" in arguments else "original")
     assert cfg.device == ("cpu" if "--device" in arguments else "cuda:0")
     assert cfg.load_run == "saved" and cfg.load_checkpoint == "model.pt"
+
+
+def _camera_configs():
+    def load(path, names, namespace):
+        tree = ast.parse((ROOT / path).read_text())
+        nodes = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name in names]
+        assert len(nodes) == len(names)
+        exec(compile(ast.Module(body=nodes, type_ignores=[]), path, "exec"), namespace)
+        return namespace
+
+    class Sample:
+        def __init__(self, value):
+            self.value = value
+
+        def sample(self):
+            return self.value
+
+    tune = SimpleNamespace(
+        choice=lambda values: Sample(values[0]),
+        randint=lambda low, high: Sample(low),
+        sample_from=lambda function: Sample(function),
+    )
+    base = load("scripts/reinforcement_learning/ray/tuner.py", ["JobCfg"], {})
+    util = load("scripts/reinforcement_learning/ray/util.py", ["populate_isaac_ray_cfg_args"], {})
+    vision = load(
+        "scripts/reinforcement_learning/ray/hyperparameter_tuning/vision_cfg.py",
+        ["CameraJobCfg", "ResNetCameraJob", "TheiaCameraJob"],
+        {
+            "tune": tune,
+            "tuner": SimpleNamespace(JobCfg=base["JobCfg"]),
+            "util": SimpleNamespace(populate_isaac_ray_cfg_args=util["populate_isaac_ray_cfg_args"]),
+        },
+    )
+    jobs = load(
+        "scripts/reinforcement_learning/ray/hyperparameter_tuning/vision_cartpole_cfg.py",
+        [
+            "CartpoleRGBNoTuneJobCfg",
+            "CartpoleRGBCNNOnlyJobCfg",
+            "CartpoleRGBJobCfg",
+            "CartpoleResNetJobCfg",
+            "CartpoleTheiaJobCfg",
+        ],
+        {"tune": tune, "util": vision["util"], "vision_cfg": SimpleNamespace(**vision)},
+    )
+    return vision, jobs
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "CartpoleRGBNoTuneJobCfg",
+        "CartpoleRGBCNNOnlyJobCfg",
+        "CartpoleRGBJobCfg",
+        "CartpoleResNetJobCfg",
+        "CartpoleTheiaJobCfg",
+    ],
+)
+def test_camera_tuning_selects_matching_agent(name):
+    _, jobs = _camera_configs()
+    cfg = jobs[name]({}).cfg
+    assert cfg["runner_args"]["--rl_library"] == "rl_games"
+    assert cfg["hydra_args"]["agent.params.config.max_epochs"] == 200
+    assert all(not key.startswith("agent.") or key.startswith("agent.params.") for key in cfg["hydra_args"])
+
+
+def test_camera_tuning_rejects_conflicting_agent():
+    vision, _ = _camera_configs()
+    with pytest.raises(ValueError, match="rl_games"):
+        vision["CameraJobCfg"]({"runner_args": {"--task": "Isaac-Cartpole-Camera", "--rl_library": "rsl_rl"}})

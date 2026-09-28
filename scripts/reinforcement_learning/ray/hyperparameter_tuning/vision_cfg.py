@@ -30,6 +30,9 @@ class CameraJobCfg(tuner.JobCfg):
 
     def __init__(self, cfg={}, vary_env_count: bool = False, vary_cnn: bool = False, vary_mlp: bool = False):
         cfg = util.populate_isaac_ray_cfg_args(cfg)
+        library = cfg["runner_args"].setdefault("--rl_library", "rl_games")
+        if library != "rl_games":
+            raise ValueError("Camera tuning overrides require --rl_library rl_games.")
 
         # Basic configuration
         cfg["hydra_args"]["agent.params.config.max_epochs"] = 200

@@ -15,6 +15,9 @@ For more information on the MJCF importer, see the documentation for the extensi
 https://docs.isaacsim.omniverse.nvidia.com/latest/robot_setup/ext_isaacsim_asset_importer_mjcf.html
 
 
+The requested output file is a USD entry layer. Keep the importer-generated asset
+directory beside it so its relative references remain available.
+
 positional arguments:
   input               The path to the input MJCF file.
   output              The path to store the USD file.
@@ -104,6 +107,7 @@ from isaaclab.physics import PhysicsCfg  # noqa: E402
 from isaaclab.sim.converters import MjcfConverter, MjcfConverterCfg  # noqa: E402
 from isaaclab.utils.assets import check_file_path  # noqa: E402
 from isaaclab.utils.dict import print_dict  # noqa: E402
+from usd_output import write_usd_entry_layer
 
 
 def preview(usd_path: str, physics_cfg: PhysicsCfg) -> None:
@@ -176,13 +180,14 @@ def main():
     with launch_simulation(cfg=PhysicsCfg(), launcher_args=args_cli) as physics_cfg:
         # Create mjcf converter and import the file
         mjcf_converter = MjcfConverter(mjcf_converter_cfg)
+        output_path = write_usd_entry_layer(mjcf_converter.usd_path, dest_path)
         # print output
         print("MJCF importer output:")
-        print(f"Generated USD file: {mjcf_converter.usd_path}")
+        print(f"Generated USD file: {output_path}")
         print("-" * 80)
         print("-" * 80)
 
-        preview(mjcf_converter.usd_path, physics_cfg)
+        preview(output_path, physics_cfg)
 
 
 if __name__ == "__main__":
