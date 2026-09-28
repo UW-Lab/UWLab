@@ -1,6 +1,11 @@
 Sim2Real: SysID & RL Finetuning
 ================================
 
+.. note::
+
+   This workflow is expected to work with Isaac Lab 3.0 but has not yet been tested.
+   Validation is planned; use UWLab ``v1.3.0`` as the legacy reference.
+
 This guide bridges sim-to-real via system identification and policy finetuning. Finetuning uses a curriculum: sim dynamics shift toward your sys-id'd parameters (with higher OSC gains to compensate for friction, since policies do not train well under high friction from scratch), and action scale is reduced so the policy runs slower and transfers better to the real robot.
 
 Our system identification follows the `PACE <https://arxiv.org/abs/2509.06342>`_ framework by Bjelonic et al.

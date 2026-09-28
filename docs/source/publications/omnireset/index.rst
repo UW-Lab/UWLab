@@ -17,21 +17,6 @@ Quick Start (Try in 2 Minutes)
 
 Download our pretrained checkpoint and run evaluation.
 
-.. important::
-
-   These checkpoints use the Isaac Lab 3.0 EA observation order. Earlier beta checkpoints
-   have the same input size but a different feature order. Do not use them unchanged.
-   To convert a beta state expert without retraining:
-
-   .. code:: bash
-
-      python scripts/reinforcement_learning/rsl_rl/convert_checkpoint_layout.py \
-          --checkpoint <beta_checkpoint.pt> --output <ea_checkpoint.pt>
-
-   The converter preserves the original file and updates actor/critic inputs, normalization
-   statistics and Adam state. It supports the published 43-input OmniReset state-policy architecture.
-   The old checkpoints remain on the ``isaaclab3`` HF branch; EA copies are on ``isaaclab3-ea``.
-
 .. tab-set::
 
    .. tab-item:: Leg Twisting

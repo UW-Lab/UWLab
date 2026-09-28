@@ -1,6 +1,11 @@
 Distillation & Deployment
 =========================
 
+.. note::
+
+   This workflow is expected to work with Isaac Lab 3.0 but has not yet been tested.
+   Validation is planned; use UWLab ``v1.3.0`` as the legacy reference.
+
 This guide covers distilling a state-based RL expert into a vision-based policy, evaluating it in simulation, and deploying on a real robot.
 
 .. _distillation-install:

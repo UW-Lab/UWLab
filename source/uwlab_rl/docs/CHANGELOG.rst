@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.2.6 (2026-09-28)
+~~~~~~~~~~~~~~~~~~
+
+Removed
+^^^^^^^
+
+* Removed the beta-to-EA checkpoint conversion utility and its migration-only tests
+  from the upcoming release. Use the already-compatible EA checkpoints linked in
+  the OmniReset quick start; beta checkpoint migration is no longer provided.
+
+
 0.2.5 (2026-09-27)
 ~~~~~~~~~~~~~~~~~~
 
