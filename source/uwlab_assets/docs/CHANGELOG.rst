@@ -7,56 +7,13 @@ Changelog
 Changed
 ^^^^^^^
 
-* Consolidated Isaac Lab 3.0 / Isaac Sim 6.1 asset publication on the ``isaaclab3``
-  Hugging Face branch. The existing pinned commit and asset contents were unchanged.
-  Publish new assets on ``isaaclab3`` and update the commit pin deliberately;
+* Migrated assets to Isaac Lab 3.0 Early Access / Isaac Sim 6.1 with scalar-last
+  ``(x, y, z, w)`` quaternions and compatible OmniReset datasets and checkpoints.
+* Pinned cloud assets to the canonical ``isaaclab3`` Hugging Face branch's verified
+  snapshot. Publish new assets on ``isaaclab3`` and update the commit pin deliberately;
   ``main`` remains the legacy Isaac Lab 2.x asset line.
-
-
-0.6.3 (2026-09-26)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Restored the original calibrated UR5e USD for compatibility with published OmniReset
-  checkpoints. Deferred the mass/inertia changes for issues #38 and #40. Use the original
-  filename with existing checkpoints; the experimental ``_v2.usd`` is not the default.
-
-
-0.6.2 (2026-09-26)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Selected the versioned FactoryV2 UR5e/Robotiq asset with explicit knuckle mass and inertia,
-  camera/mount mass corrections, passive-link armature and the calibrated fingertip TCP.
-  The previous USD remains available under its original filename for reproducible comparisons.
-  Existing policies should be checked against the changed robot dynamics before deployment.
-
-
-0.6.1 (2026-09-26)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Aligned the USD Python provider with Isaac Lab 3.0 Early Access using ``usd-exchange``.
-  Use a fresh environment when upgrading to avoid overlapping ``pxr`` files from ``usd-core``.
-  The robot and object asset contents were unchanged.
-* Pinned the EA asset revision containing converted OmniReset checkpoints. The beta and 2.x
-  branches remain available for their original observation layouts.
-
-
-0.6.0 (2026-09-16)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Ported to Isaac Lab 3.0: asset quaternions are scalar-last ``(x, y, z, w)``; cloud assets
-  are pinned to the ``isaaclab3`` revision of ``UW-Lab/uwlab-assets``.
+* Aligned the USD Python provider using ``usd-exchange``. Use a fresh environment when
+  upgrading to avoid overlapping ``pxr`` files from ``usd-core``.
 
 
 0.5.2 (2025-03-23)

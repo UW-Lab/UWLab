@@ -4,83 +4,16 @@ Changelog
 0.2.6 (2026-09-28)
 ~~~~~~~~~~~~~~~~~~
 
-Removed
-^^^^^^^
-
-* Removed the beta-to-EA checkpoint conversion utility and its migration-only tests
-  from the upcoming release. Use the already-compatible EA checkpoints linked in
-  the OmniReset quick start; beta checkpoint migration is no longer provided.
-
-
-0.2.5 (2026-09-27)
-~~~~~~~~~~~~~~~~~~
-
 Changed
 ^^^^^^^
 
-* Pinned the released ``uw-v5.4.1`` revision from the official UW-Lab RSL-RL repository,
-  including logger configuration and image-only normalization fixes.
-  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
-* Changed the supported runtime metadata to Python 3.12 and Isaac Sim 6.1.
-  Use the ``isaaclab2`` branch for older environments.
+* Migrated to the official UW-Lab RSL-RL 5.4.1 release (``uw-v5.4.1``), using separate
+  actor and critic models with Isaac Lab 3.0 Early Access, Isaac Sim 6.1 and Python 3.12.
+* Updated JIT export to support heteroscedastic Gaussian policies and their distributions.
 
-
-0.2.4 (2026-09-27)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Updated the pinned RSL-RL 5.4.1 integration to target separate actor and critic models for the upgraded UWLab stack.
-  The legacy combined ``ActorCritic`` interface is not provided; retain the pinned 3.x stack for old callers.
-  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
-
-
-0.2.3 (2026-09-26)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Updated the pinned RSL-RL 5.4.1 revision without changing its library code or runtime behavior.
-  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
-
-
-0.2.2 (2026-09-26)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Pinned the integrated RSL-RL 5.4.1 fork, retaining deprecated legacy checkpoint inference
-  and distributed initialization fixes. New training uses the 5.x actor/critic configuration.
-  Reinstall the pinned dependency with ``./uwlab.sh --install`` after updating.
-
-
-0.2.1 (2026-09-26)
-~~~~~~~~~~~~~~~~~~
-
-Added
-^^^^^
-
-* Added CPU conversion of OmniReset beta observation layouts to EA order, including
-  actor/critic normalization and Adam state without retraining or overwriting the original.
-
-Changed
-^^^^^^^
-
-* Updated the RSL-RL dependency to version 5.4.1 for Isaac Lab 3.0 Early Access.
-  Run ``./uwlab.sh --install`` to reinstall the pinned dependencies when upgrading.
-
-
-0.2.0 (2026-09-16)
-~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Ported to rsl-rl 5.x: explicit actor/critic model configs and the runner export API; the JIT
-  exporter supports heteroscedastic Gaussian actors. Requires Isaac Lab 3.0.
+Run ``./uwlab.sh --install`` to install the pinned dependencies and use the compatible
+checkpoints linked in the OmniReset quick start. Use ``isaaclab2`` / ``v1.3.0`` for
+legacy RSL-RL 3.x callers, including the combined ``ActorCritic`` interface.
 
 
 0.1.4 (2026-09-14)

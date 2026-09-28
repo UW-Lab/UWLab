@@ -4,133 +4,30 @@ Changelog
 0.14.10 (2026-09-28)
 ~~~~~~~~~~~~~~~~~~~~
 
-Fixed
-^^^^^
-
-* Vectorized OmniReset OBB corner computation and debug drawing across environments,
-  avoiding per-environment host transfers. The termination decision and task settings
-  were unchanged; existing configurations require no migration.
-
-
-0.14.9 (2026-09-28)
-~~~~~~~~~~~~~~~~~~~
-
 Changed
 ^^^^^^^
 
-* Moved required OmniReset helper imports to module scope while retaining deferred
-  imports for optional collision dependencies and extension-dependent features.
-  No task configuration or caller changes are required.
-
-
-0.14.8 (2026-09-27)
-~~~~~~~~~~~~~~~~~~~
+* Migrated tasks to Isaac Lab 3.0 Early Access / Isaac Sim 6.1, including ``sim.physics``
+  configuration, scalar-last quaternions, Warp-backed data and ``JointWrenchSensor``.
+  Use ``--visualizer none`` instead of ``--headless`` to disable visualization.
+* Adopted the EA observation order and compatible OmniReset datasets and checkpoints.
+  Use the pretrained experts linked in the updated quick start.
+* Deferred task imports until selection while preserving existing task IDs and entry points.
+* Preserved authored or geometry-derived object masses during grasp sampling instead of
+  requesting an ineffective 1 g override. Verify mass properties for custom assets.
 
 Fixed
 ^^^^^
 
-* Fixed backend-specific assets bypassing velocity-stability checks during OmniReset grasp
-  and reset-state generation. Regenerate affected datasets to apply the restored stability filters.
-
-
-0.14.7 (2026-09-26)
-~~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Disabled added wrist armature by default when restoring the original robot for published
-  checkpoints. Keep ``robot_wrist_armature`` unset with those checkpoints; the experimental
-  mass/inertia changes are deferred.
-
-
-0.14.6 (2026-09-26)
-~~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Applied calibrated wrist motor armature at startup for the corrected UR5e asset, while
-  retaining Stage-1 shoulder/elbow settings and the existing policy rate, gains and action scales.
-  The values come from the robot's ``metadata.yaml``; keep this metadata with custom robot assets.
-* Started armature ADR from the initialized robot model instead of erasing its inertia at zero
-  progress. Full-progress calibration and friction/motor-delay ramps remain unchanged.
-
-
-0.14.5 (2026-09-26)
-~~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Used authored or geometry-derived object masses for grasp sampling instead of requesting a
-  1 g override. The override was ineffective for the released assets; all six objects retained
-  identical live masses and sampled grasp datasets in paired checks. Custom assets now retain
-  their own mass properties, so verify those properties when generating new grasp datasets.
-
-
-0.14.4 (2026-09-26)
-~~~~~~~~~~~~~~~~~~~
-
-Fixed
-^^^^^
-
-* Resolved grasp-sampling and collision asset paths from the USD stage for both legacy and EA
-  environment namespace patterns, preserving natural environment-index ordering.
-* Corrected cached collider-relative quaternions to scalar-last order and included complete
-  collider transforms in geometry hashes. Regenerate grasp datasets to use the corrected geometry checks.
-
-
-0.14.3 (2026-09-26)
-~~~~~~~~~~~~~~~~~~~
-
-Fixed
-^^^^^
-
-* Fixed partial environment resets clearing consecutive-success counters in unrelated
-  environments. An empty reset selection leaves counters unchanged; ``None`` resets all.
-
-
-0.14.2 (2026-09-26)
-~~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Migrated OmniReset renderer configuration and extension loading to Isaac Lab 3.0 Early Access.
-  Preserved the legacy actuator execution path and existing task parameters during migration.
-  Use ``--visualizer none`` instead of ``--headless`` when disabling visualization.
-* Deferred task MDP and ANYmal configuration imports until a task was selected, matching upstream
-  registration behavior while preserving the existing task IDs and configuration entry points.
-* Adopted the EA observation declaration order for OmniReset. Use the converted EA experts;
-  convert beta checkpoints with ``convert_checkpoint_layout.py`` before loading them.
-
-Fixed
-^^^^^
-
-* Fixed renderer setup for physics-replicated scenes without changing scene replication settings.
-
-
-0.14.1 (2026-09-21)
-~~~~~~~~~~~~~~~~~~~
-
-Fixed
-^^^^^
-
-* Fixed OmniReset and Factory extension velocity observations subtracting the robot's world position
-  from linear and angular velocities. Velocity vectors are now rotated into the root frame without translation.
-* Added regression coverage for stationary and moving links, translated roots, rotated frames, and body selection.
-
-
-0.14.0 (2026-09-16)
-~~~~~~~~~~~~~~~~~~~
-
-Changed
-^^^^^^^
-
-* Ported to Isaac Lab 3.0: ``sim.physics = PhysxCfg(...)`` replaces ``sim.physx``, scalar-last
-  quaternions in task and asset configs, warp-backed data accessors, ``JointWrenchSensor`` for
-  wrist wrenches, and Isaac Lab 3.0 convention-stamped OmniReset datasets.
+* Corrected OmniReset and Factory velocity observations to rotate vectors into the root
+  frame without subtracting the robot's position.
+* Fixed partial resets clearing consecutive-success counters in unrelated environments.
+* Corrected grasp-sampling asset resolution, collider frames and geometry-cache hashes,
+  and restored backend-aware velocity-stability filters. Regenerate affected grasp and
+  reset-state datasets to apply these fixes.
+* Preserved initialized joint armature when applying ADR.
+* Fixed renderer setup for physics-replicated scenes.
+* Batched OBB corner computation and debug drawing without changing the termination decision.
 
 
 0.13.8 (2025-10-24)
