@@ -135,6 +135,9 @@ Every entry-point string must resolve; `-Play-v0` variants normally reuse the tr
   and a bullet under **Getting Started** in `README.md`.
 - Checkpoints and datasets go to the Hugging Face dataset `UW-Lab/uwlab-assets` (`Policies/` for
   checkpoints) via fork + PR, and the docs link to them. They are never committed here.
+- Assets consumed by Isaac Lab 3.0 live on that repository's `isaaclab3` branch (quaternions in
+  `(x, y, z, w)`); `main` keeps the Isaac Lab 2.x files. Code pins a commit via
+  `uwlab_assets.UWLAB_CLOUD_ASSETS_REVISION`; bump it deliberately when publishing assets.
 - Heavy or research-only dependencies (diffusion_policy, robomimic, ...) are not added to core
   install requirements, so a default install stays light. Use an `extras_require` group
   (`EXTRAS_REQUIRE` in `source/uwlab_rl/setup.py` is the pattern), a git submodule, or install

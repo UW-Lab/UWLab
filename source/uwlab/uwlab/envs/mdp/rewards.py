@@ -35,7 +35,7 @@ def joint_position_command_error_l2_norm(
     """Penalize tracking of the joint position error using L2-norm."""
     asset: Articulation = env.scene[asset_cfg.name]
     command = env.command_manager.get_command(command_name)
-    cur_joint_position = asset.data.joint_pos[:, asset_cfg.joint_ids]
+    cur_joint_position = asset.data.joint_pos.torch[:, asset_cfg.joint_ids]
     error = torch.norm(command - cur_joint_position, dim=1)
     return error
 
@@ -50,7 +50,7 @@ def link_position_command_align_tanh(
     # obtain the desired and current positions
     des_pos_b = command[:, :3]
     des_pos_w, _ = combine_frame_transforms(asset.data.root_state_w[:, :3], asset.data.root_state_w[:, 3:7], des_pos_b)
-    curr_pos_w = asset.data.body_link_pos_w[:, asset_cfg.body_ids[0], :3]  # type: ignore
+    curr_pos_w = asset.data.body_link_pos_w.torch[:, asset_cfg.body_ids[0], :3]  # type: ignore
     distance = torch.norm(curr_pos_w - des_pos_w, dim=1)
     return 1 - torch.tanh(distance / std)
 
@@ -65,7 +65,7 @@ def link_position_command_error_l2_norm(
     # obtain the desired and current positions
     des_pos_b = command[:, :3]
     des_pos_w, _ = combine_frame_transforms(asset.data.root_state_w[:, :3], asset.data.root_state_w[:, 3:7], des_pos_b)
-    curr_pos_w = asset.data.body_link_pos_w[:, asset_cfg.body_ids[0], :3]  # type: ignore
+    curr_pos_w = asset.data.body_link_pos_w.torch[:, asset_cfg.body_ids[0], :3]  # type: ignore
     return torch.norm(curr_pos_w - des_pos_w, dim=1)
 
 
@@ -79,7 +79,7 @@ def link_orientation_command_align_tanh(
     # obtain the desired and current orientations
     des_quat_b = command[:, 3:7]
     des_quat_w = quat_mul(asset.data.root_state_w[:, 3:7], des_quat_b)
-    curr_quat_w = asset.data.body_link_quat_w[:, asset_cfg.body_ids[0]]  # type: ignore
+    curr_quat_w = asset.data.body_link_quat_w.torch[:, asset_cfg.body_ids[0]]  # type: ignore
     return 1 - torch.tanh(quat_error_magnitude(curr_quat_w, des_quat_w) / std)
 
 
@@ -93,5 +93,5 @@ def link_orientation_command_error_l2_norm(
     # obtain the desired and current orientations
     des_quat_b = command[:, 3:7]
     des_quat_w = quat_mul(asset.data.root_state_w[:, 3:7], des_quat_b)
-    curr_quat_w = asset.data.body_link_quat_w[:, asset_cfg.body_ids[0]]  # type: ignore
+    curr_quat_w = asset.data.body_link_quat_w.torch[:, asset_cfg.body_ids[0]]  # type: ignore
     return quat_error_magnitude(curr_quat_w, des_quat_w)

@@ -5,13 +5,12 @@
 
 """MDP functions for manipulation tasks."""
 
-import numpy as np
 import torch
 
-import isaacsim.core.utils.bounds as bounds_utils
-from isaaclab.assets import Articulation, RigidObject, RigidObjectCollection
+from isaaclab.assets import BaseArticulation, BaseRigidObject, BaseRigidObjectCollection
 from isaaclab.envs import ManagerBasedEnv, ManagerBasedRLEnv
 from isaaclab.managers import ManagerTermBase, SceneEntityCfg, TerminationTermCfg
+from isaaclab.sim.utils import enable_extension
 from isaaclab.utils import math as math_utils
 
 from uwlab_tasks.manager_based.manipulation.omnireset.mdp import utils
@@ -135,11 +134,11 @@ class check_grasp_success(ManagerTermBase):
 
         object_asset = self._env.scene[self.object_cfg.name]
         if not hasattr(object_asset, "initial_pos"):
-            object_asset.initial_pos = object_asset.data.root_pos_w.clone()
-            object_asset.initial_quat = object_asset.data.root_quat_w.clone()
+            object_asset.initial_pos = object_asset.data.root_pos_w.torch.clone()
+            object_asset.initial_quat = object_asset.data.root_quat_w.torch.clone()
         else:
-            object_asset.initial_pos[env_ids] = object_asset.data.root_pos_w[env_ids].clone()
-            object_asset.initial_quat[env_ids] = object_asset.data.root_quat_w[env_ids].clone()
+            object_asset.initial_pos[env_ids] = object_asset.data.root_pos_w.torch[env_ids].clone()
+            object_asset.initial_quat[env_ids] = object_asset.data.root_quat_w.torch[env_ids].clone()
 
         if env_ids is None:
             self.stability_counter.zero_()
@@ -164,21 +163,21 @@ class check_grasp_success(ManagerTermBase):
         time_out = env.episode_length_buf >= env.max_episode_length
 
         # Check for abnormal gripper state (excessive joint velocities)
-        abnormal_gripper_state = (gripper_asset.data.joint_vel.abs() > (gripper_asset.data.joint_vel_limits * 2)).any(
-            dim=1
-        )
+        abnormal_gripper_state = (
+            gripper_asset.data.joint_vel.torch.abs() > (gripper_asset.data.joint_vel_limits.torch * 2)
+        ).any(dim=1)
 
         # Check if asset velocities are small
         current_step_stable = torch.ones(env.num_envs, device=env.device, dtype=torch.bool)
         # Check gripper (articulation) velocities
-        current_step_stable &= gripper_asset.data.joint_vel.abs().sum(dim=1) < 5.0
+        current_step_stable &= gripper_asset.data.joint_vel.torch.abs().sum(dim=1) < 5.0
         # Check object (rigid object) velocities
-        if isinstance(object_asset, RigidObject):
-            current_step_stable &= object_asset.data.body_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.05
-            current_step_stable &= object_asset.data.body_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
-        elif isinstance(object_asset, RigidObjectCollection):
-            current_step_stable &= object_asset.data.object_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.05
-            current_step_stable &= object_asset.data.object_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
+        if isinstance(object_asset, BaseRigidObject):
+            current_step_stable &= object_asset.data.body_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.05
+            current_step_stable &= object_asset.data.body_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
+        elif isinstance(object_asset, BaseRigidObjectCollection):
+            current_step_stable &= object_asset.data.object_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.05
+            current_step_stable &= object_asset.data.object_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
 
         self.stability_counter = torch.where(
             current_step_stable,
@@ -189,17 +188,17 @@ class check_grasp_success(ManagerTermBase):
         stability_reached = self.stability_counter >= self.consecutive_stability_steps
 
         # Skip if position or quaternion is NaN
-        pos_is_nan = torch.isnan(object_asset.data.root_pos_w).any(dim=1)
-        quat_is_nan = torch.isnan(object_asset.data.root_quat_w).any(dim=1)
+        pos_is_nan = torch.isnan(object_asset.data.root_pos_w.torch).any(dim=1)
+        quat_is_nan = torch.isnan(object_asset.data.root_quat_w.torch).any(dim=1)
         skip_check = pos_is_nan | quat_is_nan
 
         # Object has excessive pose deviation if position exceeds thresholds
-        pos_deviation = (object_asset.data.root_pos_w - object_asset.initial_pos).norm(dim=1)
+        pos_deviation = (object_asset.data.root_pos_w.torch - object_asset.initial_pos).norm(dim=1)
         valid_pos_deviation = torch.where(~skip_check, pos_deviation, torch.zeros_like(pos_deviation))
         excessive_pose_deviation = valid_pos_deviation > self.max_pos_deviation
 
         # Object is above ground if position is greater than z threshold
-        pos_above_ground = object_asset.data.root_pos_w[:, 2] >= self.pos_z_threshold
+        pos_above_ground = object_asset.data.root_pos_w.torch[:, 2] >= self.pos_z_threshold
 
         # Check for collisions between gripper and object
         all_env_ids = torch.arange(env.num_envs, device=env.device)
@@ -285,9 +284,9 @@ class check_reset_state_success(ManagerTermBase):
 
         for asset in self.assets_to_check:
             if asset is self.robot_asset:
-                asset_pos = asset.data.body_link_pos_w[:, self.ee_body_idx].clone()
+                asset_pos = asset.data.body_link_pos_w.torch[:, self.ee_body_idx].clone()
             else:
-                asset_pos = asset.data.root_pos_w.clone()
+                asset_pos = asset.data.root_pos_w.torch.clone()
             if not hasattr(asset, "initial_pos") or env_ids is None:
                 asset.initial_pos = asset_pos
             else:
@@ -335,11 +334,11 @@ class check_reset_state_success(ManagerTermBase):
 
         # Check for abnormal gripper state (excessive joint velocities)
         abnormal_gripper_state = (
-            self.robot_asset.data.joint_vel.abs() > (self.robot_asset.data.joint_vel_limits * 2)
+            self.robot_asset.data.joint_vel.torch.abs() > (self.robot_asset.data.joint_vel_limits.torch * 2)
         ).any(dim=1)
 
         # Check if gripper orientation is pointing downward within 60 degrees of vertical
-        ee_quat = self.robot_asset.data.body_link_quat_w[:, self.ee_body_idx]
+        ee_quat = self.robot_asset.data.body_link_quat_w.torch[:, self.ee_body_idx]
         gripper_approach_local = torch.tensor(
             self.gripper_approach_direction, device=env.device, dtype=torch.float32
         ).expand(env.num_envs, -1)
@@ -351,14 +350,14 @@ class check_reset_state_success(ManagerTermBase):
         # Check if asset velocities are small
         current_step_stable = torch.ones(env.num_envs, device=env.device, dtype=torch.bool)
         for asset in self.assets_to_check:
-            if isinstance(asset, Articulation):
-                current_step_stable &= asset.data.joint_vel.abs().sum(dim=1) < 5.0
-            elif isinstance(asset, RigidObject):
-                current_step_stable &= asset.data.body_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.1
-                current_step_stable &= asset.data.body_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
-            elif isinstance(asset, RigidObjectCollection):
-                current_step_stable &= asset.data.object_lin_vel_w.abs().sum(dim=2).sum(dim=1) < 0.1
-                current_step_stable &= asset.data.object_ang_vel_w.abs().sum(dim=2).sum(dim=1) < 1.0
+            if isinstance(asset, BaseArticulation):
+                current_step_stable &= asset.data.joint_vel.torch.abs().sum(dim=1) < 5.0
+            elif isinstance(asset, BaseRigidObject):
+                current_step_stable &= asset.data.body_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.1
+                current_step_stable &= asset.data.body_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
+            elif isinstance(asset, BaseRigidObjectCollection):
+                current_step_stable &= asset.data.object_lin_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 0.1
+                current_step_stable &= asset.data.object_ang_vel_w.torch.abs().sum(dim=2).sum(dim=1) < 1.0
 
         self.stability_counter = torch.where(
             current_step_stable,
@@ -373,13 +372,13 @@ class check_reset_state_success(ManagerTermBase):
         pos_below_threshold = torch.zeros(env.num_envs, device=env.device, dtype=torch.bool)
         for asset in self.assets_to_check:
             if asset is self.robot_asset:
-                asset_pos = asset.data.body_link_pos_w[:, self.ee_body_idx].clone()
+                asset_pos = asset.data.body_link_pos_w.torch[:, self.ee_body_idx].clone()
             else:
-                asset_pos = asset.data.root_pos_w.clone()
+                asset_pos = asset.data.root_pos_w.torch.clone()
 
             # Skip if position or quaternion is NaN
-            pos_is_nan = torch.isnan(asset.data.root_pos_w).any(dim=1)
-            quat_is_nan = torch.isnan(asset.data.root_quat_w).any(dim=1)
+            pos_is_nan = torch.isnan(asset.data.root_pos_w.torch).any(dim=1)
+            quat_is_nan = torch.isnan(asset.data.root_quat_w.torch).any(dim=1)
             skip_check = pos_is_nan | quat_is_nan
 
             # Asset has excessive pose deviation if position exceeds thresholds
@@ -437,6 +436,10 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         self.insertive_object = env.scene[self.insertive_object_cfg.name]
 
         self.enable_visualization = cfg.params.get("enable_visualization", False)
+        enable_extension("isaacsim.core.experimental.utils")
+        import isaacsim.core.experimental.utils.bounds as bounds_utils
+
+        self._bounds_utils = bounds_utils
 
         # Initialize OBB computation cache and compute OBBs once
         self._bbox_cache = bounds_utils.create_bbox_cache()
@@ -448,6 +451,7 @@ class check_obb_no_overlap_termination(ManagerTermBase):
 
         # Store debug draw interface if visualization is enabled
         if self.enable_visualization:
+            enable_extension("isaacsim.util.debug_draw")
             import isaacsim.util.debug_draw._debug_draw as omni_debug_draw
 
             self._omni_debug_draw = omni_debug_draw
@@ -457,16 +461,18 @@ class check_obb_no_overlap_termination(ManagerTermBase):
     def _compute_object_obbs(self):
         """Compute OBB for insertive object and convert to body frame."""
         # Get prim path (use env 0 as template)
-        insertive_prim_path = self.insertive_object.cfg.prim_path.replace(".*", "0", 1)
+        insertive_prim_path = utils.RigidObjectHasher.resolve_prim_paths(
+            self._env.num_envs, self.insertive_object.cfg.prim_path
+        )[0]
 
         # Compute OBB in world frame using Isaac Sim's built-in functions
-        insertive_centroid_world, insertive_axes_world, insertive_half_extents = bounds_utils.compute_obb(
-            self._bbox_cache, insertive_prim_path
+        insertive_centroid_world, insertive_axes_world, insertive_half_extents = self._bounds_utils.compute_obb(
+            insertive_prim_path, bbox_cache=self._bbox_cache
         )
 
         # Get current world pose of object (env 0) to convert OBB to body frame
-        insertive_pos_world = self.insertive_object.data.root_pos_w[0]  # (3,)
-        insertive_quat_world = self.insertive_object.data.root_quat_w[0]  # (4,)
+        insertive_pos_world = self.insertive_object.data.root_pos_w.torch[0]  # (3,)
+        insertive_quat_world = self.insertive_object.data.root_quat_w.torch[0]  # (4,)
 
         device = self._env.device
 
@@ -495,8 +501,8 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         """Store initial pose of insertive object when environments are reset."""
         super().reset(env_ids)
 
-        insertive_pos = self.insertive_object.data.root_pos_w.clone()
-        insertive_quat = self.insertive_object.data.root_quat_w.clone()
+        insertive_pos = self.insertive_object.data.root_pos_w.torch.clone()
+        insertive_quat = self.insertive_object.data.root_quat_w.torch.clone()
 
         if self._insertive_initial_pos is None or self._insertive_initial_quat is None or env_ids is None:
             # First time initialization or reset all environments
@@ -507,38 +513,37 @@ class check_obb_no_overlap_termination(ManagerTermBase):
             self._insertive_initial_pos[env_ids] = insertive_pos[env_ids]
             self._insertive_initial_quat[env_ids] = insertive_quat[env_ids]
 
-    def _compute_obb_corners_batch(self, centroids, axes, half_extents):
-        """
-        Compute the 8 corners of Oriented Bounding Boxes for all environments using Isaac Sim's built-in function.
+    @torch.no_grad()
+    def _compute_obb_corners_batch(
+        self, centroids: torch.Tensor, axes: torch.Tensor, half_extents: torch.Tensor
+    ) -> torch.Tensor:
+        """Compute batched OBB corners on-device in Isaac Sim's corner order.
 
         Args:
-            centroids: Centers of OBBs (num_envs, 3)
-            axes: Orientation axes of OBBs (num_envs, 3, 3) - rows are the axes
-            half_extents: Half extents of OBB along its axes (3,)
+            centroids: Centers [m], shape (num_envs, 3).
+            axes: Orientation axes, shape (num_envs, 3, 3), with one axis per row.
+            half_extents: Half lengths [m], shape (3,).
 
         Returns:
-            corners: 8 corners of the OBBs (num_envs, 8, 3)
+            Detached float32 corner positions [m], shape (num_envs, 8, 3).
         """
         num_envs = centroids.shape[0]
         device = centroids.device
 
-        # Convert torch tensors to numpy for Isaac Sim functions
-        centroids_np = centroids.detach().cpu().numpy()
-        axes_np = axes.detach().cpu().numpy()
-        half_extents_np = half_extents.detach().cpu().numpy()
+        # Keep corner offsets on the input device.
+        signs = torch.tensor(
+            [[-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1], [1, -1, -1], [1, -1, 1], [1, 1, -1], [1, 1, 1]],
+            device=device,
+            dtype=centroids.dtype,
+        )
 
-        # Compute corners for each environment using Isaac Sim's function
-        all_corners = []
-        for env_idx in range(num_envs):
-            # Use Isaac Sim's get_obb_corners function
-            corners_np = bounds_utils.get_obb_corners(
-                centroids_np[env_idx], axes_np[env_idx], half_extents_np
-            )  # (8, 3)
-            all_corners.append(corners_np)
+        # Compute offsets for all environments at once.
+        offsets = (signs * half_extents).expand(num_envs, -1, -1)
+        # Match Isaac Sim's ordering and row-vector axes.
+        corners_tensor = centroids.unsqueeze(1) + torch.bmm(offsets, axes)  # (num_envs, 8, 3)
 
-        # Convert back to torch tensor
-        corners_tensor = torch.tensor(np.stack(all_corners), device=device, dtype=torch.float32)
-        return corners_tensor  # (num_envs, 8, 3)
+        # Preserve the existing float32 output contract without a host transfer.
+        return corners_tensor.to(dtype=torch.float32)  # (num_envs, 8, 3)
 
     def _visualize_bounding_boxes(self, env: ManagerBasedEnv):
         """Visualize oriented bounding boxes for initial and current insertive object positions using wireframe edges."""
@@ -547,8 +552,8 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         draw_interface.clear_lines()
 
         # Get current world poses of insertive object for all environments
-        insertive_pos = self.insertive_object.data.root_pos_w  # (num_envs, 3)
-        insertive_quat = self.insertive_object.data.root_quat_w  # (num_envs, 4)
+        insertive_pos = self.insertive_object.data.root_pos_w.torch  # (num_envs, 3)
+        insertive_quat = self.insertive_object.data.root_quat_w.torch  # (num_envs, 4)
 
         # Transform current insertive object OBB centroid from body frame to world coordinates for all environments
         insertive_obb_centroid_body = self._insertive_obb_centroid
@@ -566,7 +571,7 @@ class check_obb_no_overlap_termination(ManagerTermBase):
             1, 2
         )  # (num_envs, 3, 3)
 
-        # Compute OBB corners for current position visualization using Isaac Sim's built-in function
+        # Compute OBB corners for current position visualization in one batch.
         insertive_current_corners = self._compute_obb_corners_batch(
             insertive_current_world_centroids, insertive_current_world_axes, self._insertive_obb_half_extents
         )  # (num_envs, 8, 3)
@@ -585,28 +590,27 @@ class check_obb_no_overlap_termination(ManagerTermBase):
             1, 2
         )  # (num_envs, 3, 3)
 
-        # Compute OBB corners for initial position visualization using Isaac Sim's built-in function
+        # Compute OBB corners for initial position visualization in one batch.
         insertive_initial_corners = self._compute_obb_corners_batch(
             insertive_initial_world_centroids, insertive_initial_world_axes, self._insertive_obb_half_extents
         )  # (num_envs, 8, 3)
 
-        # Draw wireframe boxes for each environment
-        for env_idx in range(env.num_envs):
-            # Draw current insertive object bounding box edges (blue)
-            self._draw_obb_wireframe(
-                insertive_current_corners[env_idx],  # (8, 3)
-                color=(0.0, 0.5, 1.0, 1.0),  # Bright blue
-                line_width=4.0,
-                draw_interface=draw_interface,
-            )
+        # Draw wireframe boxes for the environment batch.
+        # Draw current insertive object bounding box edges (blue)
+        self._draw_obb_wireframe(
+            insertive_current_corners,  # (num_envs, 8, 3)
+            color=(0.0, 0.5, 1.0, 1.0),  # Bright blue
+            line_width=4.0,
+            draw_interface=draw_interface,
+        )
 
-            # Draw initial insertive object bounding box edges (red)
-            self._draw_obb_wireframe(
-                insertive_initial_corners[env_idx],  # (8, 3)
-                color=(1.0, 0.2, 0.0, 1.0),  # Bright red
-                line_width=4.0,
-                draw_interface=draw_interface,
-            )
+        # Draw initial insertive object bounding box edges (red)
+        self._draw_obb_wireframe(
+            insertive_initial_corners,  # (num_envs, 8, 3)
+            color=(1.0, 0.2, 0.0, 1.0),  # Bright red
+            line_width=4.0,
+            draw_interface=draw_interface,
+        )
 
     def _draw_obb_wireframe(
         self, corners: torch.Tensor, color: tuple = (1.0, 1.0, 1.0, 1.0), line_width: float = 2.0, draw_interface=None
@@ -615,7 +619,7 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         Draw wireframe edges of an oriented bounding box.
 
         Args:
-            corners: 8 corners of the OBB (8, 3)
+            corners: Corner positions [m], shape (num_envs, 8, 3) or (8, 3).
             color: RGBA color tuple for the lines
             line_width: Width of the lines
             draw_interface: Debug draw interface (optional, will acquire if not provided)
@@ -658,20 +662,18 @@ class check_obb_no_overlap_termination(ManagerTermBase):
             (2, 5),
         ]
 
-        # Create line segments for all edges
-        line_starts = []
-        line_ends = []
-
-        for start_idx, end_idx in edge_indices:
-            line_starts.append(corners[start_idx].cpu().numpy().tolist())
-            line_ends.append(corners[end_idx].cpu().numpy().tolist())
+        # Create all line segments on-device, then transfer once for the debug-draw API.
+        edges = torch.tensor(edge_indices, device=corners.device)
+        lines = corners.reshape(-1, 8, 3)[:, edges].reshape(-1, 2, 3).detach().cpu()
+        line_starts = lines[:, 0].tolist()
+        line_ends = lines[:, 1].tolist()
 
         # Use provided interface or acquire new one
         if draw_interface is None:
             draw_interface = self._omni_debug_draw.acquire_debug_draw_interface()
 
-        colors = [list(color)] * len(edge_indices)
-        line_thicknesses = [line_width] * len(edge_indices)
+        colors = [list(color)] * len(line_starts)
+        line_thicknesses = [line_width] * len(line_starts)
 
         # Draw all edges at once
         draw_interface.draw_lines(line_starts, line_ends, colors, line_thicknesses)
@@ -685,8 +687,8 @@ class check_obb_no_overlap_termination(ManagerTermBase):
         """Check if OBB overlap condition is violated between initial and current insertive object positions."""
 
         # Get current world poses of insertive object for all environments
-        insertive_pos = self.insertive_object.data.root_pos_w  # (num_envs, 3)
-        insertive_quat = self.insertive_object.data.root_quat_w  # (num_envs, 4)
+        insertive_pos = self.insertive_object.data.root_pos_w.torch  # (num_envs, 3)
+        insertive_quat = self.insertive_object.data.root_quat_w.torch  # (num_envs, 4)
 
         # Transform current insertive object centroid from body frame to world coordinates for all environments
         insertive_obb_centroid_body = self._insertive_obb_centroid

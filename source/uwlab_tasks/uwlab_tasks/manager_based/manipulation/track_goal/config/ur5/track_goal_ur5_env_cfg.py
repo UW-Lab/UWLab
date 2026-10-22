@@ -5,6 +5,7 @@
 
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
+from isaaclab_physx.physics import PhysxCfg
 
 import uwlab_assets.robots.ur5 as ur5
 
@@ -34,7 +35,9 @@ class TrackGoalUr5EnvCfg(track_goal_env.TrackGoalEnv):
         self.viewer.eye = (3.0, 3.0, 1.0)
 
         # Contact and solver settings
-        self.sim.physx.solver_type = 1
+        if self.sim.physics is None:
+            self.sim.physics = PhysxCfg()
+        self.sim.physics.solver_type = 1
         # Render settings
         self.sim.render.enable_dlssg = True
         self.sim.render.enable_ambient_occlusion = True

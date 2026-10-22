@@ -1,6 +1,11 @@
 Distillation & Deployment
 =========================
 
+.. note::
+
+   This workflow is expected to work with Isaac Lab 3.0 but has not yet been tested.
+   Validation is planned; use UWLab ``v1.3.0`` as the legacy reference.
+
 This guide covers distilling a state-based RL expert into a vision-based policy, evaluating it in simulation, and deploying on a real robot.
 
 .. _distillation-install:
@@ -28,67 +33,7 @@ Then install the dependencies into your UWLab conda environment (required even i
    cd <parent_dir>/diffusion_policy
    conda activate env_uwlab
    python -m pip install -e .
-   python -m pip install dill hydra-core omegaconf zarr einops "diffusers<0.37" wandb accelerate
-
-----
-
-Quick Start: Evaluate Pretrained RGB Policies
-----------------------------------------------
-
-Download our pretrained vision policy checkpoints and evaluate immediately. All commands in this section run in ``env_uwlab`` from the UWLab directory.
-
-.. tab-set::
-
-   .. tab-item:: Peg Insertion
-
-      .. code:: bash
-
-         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/distilled_rgb_policies/peg_distilled_rgb.ckpt
-
-         python scripts_v2/tools/eval_distilled_policy.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-Play-v0 \
-             --checkpoint peg_distilled_rgb.ckpt \
-             --num_envs 32 \
-             --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
-             --save_video \
-             env.scene.insertive_object=peg \
-             env.scene.receptive_object=peghole
-
-   .. tab-item:: Leg Twisting
-
-      .. code:: bash
-
-         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/distilled_rgb_policies/leg_distilled_rgb.ckpt
-
-         python scripts_v2/tools/eval_distilled_policy.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-Play-v0 \
-             --checkpoint leg_distilled_rgb.ckpt \
-             --num_envs 32 \
-             --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
-             --save_video \
-             env.scene.insertive_object=fbleg \
-             env.scene.receptive_object=fbtabletop
-
-   .. tab-item:: Drawer Assembly
-
-      .. code:: bash
-
-         wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/distilled_rgb_policies/drawer_distilled_rgb.ckpt
-
-         python scripts_v2/tools/eval_distilled_policy.py \
-             --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-RGB-Play-v0 \
-             --checkpoint drawer_distilled_rgb.ckpt \
-             --num_envs 32 \
-             --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
-             --save_video \
-             env.scene.insertive_object=fbdrawerbottom \
-             env.scene.receptive_object=fbdrawerbox
+   python -m pip install dill hydra-core omegaconf zarr einops "diffusers<0.37" wandb accelerate pandas
 
 ----
 
@@ -104,9 +49,9 @@ To train your own vision policy from scratch, follow the steps below.
 Collect Demonstrations
 ^^^^^^^^^^^^^^^^^^^^^^
 
-**Step 1 — Export the expert policy**
+**Step 1: Export the expert policy**
 
-Run ``play.py`` on a **Stage 2** (finetuned) checkpoint to export a JIT-traced ``policy.pt``. You can finetune your own (see :doc:`sim2real`) or download a pre-finetuned checkpoint from the :ref:`finetuned checkpoints <use-finetuned-checkpoints>` section.
+Run ``play.py`` on a **Stage 2** (finetuned) checkpoint to export a JIT-traced ``policy.pt``. You can finetune your own (see :doc:`sim2real`).
 
 .. code:: bash
 
@@ -116,11 +61,11 @@ Run ``play.py`` on a **Stage 2** (finetuned) checkpoint to export a JIT-traced `
        --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
        --num_envs 4 \
        --checkpoint <stage2_checkpoint.pt> \
-       --headless
+       --visualizer none
 
 This saves ``policy.pt`` (and ``policy.onnx``) under ``<checkpoint_dir>/exported/``.
 
-**Step 2 — Collect RGB demonstrations**
+**Step 2: Collect RGB demonstrations**
 
 Use the exported ``policy.pt`` to roll out the expert and record RGB observations in Zarr format. Only successful trajectories are saved.
 
@@ -140,8 +85,7 @@ Use the exported ``policy.pt`` to roll out the expert and record RGB observation
              --dataset_file datasets/peg/rgb0.zarr \
              --num_envs 32 \
              --num_demos 10000 \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole \
              agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path='["exported/policy.pt"]'
@@ -155,8 +99,7 @@ Use the exported ``policy.pt`` to roll out the expert and record RGB observation
              --dataset_file datasets/leg/rgb0.zarr \
              --num_envs 32 \
              --num_demos 10000 \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop \
              agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path='["exported/policy.pt"]'
@@ -170,8 +113,7 @@ Use the exported ``policy.pt`` to roll out the expert and record RGB observation
              --dataset_file datasets/drawer/rgb0.zarr \
              --num_envs 32 \
              --num_demos 10000 \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox \
              agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path='["exported/policy.pt"]'
@@ -259,8 +201,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              --save_video \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
@@ -274,8 +215,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
 
@@ -290,8 +230,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              --save_video \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop
@@ -305,8 +244,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop
 
@@ -321,8 +259,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              --save_video \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
@@ -336,8 +273,7 @@ Evaluate the trained vision policy in simulation. All commands below run in ``en
              --checkpoint <path_to_checkpoint>.ckpt \
              --num_envs 32 \
              --num_trajectories 100 \
-             --headless \
-             --enable_cameras \
+             --visualizer none \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
 

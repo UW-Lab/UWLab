@@ -26,8 +26,8 @@ permissions:
 env:
   NGC_API_KEY: ${{ secrets.NGC_API_KEY }}
   ISAACSIM_BASE_IMAGE: ${{ vars.ISAACSIM_BASE_IMAGE || 'nvcr.io/nvidia/isaac-sim' }}
-  ISAACSIM_BASE_VERSION: ${{ vars.ISAACSIM_BASE_VERSION || '5.1.0' }}
-  DOCKER_IMAGE_TAG: uw-lab-dev:${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}-${{ github.sha }}
+  ISAACSIM_BASE_VERSION: ${{ vars.ISAACSIM_BASE_VERSION || '6.1.0' }}
+  DOCKER_IMAGE_TAG: uw-lab-dev:${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
   test-uwlab-tasks:
@@ -37,25 +37,15 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
       with:
         fetch-depth: 0
         lfs: true
 
-    - name: Remove previous uw-lab-dev images
-      run: |
-        IDS=$(docker image ls -q uw-lab-dev 2>/dev/null || true)
-        if [ -n "$IDS" ]; then
-          echo "Removing existing uw-lab-dev images: $IDS"
-          docker image rm -f $IDS || true
-        else
-          echo "No existing uw-lab-dev images to remove."
-        fi
-
     - name: Build Docker Image
       uses: ./.github/actions/docker-build
       with:
-        image-tag: ${{ env.DOCKER_IMAGE_TAG }}
+        image-tag: ${{ env.DOCKER_IMAGE_TAG }}-${{ github.job }}
         isaacsim-base-image: ${{ env.ISAACSIM_BASE_IMAGE }}
         isaacsim-version: ${{ env.ISAACSIM_BASE_VERSION }}
 
@@ -64,21 +54,21 @@ jobs:
       with:
         test-path: "tools"
         result-file: "uwlab-tasks-report.xml"
-        container-name: "uw-lab-tasks-test-$$"
-        image-tag: ${{ env.DOCKER_IMAGE_TAG }}
+        container-name: "uw-lab-tasks-test-${{ github.run_id }}-${{ github.run_attempt }}"
+        image-tag: ${{ env.DOCKER_IMAGE_TAG }}-${{ github.job }}
         pytest-options: ""
         filter-pattern: "uwlab_tasks"
 
     - name: Copy Test Results from UWLab Tasks Container
       run: |
-        CONTAINER_NAME="uw-lab-tasks-test-$$"
+        CONTAINER_NAME="uw-lab-tasks-test-${{ github.run_id }}-${{ github.run_attempt }}"
         if docker ps -a | grep -q $CONTAINER_NAME; then
           echo "Copying test results from UWLab Tasks container..."
           docker cp $CONTAINER_NAME:/workspace/uwlab/tests/uwlab-tasks-report.xml reports/ 2>/dev/null || echo "No test results to copy from UWLab Tasks container"
         fi
 
     - name: Upload UWLab Tasks Test Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
       if: always()
       with:
         name: uwlab-tasks-test-results
@@ -100,31 +90,25 @@ jobs:
           exit 1
         fi
 
+    - name: Remove this job's image tag
+      if: always()
+      run: docker image rm "${{ env.DOCKER_IMAGE_TAG }}-${{ github.job }}" || true
+
   test-general:
     runs-on: [self-hosted, gpu]
     timeout-minutes: 180
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
       with:
         fetch-depth: 0
         lfs: true
 
-    - name: Remove previous uw-lab-dev images
-      run: |
-        IDS=$(docker image ls -q uw-lab-dev 2>/dev/null || true)
-        if [ -n "$IDS" ]; then
-          echo "Removing existing uw-lab-dev images: $IDS"
-          docker image rm -f $IDS || true
-        else
-          echo "No existing uw-lab-dev images to remove."
-        fi
-
     - name: Build Docker Image
       uses: ./.github/actions/docker-build
       with:
-        image-tag: ${{ env.DOCKER_IMAGE_TAG }}
+        image-tag: ${{ env.DOCKER_IMAGE_TAG }}-${{ github.job }}
         isaacsim-base-image: ${{ env.ISAACSIM_BASE_IMAGE }}
         isaacsim-version: ${{ env.ISAACSIM_BASE_VERSION }}
 
@@ -134,21 +118,21 @@ jobs:
       with:
         test-path: "tools"
         result-file: "general-tests-report.xml"
-        container-name: "uw-lab-general-test-$$"
-        image-tag: ${{ env.DOCKER_IMAGE_TAG }}
+        container-name: "uw-lab-general-test-${{ github.run_id }}-${{ github.run_attempt }}"
+        image-tag: ${{ env.DOCKER_IMAGE_TAG }}-${{ github.job }}
         pytest-options: ""
         filter-pattern: "not uwlab_tasks"
 
     - name: Copy Test Results from General Tests Container
       run: |
-        CONTAINER_NAME="uw-lab-general-test-$$"
+        CONTAINER_NAME="uw-lab-general-test-${{ github.run_id }}-${{ github.run_attempt }}"
         if docker ps -a | grep -q $CONTAINER_NAME; then
           echo "Copying test results from General Tests container..."
           docker cp $CONTAINER_NAME:/workspace/uwlab/tests/general-tests-report.xml reports/ 2>/dev/null || echo "No test results to copy from General Tests container"
         fi
 
     - name: Upload General Test Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
       if: always()
       with:
         name: general-test-results
@@ -170,6 +154,10 @@ jobs:
           exit 1
         fi
 
+    - name: Remove this job's image tag
+      if: always()
+      run: docker image rm "${{ env.DOCKER_IMAGE_TAG }}-${{ github.job }}" || true
+
   combine-results:
     needs: [test-uwlab-tasks, test-general]
     runs-on: [self-hosted, gpu]
@@ -177,7 +165,7 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
       with:
         fetch-depth: 0
         lfs: false
@@ -187,14 +175,14 @@ jobs:
         mkdir -p reports
 
     - name: Download Test Results
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
       with:
         name: uwlab-tasks-test-results
         path: reports/
       continue-on-error: true
 
     - name: Download General Test Results
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
       with:
         name: general-test-results
         path: reports/
@@ -206,7 +194,7 @@ jobs:
         output-file: "reports/combined-results.xml"
 
     - name: Upload Combined Test Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
       if: always()
       with:
         name: pr-${{ github.event.pull_request.number }}-combined-test-results
@@ -217,7 +205,7 @@ jobs:
     - name: Comment on Test Results
       id: test-reporter
       if: github.event.pull_request.head.repo.full_name == github.repository
-      uses: EnricoMi/publish-unit-test-result-action@v2
+      uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3  # v2
       with:
         files: "reports/combined-results.xml"
         check_name: "Tests Summary"
@@ -231,7 +219,7 @@ jobs:
 
     - name: Report Test Results
       if: github.event.pull_request.head.repo.full_name == github.repository
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@d61b558e8df85cb60d09ca3e5b09653b4477cea7  # v1
       with:
         name: UWLab Build and Test Results
         path: reports/combined-results.xml

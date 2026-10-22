@@ -38,7 +38,7 @@ def reset_fixed_assets(env: ManagerBasedRLEnv, env_ids: torch.tensor, asset_list
         asset_on_board_pos, asset_on_board_quat = asset_offset_on_nist_board.apply(nistboard)
         root_pose = torch.cat((asset_on_board_pos, asset_on_board_quat), dim=1)[env_ids]
         asset.write_root_pose_to_sim(root_pose, env_ids=env_ids)
-        asset.write_root_velocity_to_sim(torch.zeros_like(asset.data.root_vel_w[env_ids]), env_ids=env_ids)
+        asset.write_root_velocity_to_sim(torch.zeros_like(asset.data.root_vel_w.torch[env_ids]), env_ids=env_ids)
 
 
 def reset_held_asset(
@@ -52,8 +52,8 @@ def reset_held_asset(
     robot: Articulation = env.scene[holding_body_cfg.name]
     held_asset: Articulation = env.scene[held_asset_cfg.name]
 
-    end_effector_quat_w = robot.data.body_link_quat_w[env_ids, holding_body_cfg.body_ids].view(-1, 4)
-    end_effector_pos_w = robot.data.body_link_pos_w[env_ids, holding_body_cfg.body_ids].view(-1, 3)
+    end_effector_quat_w = robot.data.body_link_quat_w.torch[env_ids, holding_body_cfg.body_ids].view(-1, 4)
+    end_effector_pos_w = robot.data.body_link_pos_w.torch[env_ids, holding_body_cfg.body_ids].view(-1, 3)
     held_graspable_pos_b = torch.tensor(held_asset_graspable_offset.pos, device=env.device).repeat(len(env_ids), 1)
     held_graspable_quat_b = torch.tensor(held_asset_graspable_offset.quat, device=env.device).repeat(len(env_ids), 1)
 
@@ -74,7 +74,7 @@ def reset_held_asset(
     new_quat_w = math_utils.quat_mul(translated_held_asset_quat, quat_b)
 
     held_asset.write_root_link_pose_to_sim(torch.cat([new_pos_w, new_quat_w], dim=1), env_ids=env_ids)  # type: ignore
-    held_asset.write_root_com_velocity_to_sim(held_asset.data.default_root_state[env_ids, 7:], env_ids=env_ids)  # type: ignore
+    held_asset.write_root_com_velocity_to_sim(held_asset.data.default_root_state.torch[env_ids, 7:], env_ids=env_ids)  # type: ignore
 
 
 def grasp_held_asset(
@@ -84,7 +84,7 @@ def grasp_held_asset(
     held_asset_diameter: float,
 ) -> None:
     robot: Articulation = env.scene[robot_cfg.name]
-    joint_pos = robot.data.joint_pos[:, robot_cfg.joint_ids][env_ids].clone()
+    joint_pos = robot.data.joint_pos.torch[:, robot_cfg.joint_ids][env_ids].clone()
     joint_pos[:, :] = held_asset_diameter / 2 * 1.25
     robot.write_joint_state_to_sim(joint_pos, torch.zeros_like(joint_pos), robot_cfg.joint_ids, env_ids)  # type: ignore
 

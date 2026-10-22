@@ -13,8 +13,8 @@ Downloading pre-built binaries
 
 Isaac Sim binaries can be downloaded directly as a zip file from
 `here <https://docs.isaacsim.omniverse.nvidia.com/latest/installation/download.html>`__.
-If you wish to use the older Isaac Sim 4.5 release, please check the older download page
-`here <https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/download.html>`__.
+Use Isaac Sim 6.1 with this release. For the older Isaac Lab 2.x / Isaac Sim 5.1
+stack, use UWLab's ``isaaclab2`` branch or ``v1.3.0`` tag and its installation instructions.
 
 Once the zip file is downloaded, you can unzip it to the desired directory.
 As an example set of instructions for unzipping the Isaac Sim binaries,

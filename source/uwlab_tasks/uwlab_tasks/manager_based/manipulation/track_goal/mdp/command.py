@@ -83,22 +83,23 @@ class HandJointCommand(CommandTerm):
 
     def _set_debug_vis_impl(self, debug_vis: bool):
         # create markers if necessary for the first tome
-        import isaacsim.core.utils.prims as prim_utils
+        from isaaclab.sim.utils import find_matching_prim_paths
+        from isaaclab.sim.utils.legacy import get_prim_at_path
         from pxr import UsdGeom
 
         if debug_vis:
             if not hasattr(self, "vis_articulation"):
                 if self.cfg.articulation_vis_cfg.name in self.env.scene.keys():  # noqa: SIM118
                     self.vis_articulation: Articulation = self.env.scene[self.cfg.articulation_vis_cfg.name]
-                    prims_paths = prim_utils.find_matching_prim_paths(self.vis_articulation.cfg.prim_path)
-                    prims = [prim_utils.get_prim_at_path(prim) for prim in prims_paths]
+                    prims_paths = find_matching_prim_paths(self.vis_articulation.cfg.prim_path)
+                    prims = [get_prim_at_path(prim) for prim in prims_paths]
                     for prim in prims:
                         UsdGeom.Imageable(prim).MakeVisible()
                 # VisualizationMarkers
         else:
             if hasattr(self, "vis_articulation"):
-                prims_paths = prim_utils.find_matching_prim_paths(self.vis_articulation.cfg.prim_path)
-                prims = [prim_utils.get_prim_at_path(prim) for prim in prims_paths]
+                prims_paths = find_matching_prim_paths(self.vis_articulation.cfg.prim_path)
+                prims = [get_prim_at_path(prim) for prim in prims_paths]
                 for prim in prims:
                     UsdGeom.Imageable(prim).MakeInvisible()
 

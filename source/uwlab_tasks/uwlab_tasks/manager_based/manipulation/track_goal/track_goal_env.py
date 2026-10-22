@@ -17,6 +17,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils import configclass
+from isaaclab_physx.physics import PhysxCfg
 
 from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
 
@@ -28,7 +29,7 @@ class SceneCfg(InteractiveSceneCfg):
 
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.4, 0.0, -0.868), rot=(0.707, 0.0, 0.0, -0.707)),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.4, 0.0, -0.868), rot=(0.0, 0.0, -0.707, 0.707)),
         spawn=sim_utils.UsdFileCfg(usd_path=f"{UWLAB_CLOUD_ASSETS_DIR}/Props/Mounts/UWPatVention/pat_vention.usd"),
     )
 
@@ -193,9 +194,11 @@ class TrackGoalEnv(ManagerBasedRLEnvCfg):
         self.episode_length_s = 50
         # simulation settings
         self.sim.dt = 0.02 / self.decimation
-        self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
-        self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
-        self.sim.physx.gpu_max_rigid_patch_count = 5 * 2**16
+        if self.sim.physics is None:
+            self.sim.physics = PhysxCfg()
+        self.sim.physics.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
+        self.sim.physics.gpu_total_aggregate_pairs_capacity = 16 * 1024
+        self.sim.physics.gpu_max_rigid_patch_count = 5 * 2**16
 
         self.sim.render.enable_ambient_occlusion = True
         self.sim.render.enable_reflections = True

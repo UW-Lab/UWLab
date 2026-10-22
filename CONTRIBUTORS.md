@@ -20,6 +20,7 @@ Guidelines for modifications:
 ---
 
 * Feng Yu
+* Joshua Tran
 * Mateo Guaman Castro
 * Patrick Yin
 * Quanquan Peng

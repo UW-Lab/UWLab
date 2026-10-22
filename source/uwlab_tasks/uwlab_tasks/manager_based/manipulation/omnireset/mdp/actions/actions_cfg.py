@@ -34,8 +34,8 @@ class RelCartesianOSCActionCfg(ActionTermCfg):
 
         pos: tuple[float, float, float] = (0.0, 0.0, 0.0)
         """Translation offset."""
-        rot: tuple[float, float, float, float] = (1.0, 0.0, 0.0, 0.0)
-        """Rotation offset as quaternion (w, x, y, z)."""
+        rot: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
+        """Rotation offset as quaternion (x, y, z, w)."""
 
     joint_names: list[str] = MISSING
     """Joint names for the arm (regex supported)."""

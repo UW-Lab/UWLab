@@ -13,8 +13,8 @@ from typing import TYPE_CHECKING
 
 import omni.kit.app
 from isaaclab.managers import ManagerBase
+from isaaclab.sim import SimulationContext
 from isaaclab.utils import configclass
-from isaacsim.core.api.simulation_context import SimulationContext
 
 from .image_plot import ImagePlot
 from .line_plot import LiveLinePlot

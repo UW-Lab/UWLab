@@ -41,7 +41,7 @@ simulation_app = app_launcher.app
 
 from isaaclab.actuators import DelayedPDActuatorCfg
 from isaaclab.assets import Articulation
-from isaaclab.utils.math import subtract_frame_transforms
+from isaaclab.utils.math import convert_quat, subtract_frame_transforms
 
 from uwlab_assets.robots.ur5e_robotiq_gripper.kinematics import ARM_JOINT_NAMES, EE_BODY_NAME, NUM_ARM_JOINTS
 
@@ -111,8 +111,8 @@ def closed_loop_replay(
     action_dim = unwrapped.action_manager.total_action_dim
     W = wp_step_indices.shape[0]
 
-    default_joint_pos = robot.data.default_joint_pos.clone()
-    default_joint_vel = robot.data.default_joint_vel.clone()
+    default_joint_pos = robot.data.default_joint_pos.torch.clone()
+    default_joint_vel = robot.data.default_joint_vel.torch.clone()
     default_joint_pos[:, arm_joint_ids] = initial_joint_pos.unsqueeze(0)
     default_joint_vel[:] = 0.0
     env.reset()
@@ -125,10 +125,10 @@ def closed_loop_replay(
         while wp_idx + 1 < W and t >= wp_step_indices[wp_idx + 1]:
             wp_idx += 1
 
-        ee_pos_w = robot.data.body_pos_w[:, ee_frame_idx]
-        ee_quat_w = robot.data.body_quat_w[:, ee_frame_idx]
+        ee_pos_w = robot.data.body_pos_w.torch[:, ee_frame_idx]
+        ee_quat_w = robot.data.body_quat_w.torch[:, ee_frame_idx]
         ee_pos_b, ee_quat_b = subtract_frame_transforms(
-            robot.data.root_pos_w, robot.data.root_quat_w, ee_pos_w, ee_quat_w
+            robot.data.root_pos_w.torch, robot.data.root_quat_w.torch, ee_pos_w, ee_quat_w
         )
         target_pos = wp_target_pos[wp_idx].unsqueeze(0)
         target_quat = wp_target_quat[wp_idx].unsqueeze(0)
@@ -137,14 +137,14 @@ def closed_loop_replay(
         action = torch.cat([action_arm, torch.zeros(1, action_dim - 6, device=device)], dim=-1)
         env.step(action)
 
-        joint_pos = robot.data.joint_pos[:, arm_joint_ids]
-        joint_vel = robot.data.joint_vel[:, arm_joint_ids]
+        joint_pos = robot.data.joint_pos.torch[:, arm_joint_ids]
+        joint_vel = robot.data.joint_vel.torch[:, arm_joint_ids]
         sim_positions.append(joint_pos[0].cpu().numpy().copy())
         sim_velocities.append(joint_vel[0].cpu().numpy().copy())
         sim_ee_positions.append(ee_pos_b[0].cpu().numpy().copy())
 
         if (t + 1) % max(1, T_steps // 20) == 0:
-            print(f"  step {t+1}/{T_steps} ({100*(t+1)/T_steps:.0f}%)")
+            print(f"  step {t + 1}/{T_steps} ({100 * (t + 1) / T_steps:.0f}%)")
 
     return {
         "joint_positions": np.array(sim_positions),
@@ -249,14 +249,15 @@ def main():
     initial_joint_pos = real_data["initial_joint_pos"]
     wp_step_indices = real_data["waypoint_step_indices"]
     wp_target_pos = real_data["waypoint_target_pos"]
-    wp_target_quat = real_data["waypoint_target_quat"]
+    # the real-robot collector (diffusion_policy) records (w, x, y, z)
+    wp_target_quat = convert_quat(real_data["waypoint_target_quat"], to="xyzw")
     dt = real_data["dt"]
 
     T_steps = real_joint_pos.shape[0]
     if args.max_steps is not None:
         T_steps = min(T_steps, args.max_steps)
 
-    print(f"  {T_steps} steps ({T_steps*dt:.2f}s), dt={dt*1000:.1f}ms")
+    print(f"  {T_steps} steps ({T_steps * dt:.2f}s), dt={dt * 1000:.1f}ms")
 
     # Move to GPU
     real_joint_pos_np = real_joint_pos[:T_steps].numpy()
@@ -322,7 +323,7 @@ def main():
         ee_frame_idx,
         sim_dt,
         T_steps,
-        headless=args_cli.headless,
+        headless=not app_launcher.has_gui(),
     )
 
     sim_joints = result["joint_positions"]
@@ -330,7 +331,7 @@ def main():
 
     # Compute per-joint RMSE
     error_deg = np.degrees(sim_joints - real_joints)
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Per-joint RMSE (deg)")
     print("=" * 60)
     for j in range(NUM_ARM_JOINTS):

@@ -24,7 +24,10 @@ parser.add_argument(
     "--task", type=str, default="OmniReset-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0", help="Name of the task."
 )
 parser.add_argument(
-    "--dataset_dir", type=str, default="./Datasets/OmniReset/", help="Root Datasets/OmniReset/ directory."
+    "--dataset_dir",
+    type=str,
+    default="./Datasets/OmniReset_isaaclab3/",
+    help="Root Datasets/OmniReset_isaaclab3/ directory.",
 )
 parser.add_argument(
     "--reset_type",

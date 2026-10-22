@@ -15,6 +15,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils import configclass
+from isaaclab_physx.physics import PhysxCfg
 
 import uwlab_tasks.manager_based.manipulation.factory_extension.mdp as mdp
 
@@ -304,16 +305,18 @@ class FactoryBaseEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.dt = 1 / 120
         self.sim.render_interval = self.decimation
 
-        self.sim.physx.solver_type = 1
-        self.sim.physx.max_position_iteration_count = 192  # Important to avoid interpenetration.
-        self.sim.physx.max_velocity_iteration_count = 1
-        self.sim.physx.bounce_threshold_velocity = 0.2
-        self.sim.physx.friction_offset_threshold = 0.01
-        self.sim.physx.friction_correlation_distance = 0.00625
-        self.sim.physx.gpu_max_rigid_contact_count = 2**23
-        self.sim.physx.gpu_max_rigid_patch_count = 2**23
-        self.sim.physx.gpu_collision_stack_size = 2**31
-        self.sim.physx.gpu_max_num_partitions = 1
+        if self.sim.physics is None:
+            self.sim.physics = PhysxCfg()
+        self.sim.physics.solver_type = 1
+        self.sim.physics.max_position_iteration_count = 192  # Important to avoid interpenetration.
+        self.sim.physics.max_velocity_iteration_count = 1
+        self.sim.physics.bounce_threshold_velocity = 0.2
+        self.sim.physics.friction_offset_threshold = 0.01
+        self.sim.physics.friction_correlation_distance = 0.00625
+        self.sim.physics.gpu_max_rigid_contact_count = 2**23
+        self.sim.physics.gpu_max_rigid_patch_count = 2**23
+        self.sim.physics.gpu_collision_stack_size = 2**31
+        self.sim.physics.gpu_max_num_partitions = 1
 
         self.sim.physics_material.static_friction = 1.0
         self.sim.physics_material.dynamic_friction = 1.0

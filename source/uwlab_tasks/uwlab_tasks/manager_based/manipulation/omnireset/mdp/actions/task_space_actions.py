@@ -132,7 +132,7 @@ class RelCartesianOSCAction(ActionTerm):
         axis = delta_rot / safe_angle
         axis = torch.where(angle > 1e-6, axis, torch.zeros_like(axis))
         half = angle / 2.0
-        delta_quat = torch.cat([torch.cos(half), axis * torch.sin(half)], dim=-1)
+        delta_quat = torch.cat([axis * torch.sin(half), torch.cos(half)], dim=-1)
         self._ee_quat_des[:] = math_utils.quat_mul(delta_quat, ee_quat_b)
 
     def apply_actions(self):
@@ -142,8 +142,8 @@ class RelCartesianOSCAction(ActionTerm):
         """
         # Current state
         ee_pos_b, ee_quat_b = self._get_ee_pose_root_frame()
-        joint_pos = self._asset.data.joint_pos[:, self._joint_ids]
-        joint_vel = self._asset.data.joint_vel[:, self._joint_ids]
+        joint_pos = self._asset.data.joint_pos.torch[:, self._joint_ids]
+        joint_vel = self._asset.data.joint_vel.torch[:, self._joint_ids]
 
         # Analytical Jacobian (base_link frame, matching EE pose frame)
         jacobian = compute_jacobian_analytical(joint_pos, device=str(self.device))
@@ -180,11 +180,11 @@ class RelCartesianOSCAction(ActionTerm):
 
     def _get_ee_pose_root_frame(self) -> tuple[torch.Tensor, torch.Tensor]:
         """Get EE pose in root (base_link) frame from sim state."""
-        ee_pos_w = self._asset.data.body_pos_w[:, self._ee_body_idx]
-        ee_quat_w = self._asset.data.body_quat_w[:, self._ee_body_idx]
+        ee_pos_w = self._asset.data.body_pos_w.torch[:, self._ee_body_idx]
+        ee_quat_w = self._asset.data.body_quat_w.torch[:, self._ee_body_idx]
         ee_pos_b, ee_quat_b = math_utils.subtract_frame_transforms(
-            self._asset.data.root_pos_w,
-            self._asset.data.root_quat_w,
+            self._asset.data.root_pos_w.torch,
+            self._asset.data.root_quat_w.torch,
             ee_pos_w,
             ee_quat_w,
         )

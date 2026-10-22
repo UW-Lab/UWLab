@@ -140,7 +140,7 @@ class TaskSpaceBoundedDifferentialInverseKinematicsAction(ActionTerm):
 
     @property
     def jacobian_w(self) -> torch.Tensor:
-        return self._asset.root_physx_view.get_jacobians()[:, self._jacobi_body_idx, :, self._jacobi_joint_ids]
+        return self._asset.data.body_link_jacobian_w.torch[:, self._jacobi_body_idx, :, self._jacobi_joint_ids]
 
     @property
     def jacobian_b(self) -> torch.Tensor:
@@ -200,8 +200,8 @@ class TaskSpaceBoundedDifferentialInverseKinematicsAction(ActionTerm):
         # set some useful reference to environment assets states
 
         fixed_asset: Articulation = self._env.scene["fixed_asset"]
-        fixed_pos = fixed_asset.data.root_link_pos_w - self._env.scene.env_origins
-        fixed_quat = fixed_asset.data.root_link_quat_w
+        fixed_pos = fixed_asset.data.root_link_pos_w.torch - self._env.scene.env_origins
+        fixed_quat = fixed_asset.data.root_link_quat_w.torch
         fixed_tip_pos_local = torch.zeros_like(fixed_pos)
 
         # here we want to be able to get the
@@ -313,7 +313,7 @@ class TaskSpaceBoundedDifferentialInverseKinematicsAction(ActionTerm):
         # # adapted from https://gitlab-master.nvidia.com/carbon-gym/carbgym/-/blob/b4bbc66f4e31b1a1bee61dbaafc0766bbfbf0f58/python/examples/franka_cube_ik_osc.py#L70-78
         # # roboticsproceedings.org/rss07/p31.pdf
 
-        arm_mass_matrix = self._asset.root_physx_view.get_generalized_mass_matrices()[:, 0:7, 0:7]
+        arm_mass_matrix = self._asset.data.mass_matrix.torch[:, 0:7, 0:7]
         # useful tensors
         arm_mass_matrix_inv = torch.inverse(arm_mass_matrix)
         arm_mass_matrix_task = torch.inverse(
@@ -357,8 +357,8 @@ class TaskSpaceBoundedDifferentialInverseKinematicsAction(ActionTerm):
         # Custom part from NIST assembly - reset
         fixed_asset: Articulation = self._env.scene["fixed_asset"]
         robot: Articulation = self._env.scene["robot"]
-        fixed_pos = fixed_asset.data.root_link_pos_w - self._env.scene.env_origins
-        fixed_quat = fixed_asset.data.root_link_quat_w
+        fixed_pos = fixed_asset.data.root_link_pos_w.torch - self._env.scene.env_origins
+        fixed_quat = fixed_asset.data.root_link_quat_w.torch
 
         fixed_tip_pos_local = torch.zeros_like(fixed_pos)
         fixed_tip_pos_local[:, 2] += self.cfg.fixed_asset_cfg.height + self.cfg.fixed_asset_cfg.base_height
@@ -369,9 +369,9 @@ class TaskSpaceBoundedDifferentialInverseKinematicsAction(ActionTerm):
         fixed_asset_pos_noise = fixed_asset_pos_noise @ torch.diag(fixed_asset_pos_rand)
         self.init_fixed_pos_obs_noise = fixed_asset_pos_noise
         fixed_pos_action_frame = fixed_tip_pos + self.init_fixed_pos_obs_noise
-        fingertip_midpoint_quat = robot.data.body_link_quat_w[:, self._body_idx]
+        fingertip_midpoint_quat = robot.data.body_link_quat_w.torch[:, self._body_idx]
 
-        fingertip_midpoint_pos = robot.data.body_link_pos_w[:, self._body_idx] - self._env.scene.env_origins
+        fingertip_midpoint_pos = robot.data.body_link_pos_w.torch[:, self._body_idx] - self._env.scene.env_origins
 
         pos_actions = fingertip_midpoint_pos - fixed_pos_action_frame
         pos_action_bounds = torch.tensor(CtrlCfg.pos_action_bounds, device=self.device)
@@ -398,7 +398,7 @@ class TaskSpaceBoundedDifferentialInverseKinematicsAction(ActionTerm):
         yaw_action = (fingertip_yaw_fixed_asset + np.deg2rad(180.0)) / np.deg2rad(270.0) * 2.0 - 1.0
         self._raw_actions[:, 5] = yaw_action
 
-        self._target_joint_pos_at_reset = robot.data.joint_pos_target.clone()
+        self._target_joint_pos_at_reset = robot.data.joint_pos_target.torch.clone()
 
     """
     Helper functions.

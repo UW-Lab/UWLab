@@ -28,7 +28,7 @@ parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--dataset_file", type=str, default="./datasets/dataset.zarr", help="Output dataset path.")
 parser.add_argument("--num_demos", type=int, default=10, help="Number of demonstrations to record.")
 parser.add_argument(
-    "--deterministic",
+    "--deterministic_expert",
     action="store_true",
     default=False,
     help="Use the mean of the policy distribution instead of sampling.",
@@ -154,7 +154,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     expert_policy = loader(bc.experts_path[0]).to(env_cfg.sim.device)
     expert_policy.eval()
 
-    print(f"[Policy] {'Deterministic (mean)' if args_cli.deterministic else 'Stochastic (sampled)'} actions")
+    print(f"[Policy] {'Deterministic (mean)' if args_cli.deterministic_expert else 'Stochastic (sampled)'} actions")
 
     # simulate environment -- run everything in inference mode
     current_recorded_demo_count = 0
@@ -166,7 +166,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
             # agent stepping
             expert_policy_obs = expert_obs_fn(env)
             mean, std = expert_policy.compute_distribution(expert_policy_obs)
-            actions = mean if args_cli.deterministic else torch.normal(mean, std)
+            actions = mean if args_cli.deterministic_expert else torch.normal(mean, std)
 
             # Mask actions to zero for environments in their first step after reset since first image may not be valid
             first_step_mask = env.unwrapped.episode_length_buf == 0

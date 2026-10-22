@@ -1,6 +1,35 @@
 Changelog
 ---------
 
+0.14.0 (2026-09-28)
+~~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Migrated tasks to Isaac Lab 3.0 Early Access / Isaac Sim 6.1, including ``sim.physics``
+  configuration, scalar-last quaternions, Warp-backed data and ``JointWrenchSensor``.
+  Use ``--visualizer none`` instead of ``--headless`` to disable visualization.
+* Adopted the EA observation order and compatible OmniReset datasets and checkpoints.
+  Use the pretrained experts linked in the updated quick start.
+* Deferred task imports until selection while preserving existing task IDs and entry points.
+* Preserved authored or geometry-derived object masses during grasp sampling instead of
+  requesting an ineffective 1 g override. Verify mass properties for custom assets.
+
+Fixed
+^^^^^
+
+* Corrected OmniReset and Factory velocity observations to rotate vectors into the root
+  frame without subtracting the robot's position.
+* Fixed partial resets clearing consecutive-success counters in unrelated environments.
+* Corrected grasp-sampling asset resolution, collider frames and geometry-cache hashes,
+  and restored backend-aware velocity-stability filters. Regenerate affected grasp and
+  reset-state datasets to apply these fixes.
+* Preserved initialized joint armature when applying ADR.
+* Fixed renderer setup for physics-replicated scenes.
+* Batched OBB corner computation and debug drawing without changing the termination decision.
+
+
 0.13.8 (2025-10-24)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

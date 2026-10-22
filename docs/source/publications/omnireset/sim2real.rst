@@ -1,6 +1,11 @@
 Sim2Real: SysID & RL Finetuning
 ================================
 
+.. note::
+
+   This workflow is expected to work with Isaac Lab 3.0 but has not yet been tested.
+   Validation is planned; use UWLab ``v1.3.0`` as the legacy reference.
+
 This guide bridges sim-to-real via system identification and policy finetuning. Finetuning uses a curriculum: sim dynamics shift toward your sys-id'd parameters (with higher OSC gains to compensate for friction, since policies do not train well under high friction from scratch), and action scale is reduced so the policy runs slower and transfers better to the real robot.
 
 Our system identification follows the `PACE <https://arxiv.org/abs/2509.06342>`_ framework by Bjelonic et al.
@@ -12,15 +17,15 @@ Our system identification follows the `PACE <https://arxiv.org/abs/2509.06342>`_
 Pipeline overview
 -----------------
 
-1. **Robot setup** — UR5e/UR7e hardware config, robot calibration & USD, FK verification, metadata. Re-run reset state collection and RL training from :doc:`rl_training` (geometry-dependent). Install the diffusion_policy repo for real-robot control and sysid data collection.
+1. **Robot setup**: UR5e/UR7e hardware config, robot calibration & USD, FK verification, metadata. Re-run reset state collection and RL training from :doc:`rl_training` (geometry-dependent). Install the diffusion_policy repo for real-robot control and sysid data collection.
 
-2. **System identification** — Collect chirp on real robot, run CMA-ES in UWLab, verify fit, write sysid params to metadata, teleop to verify.
+2. **System identification**: Collect chirp on real robot, run CMA-ES in UWLab, verify fit, write sysid params to metadata, teleop to verify.
 
-3. **Finetune** — Select best Stage-1 checkpoint, finetune with ADR, evaluate. Or use our pre-finetuned checkpoints (next section) if your setup matches ours.
+3. **Finetune**: Select best Stage-1 checkpoint, finetune with ADR, evaluate.
 
-4. **Camera & hardware setup** — Mount cameras (D415/D435/D455), print task objects, calibrate camera extrinsics.
+4. **Camera & hardware setup**: Mount cameras (D415/D435/D455), print task objects, calibrate camera extrinsics.
 
-5. **Next** — :doc:`distillation` for vision policy training and real-robot deployment.
+5. **Next**: :doc:`distillation` for vision policy training and real-robot deployment.
 
 ----
 
@@ -84,7 +89,7 @@ Install ROS 2 and set up the UR robot driver following the `NVIDIA Isaac ROS Uni
 **2. Update the robot USD**
 
 Download the existing calibrated robot USD from
-`here <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/ur5e_robotiq_gripper_d415_mount_safety_calibrated.usd>`__
+`here <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/83860532010b2737aa80d6e8621235ee554186f0/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/ur5e_robotiq_gripper_d415_mount_safety_calibrated.usd>`__
 and open it in Isaac Sim. Replace the UR5e/UR7e arm in the USD with the URDF of your newly calibrated UR5e/UR7e. After replacing the arm, relink the joint that attaches the gripper to the arm. This joint connection must be re-established in Isaac Sim for the gripper to remain properly attached.
 
 **3. Verify alignment**
@@ -97,7 +102,7 @@ Collect (joint_pos, ee_pose) pairs from the simulator using IK-based workspace s
    conda activate env_uwlab
    cd <parent_dir>/UWLab
    python scripts_v2/tools/sim2real/collect_fk_pairs.py \
-       --num_samples 4 --output /tmp/fk_pairs.npz --headless
+       --num_samples 4 --output /tmp/fk_pairs.npz --visualizer none
 
 .. code:: bash
 
@@ -118,7 +123,7 @@ Place the calibrated USD and a ``metadata.yaml`` side by side:
      ur5e_robotiq_gripper_d415_mount_safety_calibrated.usd
      metadata.yaml
 
-Copy the base ``metadata.yaml`` from `here <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/metadata.yaml>`__ and update the ``calibrated_joints`` (xyz/rpy) and ``link_inertials`` (masses/coms/inertias) sections with the values from your calibrated URDF. The ``sysid`` block will be filled in after :ref:`system identification <sysid-section>` below.
+Copy the base ``metadata.yaml`` from `here <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/metadata.yaml>`__ and update the ``calibrated_joints`` (xyz/rpy) and ``link_inertials`` (masses/coms/inertias) sections with the values from your calibrated URDF. The ``sysid`` block will be filled in after :ref:`system identification <sysid-section>` below.
 
 **5. Recollect reset states & retrain**
 
@@ -158,7 +163,7 @@ Use CMA-ES to optimize simulator dynamics parameters (armature, friction, motor 
 
    conda activate env_uwlab
    cd <parent_dir>/UWLab
-   python scripts_v2/tools/sim2real/sysid_ur5e_osc.py --headless \
+   python scripts_v2/tools/sim2real/sysid_ur5e_osc.py --visualizer none \
        --num_envs 512 \
        --real_data /tmp/sysid_data_real.pt \
        --max_iter 200
@@ -169,7 +174,7 @@ Plot simulated vs. real joint trajectories using the best checkpoint:
 
 .. code:: bash
 
-   python scripts_v2/tools/sim2real/plot_sysid_fit.py --headless \
+   python scripts_v2/tools/sim2real/plot_sysid_fit.py --visualizer none \
        --checkpoint logs/sysid/<timestamp>/checkpoint_0200.pt \
        --real_data /tmp/sysid_data_real.pt
 
@@ -181,7 +186,7 @@ Inspect the overlay plots. A good fit should show close tracking across all join
 
 **4. Save parameters**
 
-Replace the ``sysid`` block in ``metadata.yaml`` (next to your robot USD) with the identified values for ``armature``, ``static_friction``, ``dynamic_ratio``, and ``viscous_friction``. These are loaded automatically during finetuning and evaluation. See the current calibrated robot's `metadata.yaml <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/metadata.yaml>`_ for reference.
+Replace the ``sysid`` block in ``metadata.yaml`` (next to your robot USD) with the identified values for ``armature``, ``static_friction``, ``dynamic_ratio``, and ``viscous_friction``. These are loaded automatically during finetuning and evaluation. See the current calibrated robot's `metadata.yaml <https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Robots/UniversalRobots/Ur5e2f85RobotiqGripperCalibrated/metadata.yaml>`_ for reference.
 
 **5. Teleop to verify motion**
 
@@ -200,7 +205,7 @@ To tune gains if the arm lags or stalls, add ``--osc_kp_pos`` and ``--osc_kp_rot
 Select Best Checkpoint & Finetune with ADR
 --------------------------------------------
 
-Either run the pipeline below or use our pre-finetuned checkpoints (next section) if your setup matches ours. Some policies transfer better than others. As an offline proxy, evaluate candidate checkpoints under action noise and pick the one with the highest success rate, then finetune it with `ADR (Automatic Domain Randomization) <https://arxiv.org/abs/1910.07113>`__. Finetuning uses the identified sysid parameters as the center of a randomization range that ADR automatically expands, producing a policy robust to real-world variation.
+Some policies transfer better than others. As an offline proxy, evaluate candidate checkpoints under action noise and pick the one with the highest success rate, then finetune it with `ADR (Automatic Domain Randomization) <https://arxiv.org/abs/1910.07113>`__. Finetuning uses the identified sysid parameters as the center of a randomization range that ADR automatically expands, producing a policy robust to real-world variation.
 
 ADR shifts the training distribution from zero friction, armature, and motor delay toward a randomization band around the sys-id'd values. OSC gains increase to compensate for higher friction. Action scale is reduced over the curriculum to slow the policy down for safer real-world transfer.
 
@@ -227,7 +232,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --action_noise 2.0 \
              --eval_steps 1000 \
              --num_envs 4096 \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
 
@@ -239,7 +244,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-v0 \
              --num_envs 4096 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --resume_path <stage1_checkpoint.pt> \
              env.scene.insertive_object=peg \
              env.scene.receptive_object=peghole
@@ -281,7 +286,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --action_noise 2.0 \
              --eval_steps 1000 \
              --num_envs 4096 \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbleg \
              env.scene.receptive_object=fbtabletop
 
@@ -296,7 +301,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-v0 \
              --num_envs 16384 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --distributed \
              --resume_path <stage1_checkpoint.pt> \
              env.scene.insertive_object=fbleg \
@@ -339,7 +344,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --action_noise 2.0 \
              --eval_steps 1000 \
              --num_envs 4096 \
-             --headless \
+             --visualizer none \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
 
@@ -351,7 +356,7 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
              --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-v0 \
              --num_envs 8192 \
              --logger wandb \
-             --headless \
+             --visualizer none \
              --resume_path <stage1_checkpoint.pt> \
              env.scene.insertive_object=fbdrawerbottom \
              env.scene.receptive_object=fbdrawerbox
@@ -383,148 +388,6 @@ All commands below run in the ``env_uwlab`` environment from the UWLab directory
 
 ----
 
-.. _use-finetuned-checkpoints:
-
-Use our finetuned checkpoints
------------------------------
-
-Pre-finetuned for our robot calibration and sys-id'd parameters. If your setup is similar, you can download and run these instead of finetuning yourself.
-
-All commands below run in ``env_uwlab`` from the UWLab directory.
-
-.. tab-set::
-
-   .. tab-item:: Peg Insertion
-
-      .. tab-set::
-
-         .. tab-item:: Seed 42
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/peg_state_rl_expert_finetuned_seed42.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint peg_state_rl_expert_finetuned_seed42.pt \
-                   env.scene.insertive_object=peg \
-                   env.scene.receptive_object=peghole
-
-         .. tab-item:: Seed 0
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/peg_state_rl_expert_finetuned_seed0.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint peg_state_rl_expert_finetuned_seed0.pt \
-                   env.scene.insertive_object=peg \
-                   env.scene.receptive_object=peghole
-
-         .. tab-item:: Seed 1
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/peg_state_rl_expert_finetuned_seed1.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint peg_state_rl_expert_finetuned_seed1.pt \
-                   env.scene.insertive_object=peg \
-                   env.scene.receptive_object=peghole
-
-   .. tab-item:: Leg Twisting
-
-      .. tab-set::
-
-         .. tab-item:: Seed 42
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/leg_state_rl_expert_finetuned_seed42.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint leg_state_rl_expert_finetuned_seed42.pt \
-                   env.scene.insertive_object=fbleg \
-                   env.scene.receptive_object=fbtabletop
-
-         .. tab-item:: Seed 0
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/leg_state_rl_expert_finetuned_seed0.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint leg_state_rl_expert_finetuned_seed0.pt \
-                   env.scene.insertive_object=fbleg \
-                   env.scene.receptive_object=fbtabletop
-
-         .. tab-item:: Seed 1
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/leg_state_rl_expert_finetuned_seed1.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint leg_state_rl_expert_finetuned_seed1.pt \
-                   env.scene.insertive_object=fbleg \
-                   env.scene.receptive_object=fbtabletop
-
-   .. tab-item:: Drawer Assembly
-
-      .. tab-set::
-
-         .. tab-item:: Seed 42
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/drawer_state_rl_expert_finetuned_seed42.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint drawer_state_rl_expert_finetuned_seed42.pt \
-                   env.scene.insertive_object=fbdrawerbottom \
-                   env.scene.receptive_object=fbdrawerbox
-
-         .. tab-item:: Seed 0
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/drawer_state_rl_expert_finetuned_seed0.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint drawer_state_rl_expert_finetuned_seed0.pt \
-                   env.scene.insertive_object=fbdrawerbottom \
-                   env.scene.receptive_object=fbdrawerbox
-
-         .. tab-item:: Seed 1
-
-            .. code:: bash
-
-               wget https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Policies/OmniReset/state_based_experts_finetuned/drawer_state_rl_expert_finetuned_seed1.pt
-
-               python scripts/reinforcement_learning/rsl_rl/play.py \
-                   --task OmniReset-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
-                   --num_envs 1 \
-                   --checkpoint drawer_state_rl_expert_finetuned_seed1.pt \
-                   env.scene.insertive_object=fbdrawerbottom \
-                   env.scene.receptive_object=fbdrawerbox
-
-----
-
 .. _camera-hardware-setup:
 
 Camera & Hardware Setup
@@ -532,8 +395,8 @@ Camera & Hardware Setup
 
 We use a **three-camera setup** with Intel RealSense depth cameras:
 
-* **Wrist camera** — D415 mounted on the Robotiq 2F-85 gripper via a 3D-printed bracket.
-* **Two third-person cameras** — D435 and D455 on tripods, providing front and side views.
+* **Wrist camera**: D415 mounted on the Robotiq 2F-85 gripper via a 3D-printed bracket.
+* **Two third-person cameras**: D435 and D455 on tripods, providing front and side views.
 
 Any combination of D415 / D435 / D455 works for any of the three viewpoints (the D455 has a wider baseline and higher depth quality, so prefer it when available).
 
@@ -575,7 +438,7 @@ Virtual cameras in simulation must match your real camera poses and intrinsics s
 
 1. The calibration workflow switches between two environments: ``robodiff_real`` for real-robot scripts (Step 1) and ``env_uwlab`` for UWLab simulation scripts (Step 2). Set up ``robodiff_real`` in :ref:`Installing Diffusion Policy <installing-diffusion-policy>` above.
 
-2. Print an ArUco marker — the calibration scripts use dictionary **6x6_50**, marker **ID 12**, printed at **150 mm**. Download the printable PDF: :download:`marker_6x6_150mm_id12.pdf <../../_static/publications/omnireset/marker_6x6_150mm_id12.pdf>`.
+2. Print an ArUco marker: the calibration scripts use dictionary **6x6_50**, marker **ID 12**, printed at **150 mm**. Download the printable PDF: :download:`marker_6x6_150mm_id12.pdf <../../_static/publications/omnireset/marker_6x6_150mm_id12.pdf>`.
 
 3. Place the printed marker flat on the table near the robot base (see the :ref:`camera setup photo <camera-hardware-setup>` above for an example placement). Measure the offset (in meters) from the marker center to the robot base-frame origin and update ``aruco_offset`` in ``0_camera_calibrate.py``. If you place the marker in the same position as our setup photo, the default ``[0.24, 0.0, 0.0]`` should work.
 
@@ -595,7 +458,7 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
    .. tab-item:: Front Camera
 
-      **Step 1 — Calibrate & capture (diffusion_policy, robodiff_real)**
+      **Step 1: Calibrate & capture (diffusion_policy, robodiff_real)**
 
       .. code:: bash
 
@@ -607,15 +470,14 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
       Copy the ``pos``, ``rot``, and ``focal_length`` printed by ``2_get_isaacsim_extrinsics.py`` into the corresponding ``front_camera`` entry in ``camera_align_cfg.py`` as the initial guess for interactive alignment.
 
-      **Step 2 — Interactive alignment (UWLab, env_uwlab)**
+      **Step 2: Interactive alignment (UWLab, env_uwlab)**
 
       .. code:: bash
 
          conda activate env_uwlab
          cd <parent_dir>/UWLab
          python scripts_v2/tools/sim2real/align_cameras.py \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              --camera front_camera \
              --real_image /path/to/real_front.png \
              --joint_angles <j1> <j2> <j3> <j4> <j5> <j6>
@@ -633,7 +495,7 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
    .. tab-item:: Side Camera
 
-      **Step 1 — Calibrate & capture (diffusion_policy, robodiff_real)**
+      **Step 1: Calibrate & capture (diffusion_policy, robodiff_real)**
 
       .. code:: bash
 
@@ -645,15 +507,14 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
       Copy the ``pos``, ``rot``, and ``focal_length`` printed by ``2_get_isaacsim_extrinsics.py`` into the corresponding ``side_camera`` entry in ``camera_align_cfg.py`` as the initial guess for interactive alignment.
 
-      **Step 2 — Interactive alignment (UWLab, env_uwlab)**
+      **Step 2: Interactive alignment (UWLab, env_uwlab)**
 
       .. code:: bash
 
          conda activate env_uwlab
          cd <parent_dir>/UWLab
          python scripts_v2/tools/sim2real/align_cameras.py \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              --camera side_camera \
              --real_image /path/to/real_side.png \
              --joint_angles <j1> <j2> <j3> <j4> <j5> <j6>
@@ -671,7 +532,7 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
    .. tab-item:: Wrist Camera
 
-      **Step 1 — Calibrate & capture (diffusion_policy, robodiff_real)**
+      **Step 1: Calibrate & capture (diffusion_policy, robodiff_real)**
 
       .. code:: bash
 
@@ -683,15 +544,14 @@ Real-world scripts live in the `diffusion_policy <https://github.com/WEIRDLabUW/
 
       Copy the ``pos``, ``rot``, and ``focal_length`` printed by ``2_get_isaacsim_extrinsics.py`` into the corresponding ``wrist_camera`` entry in ``camera_align_cfg.py`` as the initial guess for interactive alignment.
 
-      **Step 2 — Interactive alignment (UWLab, env_uwlab)**
+      **Step 2: Interactive alignment (UWLab, env_uwlab)**
 
       .. code:: bash
 
          conda activate env_uwlab
          cd <parent_dir>/UWLab
          python scripts_v2/tools/sim2real/align_cameras.py \
-             --enable_cameras \
-             --headless \
+             --visualizer none \
              --camera wrist_camera \
              --real_image /path/to/real_wrist.png \
              --joint_angles <j1> <j2> <j3> <j4> <j5> <j6>
@@ -716,6 +576,15 @@ After aligning each camera, paste the resulting ``pos``, ``rot``, and ``focal_le
    source/uwlab_tasks/.../omnireset/config/ur5e_robotiq_2f85/data_collection_rgb_cfg.py
 
 Update the ``TiledCameraCfg`` entries (``front_camera``, ``side_camera``, ``wrist_camera``) with the calibrated values. Also update the corresponding ``base_position`` and ``base_rotation`` in the randomization events (``randomize_front_camera``, ``randomize_side_camera``, ``randomize_wrist_camera``) to match.
+
+.. caution::
+
+   Since the Isaac Lab 3.0 bump, every ``rot`` / ``base_rotation`` in these configs is a quaternion in
+   ``(x, y, z, w)`` order. ``align_cameras.py`` prints its ``rot`` in that order. ``2_get_isaacsim_extrinsics.py``
+   in the diffusion_policy repo prints the 2.x ``(w, x, y, z)`` order, so move the first element to the end
+   before pasting its output (or convert with
+   ``isaaclab.utils.math.convert_quat(q, to="xyzw")``). A quaternion pasted in the old order is a
+   different camera pose, not an error.
 
 With calibrated cameras, proceed to :doc:`distillation` to collect RGB demos, train a vision policy, evaluate in sim, and deploy on the real robot.
 

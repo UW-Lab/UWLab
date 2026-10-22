@@ -22,7 +22,10 @@ parser = argparse.ArgumentParser(description="Grasp sampling for end effector on
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default="OmniReset-Robotiq2f85-GraspSampling-v0", help="Name of the task.")
 parser.add_argument(
-    "--dataset_dir", type=str, default="./Datasets/OmniReset/", help="Root Datasets/OmniReset/ directory."
+    "--dataset_dir",
+    type=str,
+    default="./Datasets/OmniReset_isaaclab3/",
+    help="Root Datasets/OmniReset_isaaclab3/ directory.",
 )
 parser.add_argument("--num_grasps", type=int, default=500, help="Number of grasp candidates to evaluate.")
 

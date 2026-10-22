@@ -19,25 +19,31 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26  # v3
 
     # - name: Install jq
     #   run: sudo apt-get update && sudo apt-get install -y jq
 
-    - name: Clean up disk space
-      run: |
-        rm -rf /opt/hostedtoolcache
-
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c  # v4
       with:
-        python-version: '3.11'  # Adjust as needed
+        python-version: '3.12'  # Adjust as needed
+
+    - name: Check pinned installer behavior
+      run: python tools/test_installer_pin.py
+
+    - name: Create isolated license environment
+      run: |
+        ENV_PATH="$RUNNER_TEMP/uwlab-license-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+        python -m venv "$ENV_PATH"
+        echo "$ENV_PATH/bin" >> "$GITHUB_PATH"
+        echo "VIRTUAL_ENV=$ENV_PATH" >> "$GITHUB_ENV"
 
     - name: Install dependencies using ./uwlab.sh -i
       run: |
         # first install isaac sim
         pip install --upgrade pip
-        pip install 'isaacsim[all,extscache]==${{ vars.ISAACSIM_BASE_VERSION || '5.0.0' }}' --extra-index-url https://pypi.nvidia.com
+        pip install 'isaacsim[all,extscache]==${{ vars.ISAACSIM_PIP_VERSION || '6.1.0.0' }}' --extra-index-url https://pypi.nvidia.com
         chmod +x ./uwlab.sh  # Make sure the script is executable
         # install all lab dependencies
         ./uwlab.sh -i

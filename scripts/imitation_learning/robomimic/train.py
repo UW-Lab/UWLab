@@ -1,7 +1,26 @@
-# Copyright (c) 2024-2025, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
-# All Rights Reserved.
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
+# MIT License
+#
+# Copyright (c) 2021 Stanford Vision and Learning Lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
@@ -34,41 +53,35 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
-# Standard library imports
 import argparse
-
-# Third-party imports
-import gymnasium as gym
-import h5py
 import importlib
 import json
-import numpy as np
 import os
 import shutil
 import sys
 import time
-import torch
 import traceback
 from collections import OrderedDict
-from torch.utils.data import DataLoader
 
+import gymnasium as gym
+import h5py
+import numpy as np
 import psutil
-
-# Robomimic imports
 import robomimic.utils.env_utils as EnvUtils
 import robomimic.utils.file_utils as FileUtils
 import robomimic.utils.obs_utils as ObsUtils
 import robomimic.utils.torch_utils as TorchUtils
 import robomimic.utils.train_utils as TrainUtils
+import torch
 from robomimic.algo import algo_factory
 from robomimic.config import Config, config_factory
 from robomimic.utils.log_utils import DataLogger, PrintLogger
+from torch.utils.data import DataLoader
 
-# Isaac Lab imports (needed so that environment is registered)
 import isaaclab_tasks  # noqa: F401
 import uwlab_tasks  # noqa: F401
-import isaaclab_tasks.manager_based.locomanipulation.pick_place  # noqa: F401
-import isaaclab_tasks.manager_based.manipulation.pick_place  # noqa: F401
+import isaaclab_tasks.contrib.locomanip_pick_place  # noqa: F401
+import isaaclab_tasks.contrib.pick_place  # noqa: F401
 
 
 def normalize_hdf5_actions(config: Config, log_dir: str) -> str:

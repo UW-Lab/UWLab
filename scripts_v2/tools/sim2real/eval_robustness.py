@@ -113,10 +113,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             raise ValueError(f"Unsupported runner class: {agent_cfg.class_name}")
         runner.load(resume_path)
         policies.append(runner.get_inference_policy(device=env.unwrapped.device))
-        try:
-            policy_nns.append(runner.alg.policy)
-        except AttributeError:
-            policy_nns.append(runner.alg.actor_critic)
+        policy_nns.append(runner.alg.actor)
 
     print(f"\n{'=' * 60}")
     print(f"Running {num_policies} policies across {num_envs} envs")

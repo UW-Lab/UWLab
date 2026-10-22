@@ -17,7 +17,7 @@ EXTENSION_TOML_DATA = toml.load(os.path.join(EXTENSION_PATH, "config", "extensio
 
 # Minimum dependencies required prior to installation
 INSTALL_REQUIRES = [
-    "usd-core",
+    "usd-exchange==2.3.0",
 ]
 
 # Installation operation

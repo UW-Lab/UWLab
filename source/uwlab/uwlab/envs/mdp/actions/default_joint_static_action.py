@@ -27,8 +27,8 @@ class DefaultJointPositionStaticAction(JointAction):
         super().__init__(cfg, env)
         # use default joint positions as offset
         if cfg.use_default_offset:
-            self._offset = self._asset.data.default_joint_pos[:, self._joint_ids].clone()
-        self._default_actions = self._asset.data.default_joint_pos[:, self._joint_ids].clone()
+            self._offset = self._asset.data.default_joint_pos.torch[:, self._joint_ids].clone()
+        self._default_actions = self._asset.data.default_joint_pos.torch[:, self._joint_ids].clone()
 
     @property
     def action_dim(self) -> int:

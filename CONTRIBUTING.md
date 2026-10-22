@@ -4,8 +4,8 @@ UW Lab is a community maintained project. We wholeheartedly welcome contribution
 the framework more mature and useful for everyone. These may happen in forms of bug reports, feature requests,
 design proposals and more.
 
-For general information on how to contribute see
-<https://uw-lab.github.io/UWLab/main/source/refs/contributing.html>.
+For development setup and extension structure, see the
+[developer guide](docs/source/overview/developer-guide/development.rst).
 
 ---
 

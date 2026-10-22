@@ -43,10 +43,10 @@ class TeleopState:
     def update_ref(self, robot: Articulation):
         ref_body_id = self.pose_reference_body.body_ids
         ref_pos_b, ref_quat_b = math_utils.subtract_frame_transforms(
-            robot.data.root_pos_w,
-            robot.data.root_quat_w,
-            robot.data.body_link_pos_w[:, ref_body_id, :].view(-1, 3),
-            robot.data.body_link_quat_w[:, ref_body_id, :].view(-1, 4),
+            robot.data.root_pos_w.torch,
+            robot.data.root_quat_w.torch,
+            robot.data.body_link_pos_w.torch[:, ref_body_id, :].view(-1, 3),
+            robot.data.body_link_quat_w.torch[:, ref_body_id, :].view(-1, 4),
         )
         self.ref_pos_b = ref_pos_b.repeat_interleave(self.num_command_body, dim=0)
         self.ref_quat_b = ref_quat_b.repeat_interleave(self.num_command_body, dim=0)
@@ -54,10 +54,10 @@ class TeleopState:
     def update_attach(self, robot: Articulation):
         attach_body_id = self.attach_body.body_ids
         self.attach_pos_b, self.attach_quat_b = math_utils.subtract_frame_transforms(
-            robot.data.root_pos_w,
-            robot.data.root_quat_w,
-            robot.data.body_link_pos_w[:, attach_body_id, :].view(-1, 3),
-            robot.data.body_link_quat_w[:, attach_body_id, :].view(-1, 4),
+            robot.data.root_pos_w.torch,
+            robot.data.root_quat_w.torch,
+            robot.data.body_link_pos_w.torch[:, attach_body_id, :].view(-1, 3),
+            robot.data.body_link_quat_w.torch[:, attach_body_id, :].view(-1, 4),
         )
         self.attach_pos_b = self.attach_pos_b.repeat_interleave(self.num_command_body, dim=0)
         self.attach_quat_b = self.attach_quat_b.repeat_interleave(self.num_command_body, dim=0)
@@ -66,8 +66,8 @@ class TeleopState:
         self, robot: Articulation, command_pos_b: torch.Tensor, command_quat_b: torch.Tensor | None
     ):
         command_pos_w, command_quat_w = math_utils.combine_frame_transforms(
-            robot.data.root_pos_w.repeat_interleave(self.num_command_body, dim=0),
-            robot.data.root_quat_w.repeat_interleave(self.num_command_body, dim=0),
+            robot.data.root_pos_w.torch.repeat_interleave(self.num_command_body, dim=0),
+            robot.data.root_quat_w.torch.repeat_interleave(self.num_command_body, dim=0),
             command_pos_b,
             command_quat_b,
         )

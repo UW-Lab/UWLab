@@ -21,23 +21,39 @@ UWLAB_ASSETS_DATA_DIR = os.path.join(UWLAB_ASSETS_EXT_DIR, "data")
 UWLAB_ASSETS_METADATA = toml.load(os.path.join(UWLAB_ASSETS_EXT_DIR, "config", "extension.toml"))
 """Extension metadata dictionary parsed from the extension.toml file."""
 
-UWLAB_CLOUD_ASSETS_DIR = "https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main"
+UWLAB_CLOUD_ASSETS_REPO = "https://huggingface.co/datasets/UW-Lab/uwlab-assets"
+"""HuggingFace dataset repository holding the cloud assets."""
+
+UWLAB_CLOUD_ASSETS_REVISION = "83860532010b2737aa80d6e8621235ee554186f0"  # branch isaaclab3
+"""Pinned commit of :data:`UWLAB_CLOUD_ASSETS_REPO`.
+
+Pinned rather than a branch name so that asset changes on HuggingFace are opt-in: bump this
+constant deliberately when new assets or datasets are published. Isaac Lab 3.0 EA / Isaac Sim 6.1
+assets and compatible state checkpoints live on ``isaaclab3``; ``main`` keeps the Isaac Lab 2.x files.
+"""
+
+UWLAB_CLOUD_ASSETS_DIR = f"{UWLAB_CLOUD_ASSETS_REPO}/resolve/{UWLAB_CLOUD_ASSETS_REVISION}"
 
 
-def _extract_relative_path(url: str) -> str:
-    """Strip the HuggingFace resolve-URL prefix, returning the repo-relative path.
+def _extract_revision_and_relative_path(url: str) -> tuple[str, str]:
+    """Split a HuggingFace resolve URL into ``(revision, repo-relative path)``.
 
     Example:
-        ``https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/main/Props/Custom/Peg/peg.usd``
-        -> ``Props/Custom/Peg/peg.usd``
+        ``https://huggingface.co/datasets/UW-Lab/uwlab-assets/resolve/isaaclab3/Props/Custom/Peg/peg.usd``
+        -> ``("isaaclab3", "Props/Custom/Peg/peg.usd")``
     """
     parsed = urlparse(url)
     parts = parsed.path.strip("/").split("/")
     try:
         idx = parts.index("resolve")
-        return "/".join(parts[idx + 2 :])
-    except ValueError:
-        return parsed.path.strip("/")
+        return parts[idx + 1], "/".join(parts[idx + 2 :])
+    except (ValueError, IndexError):
+        return "", parsed.path.strip("/")
+
+
+def _extract_relative_path(url: str) -> str:
+    """Strip the HuggingFace resolve-URL prefix, returning the repo-relative path."""
+    return _extract_revision_and_relative_path(url)[1]
 
 
 def _urlretrieve_quiet(url: str, dest: str) -> None:
@@ -57,15 +73,17 @@ def resolve_cloud_path(path: str) -> str:
     """Resolve a cloud asset path to a local file, downloading if needed.
 
     * Local paths (including already-cached files) are returned immediately.
-    * HTTPS URLs are downloaded once to ``~/.cache/uwlab/assets/<relative>``
-      and the local cached path is returned on subsequent calls.
+    * HTTPS URLs are downloaded once to ``~/.cache/uwlab/assets/<revision>/<relative>``
+      and the local cached path is returned on subsequent calls. The revision is part
+      of the key so that bumping :data:`UWLAB_CLOUD_ASSETS_REVISION` never serves a
+      file cached from another revision.
     * Downloads are atomic (write to a temp file, then ``os.rename``).
     """
     if not path.startswith(("http://", "https://")):
         return path
 
-    rel = _extract_relative_path(path)
-    cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "uwlab", "assets")
+    revision, rel = _extract_revision_and_relative_path(path)
+    cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "uwlab", "assets", revision)
     local = os.path.join(cache_dir, rel)
 
     if os.path.isfile(local):

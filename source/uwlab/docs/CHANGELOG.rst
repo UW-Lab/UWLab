@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+0.9.0 (2026-09-28)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Migrated to Isaac Lab 3.0 Early Access / Isaac Sim 6.1: scalar-last quaternions,
+  Warp-backed asset data (``.torch``), ``root_view`` / ``data`` accessors, and
+  ``isaaclab.sim.utils`` in place of deprecated Isaac Sim helpers.
+* Updated mesh conversion to enable Isaac Sim extensions through the Isaac Lab API.
+  Launch the simulator before invoking conversion helpers.
+
+
 0.8.6 (2025-10-09)
 ~~~~~~~~~~~~~~~~~~
 

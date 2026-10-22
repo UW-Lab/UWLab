@@ -13,7 +13,7 @@ ENV ISAACSIM_VERSION=${ISAACSIM_VERSION_ARG}
 SHELL ["/bin/bash", "-c"]
 
 # Adds labels to the Dockerfile
-LABEL version="2.1.1"
+LABEL version="2.0.0"
 LABEL description="Dockerfile for building and running the UW Lab framework inside Isaac Sim container image."
 
 # Arguments

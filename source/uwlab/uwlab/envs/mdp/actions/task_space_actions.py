@@ -131,13 +131,13 @@ class MultiConstraintDifferentialInverseKinematicsAction(ActionTerm):
 
     @property
     def jacobian_w(self) -> torch.Tensor:
-        return self._asset.root_physx_view.get_jacobians()[:, self._jacobi_body_idx, :, :][:, :, :, self._joint_ids]
+        return self._asset.data.body_link_jacobian_w.torch[:, self._jacobi_body_idx, :, :][:, :, :, self._joint_ids]
 
     @property
     def jacobian_b(self) -> torch.Tensor:
         jacobian = self.jacobian_w
         B = len(self._jacobi_body_idx)
-        rot_b = self._asset.data.root_link_quat_w
+        rot_b = self._asset.data.root_link_quat_w.torch
         rot_b_m = math_utils.matrix_from_quat(math_utils.quat_inv(rot_b))
         rot_b_m = rot_b_m.unsqueeze(1).expand(-1, B, -1, -1).reshape(-1, 3, 3)  # [N*B, 3, 3]
 
@@ -166,7 +166,7 @@ class MultiConstraintDifferentialInverseKinematicsAction(ActionTerm):
     def apply_actions(self):
         # obtain quantities from simulation
         ee_pos_curr, ee_quat_curr = self._compute_frame_pose()
-        joint_pos = self._asset.data.joint_pos[:, self._joint_ids]
+        joint_pos = self._asset.data.joint_pos.torch[:, self._joint_ids]
         # compute the delta in joint-space
         if ee_quat_curr.norm() != 0:
             jacobian = self._compute_frame_jacobian()
@@ -191,7 +191,7 @@ class MultiConstraintDifferentialInverseKinematicsAction(ActionTerm):
         """
         # obtain quantities from simulation
         num_body_idx = len(self._body_idx)
-        ee_pose_w = self._asset.data.body_link_state_w[:, self._body_idx, :7].view(-1, 7)
+        ee_pose_w = self._asset.data.body_link_state_w.torch[:, self._body_idx, :7].view(-1, 7)
         root_pose_w = self._asset.data.root_state_w[:, :7].repeat_interleave(num_body_idx, dim=0)
         # compute the pose of the body in the root frame
         ee_pos_b, ee_quat_b = math_utils.subtract_frame_transforms(

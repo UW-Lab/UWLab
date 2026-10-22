@@ -199,12 +199,13 @@ class ZarrDatasetFileHandler(DatasetFileHandlerBase):
         """Get number of episodes in the file."""
         return self._episode_count
 
-    def write_episode(self, episode: EpisodeData, demo_id: int | None = None):
+    def write_episode(self, episode: EpisodeData, demo_id: int | None = None, dataset_compression: bool = True):
         """Add an episode to the dataset.
 
         Args:
             episode: The episode data to add.
             demo_id: Custom index for the episode. If None, uses default index.
+            dataset_compression: Passed by :class:`isaaclab.managers.RecorderManager`; unused here.
         """
         if self._dataset is None or episode.is_empty():
             return

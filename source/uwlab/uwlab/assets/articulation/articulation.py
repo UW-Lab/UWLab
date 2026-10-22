@@ -13,9 +13,9 @@ from collections.abc import Sequence
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING
 
+import isaaclab.sim.utils.stage as stage_utils
 import isaaclab.utils.math as math_utils
 import isaaclab.utils.string as string_utils
-import isaacsim.core.utils.stage as stage_utils
 import omni.log
 from isaaclab.actuators import ActuatorBase, ActuatorBaseCfg, ImplicitActuator
 from isaaclab.utils.types import ArticulationActions
@@ -1433,7 +1433,7 @@ class UniversalArticulation(AssetBase):
             for idx in violated_indices:
                 joint_name = self.data.joint_names[idx]
                 joint_limits = joint_pos_limits[idx]
-                joint_pos = self.data.default_joint_pos[0, idx]
+                joint_pos = self.data.default_joint_pos.torch[0, idx]
                 # add to message
                 msg += f"\t- '{joint_name}': {joint_pos:.3f} not in [{joint_limits[0]:.3f}, {joint_limits[1]:.3f}]\n"
             raise ValueError(msg)
@@ -1448,7 +1448,7 @@ class UniversalArticulation(AssetBase):
             for idx in violated_indices:
                 joint_name = self.data.joint_names[idx]
                 joint_limits = [-joint_max_vel[idx], joint_max_vel[idx]]
-                joint_vel = self.data.default_joint_vel[0, idx]
+                joint_vel = self.data.default_joint_vel.torch[0, idx]
                 # add to message
                 msg += f"\t- '{joint_name}': {joint_vel:.3f} not in [{joint_limits[0]:.3f}, {joint_limits[1]:.3f}]\n"
             raise ValueError(msg)

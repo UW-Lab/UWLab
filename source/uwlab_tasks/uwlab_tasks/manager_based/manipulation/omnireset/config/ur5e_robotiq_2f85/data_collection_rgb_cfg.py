@@ -15,7 +15,7 @@ from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
-from isaaclab.sensors import TiledCameraCfg
+from isaaclab.sensors import JointWrenchSensorCfg, TiledCameraCfg
 from isaaclab.utils import configclass
 
 from uwlab_assets import UWLAB_CLOUD_ASSETS_DIR
@@ -27,10 +27,14 @@ from .rl_state_cfg import FinetuneEvalEventCfg, RlStateSceneCfg, Ur5eRobotiq2f85
 
 @configclass
 class DataCollectionRGBObjectSceneCfg(RlStateSceneCfg):
+    # Incoming joint wrenches (binary_force_contact observation); Isaac Lab 3.0 moved these
+    # from ArticulationData to a sensor.
+    joint_wrench = JointWrenchSensorCfg(prim_path="{ENV_REGEX_NS}/Robot")
+
     # background
     curtain_left = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/CurtainLeft",
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.4, -0.68, 0.519), rot=(0.707, 0.0, 0.0, -0.707)),
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.4, -0.68, 0.519), rot=(0.0, 0.0, -0.707, 0.707)),
         spawn=sim_utils.CuboidCfg(
             size=(0.01, 1.0, 1.125),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
@@ -43,7 +47,7 @@ class DataCollectionRGBObjectSceneCfg(RlStateSceneCfg):
 
     curtain_back = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/CurtainBack",
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(-0.15, 0.0, 0.519), rot=(1.0, 0.0, 0.0, 0.0)),
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(-0.15, 0.0, 0.519), rot=(0.0, 0.0, 0.0, 1.0)),
         spawn=sim_utils.CuboidCfg(
             size=(0.01, 1.3, 1.125),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
@@ -56,7 +60,7 @@ class DataCollectionRGBObjectSceneCfg(RlStateSceneCfg):
 
     curtain_right = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/CurtainRight",
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.4, 0.68, 0.519), rot=(0.707, 0.0, 0.0, -0.707)),
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.4, 0.68, 0.519), rot=(0.0, 0.0, -0.707, 0.707)),
         spawn=sim_utils.CuboidCfg(
             size=(0.01, 1.0, 1.125),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
@@ -74,7 +78,7 @@ class DataCollectionRGBObjectSceneCfg(RlStateSceneCfg):
         width=320,
         offset=TiledCameraCfg.OffsetCfg(
             pos=(1.0770121, -0.1679045, 0.4486344),
-            rot=(0.70564552, 0.46613815, 0.25072644, 0.47107948),
+            rot=(0.46613815, 0.25072644, 0.47107948, 0.70564552),
             convention="opengl",
         ),
         data_types=["rgb"],
@@ -88,7 +92,7 @@ class DataCollectionRGBObjectSceneCfg(RlStateSceneCfg):
         width=320,
         offset=TiledCameraCfg.OffsetCfg(
             pos=(0.8323904, 0.5877843, 0.2805111),
-            rot=(0.29008842, 0.22122445, 0.51336143, 0.77676798),
+            rot=(0.22122445, 0.51336143, 0.77676798, 0.29008842),
             convention="opengl",
         ),
         data_types=["rgb"],
@@ -102,7 +106,7 @@ class DataCollectionRGBObjectSceneCfg(RlStateSceneCfg):
         width=320,
         offset=TiledCameraCfg.OffsetCfg(
             pos=(0.0182505, -0.00408447, -0.0689107),
-            rot=(0.34254336, -0.61819255, -0.6160212, 0.347879),
+            rot=(-0.61819255, -0.6160212, 0.347879, 0.34254336),
             convention="opengl",
         ),
         data_types=["rgb"],
@@ -122,7 +126,7 @@ class BaseRGBEventCfg(FinetuneEvalEventCfg):
             "camera_path_template": "/World/envs/env_{}/Robot/rgb_front_camera",
             # Base values from TiledCameraCfg
             "base_position": (1.0770121, -0.1679045, 0.4486344),
-            "base_rotation": (0.70564552, 0.46613815, 0.25072644, 0.47107948),
+            "base_rotation": (0.46613815, 0.25072644, 0.47107948, 0.70564552),
             # Delta ranges for position (in meters)
             "position_deltas": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "z": (-0.05, 0.05)},
             # Delta ranges for euler angles (in degrees)
@@ -146,7 +150,7 @@ class BaseRGBEventCfg(FinetuneEvalEventCfg):
             "camera_path_template": "/World/envs/env_{}/Robot/rgb_side_camera",
             # Base values from TiledCameraCfg
             "base_position": (0.8323904, 0.5877843, 0.2805111),
-            "base_rotation": (0.29008842, 0.22122445, 0.51336143, 0.77676798),
+            "base_rotation": (0.22122445, 0.51336143, 0.77676798, 0.29008842),
             # Delta ranges for position (in meters)
             "position_deltas": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "z": (-0.05, 0.05)},
             # Delta ranges for euler angles (in degrees)
@@ -167,7 +171,7 @@ class BaseRGBEventCfg(FinetuneEvalEventCfg):
             "camera_path_template": "/World/envs/env_{}/Robot/robotiq_base_link/rgb_wrist_camera",
             # Base values from TiledCameraCfg
             "base_position": (0.0182505, -0.00408447, -0.0689107),
-            "base_rotation": (0.34254336, -0.61819255, -0.6160212, 0.347879),
+            "base_rotation": (-0.61819255, -0.6160212, 0.347879, 0.34254336),
             # Delta ranges for position (in meters)
             "position_deltas": {"x": (-0.01, 0.01), "y": (-0.01, 0.01), "z": (-0.01, 0.01)},
             # Delta ranges for euler angles (in degrees)
@@ -358,7 +362,7 @@ class RGBEventCfg(BaseRGBEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset_isaaclab3",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -374,7 +378,7 @@ class DataCollectionRGBEventCfg(RGBEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset_isaaclab3",
             "reset_types": [
                 "ObjectAnywhereEEAnywhere",
                 "ObjectRestingEEGrasped",
@@ -540,7 +544,7 @@ class RGBObservationsCfg:
         binary_contact = ObsTerm(
             func=task_mdp.binary_force_contact,
             params={
-                "asset_cfg": SceneEntityCfg("robot"),
+                "sensor_cfg": SceneEntityCfg("joint_wrench"),
                 "body_name": "wrist_3_link",
                 "force_threshold": 25.0,
             },
@@ -622,11 +626,14 @@ class Ur5eRobotiq2f85RGBRelCartesianOSCEvalCfg(Ur5eRobotiq2f85RlStateCfg):
         self.episode_length_s = 32.0
 
         # Render settings
-        self.sim.render.enable_dlssg = False
-        self.sim.render.enable_ambient_occlusion = True
-        self.sim.render.enable_reflections = True
-        self.sim.render.enable_dl_denoiser = True
-        self.sim.render.antialiasing_mode = "DLAA"
+        task_mdp.configure_isaac_rtx(
+            self,
+            enable_dlssg=False,
+            enable_ambient_occlusion=True,
+            enable_reflections=True,
+            enable_dl_denoiser=True,
+            antialiasing_mode="DLAA",
+        )
 
         # speeds up rendering
         self.sim.render_interval = self.decimation
@@ -790,7 +797,7 @@ class OODRGBEventCfg(BaseRGBEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset_isaaclab3",
             "reset_types": ["ObjectAnywhereEEAnywhere"],
             "probs": [1.0],
             "success": "env.reward_manager.get_term_cfg('progress_context').func.success",
@@ -806,7 +813,7 @@ class DataCollectionOODRGBEventCfg(OODRGBEventCfg):
         func=task_mdp.MultiResetManager,
         mode="reset",
         params={
-            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset",
+            "dataset_dir": f"{UWLAB_CLOUD_ASSETS_DIR}/Datasets/OmniReset_isaaclab3",
             "reset_types": [
                 "ObjectAnywhereEEAnywhere",
                 "ObjectRestingEEGrasped",

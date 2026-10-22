@@ -18,17 +18,17 @@ if TYPE_CHECKING:
 @configclass
 class Offset:
     pos: tuple[float, float, float] = (0.0, 0.0, 0.0)
-    quat: tuple[float, float, float, float] = (1.0, 0.0, 0.0, 0.0)
+    quat: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
 
     @property
     def pose(self) -> tuple[float, float, float, float, float, float, float]:
         return self.pos + self.quat
 
     def apply(self, root: RigidObject | Articulation) -> tuple[torch.Tensor, torch.Tensor]:
-        data = root.data.root_pos_w
+        data = root.data.root_pos_w.torch
         pos_w, quat_w = math_utils.combine_frame_transforms(
-            root.data.root_pos_w,
-            root.data.root_quat_w,
+            root.data.root_pos_w.torch,
+            root.data.root_quat_w.torch,
             torch.tensor(self.pos).to(data.device).repeat(data.shape[0], 1),
             torch.tensor(self.quat).to(data.device).repeat(data.shape[0], 1),
         )
@@ -49,10 +49,10 @@ class Offset:
 class KeyPointsNistBoard:
     bolt_m16: Offset = Offset(pos=(0.145, -0.1495, -0.01))
     hole_8mm: Offset = Offset(pos=(-0.0895, 0.0, 0.01))
-    gear_base: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.70711, 0.0, 0.0, -0.70711))
-    small_gear: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.70711, 0.0, 0.0, -0.70711))
-    medium_gear: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.70711, 0.0, 0.0, -0.70711))
-    large_gear: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.70711, 0.0, 0.0, -0.70711))
+    gear_base: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.0, 0.0, -0.70711, 0.70711))
+    small_gear: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.0, 0.0, -0.70711, 0.70711))
+    medium_gear: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.0, 0.0, -0.70711, 0.70711))
+    large_gear: Offset = Offset(pos=(0.145, 0.021, 0.0092), quat=(0.0, 0.0, -0.70711, 0.70711))
 
 
 @configclass
@@ -67,7 +67,7 @@ class KeyPointsNutM16:
     center_axis_bottom: Offset = Offset(pos=(0.0, 0.0, 0.01))
     center_axis_middle: Offset = Offset(pos=(0.0, 0.0, 0.0165))
     center_axis_top: Offset = Offset(pos=(0.0, 0.0, 0.023))
-    grasp_point: Offset = Offset(pos=(0.0, 0.0, 0.01), quat=(0.70711, 0.0, 0.0, -0.70711))
+    grasp_point: Offset = Offset(pos=(0.0, 0.0, 0.01), quat=(0.0, 0.0, -0.70711, 0.70711))
     grasp_diameter: float = 0.024
 
 
@@ -93,7 +93,7 @@ class KeyPointsSmallGear:
 class KeyPointsMediumGear:
     center_axis_bottom: Offset = Offset(pos=(0.02025, 0.0, 0.005))
     center_axis_top: Offset = Offset(pos=(0.02025, 0.0, 0.03))
-    grasp_point: Offset = Offset(pos=(0.02025, 0.0, 0.022), quat=(0.70711, 0.0, 0.0, -0.70711))
+    grasp_point: Offset = Offset(pos=(0.02025, 0.0, 0.022), quat=(0.0, 0.0, -0.70711, 0.70711))
     grasp_diameter: float = 0.03
 
 
@@ -122,7 +122,7 @@ class KeyPointsPeg8MM:
 
 @configclass
 class KeyPointPandaHand:
-    object_grasped_point: Offset = Offset(pos=(0.0, 0.0, 0.107), quat=(0.0, 0.0, 1.0, 0.0))
+    object_grasped_point: Offset = Offset(pos=(0.0, 0.0, 0.107), quat=(0.0, 1.0, 0.0, 0.0))
 
 
 KEYPOINTS_NISTBOARD = KeyPointsNistBoard()

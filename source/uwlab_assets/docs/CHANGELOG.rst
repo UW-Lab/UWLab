@@ -1,6 +1,21 @@
 Changelog
 ---------
 
+0.6.0 (2026-09-28)
+~~~~~~~~~~~~~~~~~~
+
+Changed
+^^^^^^^
+
+* Migrated assets to Isaac Lab 3.0 Early Access / Isaac Sim 6.1 with scalar-last
+  ``(x, y, z, w)`` quaternions and compatible OmniReset datasets and checkpoints.
+* Pinned cloud assets to the canonical ``isaaclab3`` Hugging Face branch's verified
+  snapshot. Publish new assets on ``isaaclab3`` and update the commit pin deliberately;
+  ``main`` remains the legacy Isaac Lab 2.x asset line.
+* Aligned the USD Python provider using ``usd-exchange``. Use a fresh environment when
+  upgrading to avoid overlapping ``pxr`` files from ``usd-core``.
+
+
 0.5.2 (2025-03-23)
 ~~~~~~~~~~~~~~~~~~
 

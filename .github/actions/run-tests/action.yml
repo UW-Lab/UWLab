@@ -59,8 +59,11 @@ runs:
           # Create reports directory
           mkdir -p "$reports_dir"
 
-          # Clean up any existing container
-          docker rm -f $container_name 2>/dev/null || true
+          # Preserve any existing container
+          if docker container inspect "$container_name" >/dev/null 2>&1; then
+            echo "Container already exists; refusing to replace it: $container_name" >&2
+            return 1
+          fi
 
           # Build Docker environment variables
           docker_env_vars="\
