@@ -1,5 +1,5 @@
-# Copyright (c) 2022-2024, The Isaac Lab Project Developers.
-# All rights reserved.
+# Copyright (c) 2024-2026, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -61,8 +61,6 @@ from diffusion_policy.policy.base_image_policy import BaseImagePolicy
 # Import the Diffusion policy wrapper
 from uwlab_rl.wrappers.diffusion import DiffusionPolicyWrapper
 
-# import imageio
-
 
 @hydra_task_compose(args_cli.task, "env_cfg_entry_point", hydra_args=remaining_args)
 def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
@@ -76,7 +74,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
     torch.backends.cudnn.benchmark = False
 
     # Check device is available
-    device = torch.device("cuda:0")#torch.device(args_cli.device if args_cli.device else 'cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda:0")
     policy_device = torch.device("cuda:1") if torch.cuda.device_count() > 1 else device
     torch.backends.cudnn.benchmark = True
     torch.backends.cuda.matmul.allow_tf32 = True
@@ -94,7 +92,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
     # create environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array")
 
-    # ckpt_base = args_cli.checkpoint.split("/")[-1].split(".")[0] if args_cli.checkpoint else "none"
     wandb.init(
         project=args_cli.wandb_project,
         group=args_cli.wandb_group,
@@ -155,7 +152,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
     ep_returns = torch.zeros(args_cli.num_envs, dtype=torch.float32, device=device)
     success_video_count = 0
     fail_video_count = 0
-    render_frames = []
     successes = []
 
     # Initialize progress bar if num_trajectories is specified
@@ -166,7 +162,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
     # simulate environment
     if args_cli.save_video:
         env_frames = [[] for _ in range(args_cli.num_envs)]
-        frames_to_save = []
         cam_keys = sorted([key for key in obs_dict['policy'].keys() if 'rgb' in key])
 
     while simulation_app.is_running():
@@ -181,15 +176,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
         with torch.inference_mode(), torch.autocast(device_type=device.type) if args_cli.use_amp else nullcontext():
             # compute actions using wrapped diffusion policy
             episode_steps = env.unwrapped.episode_length_buf
-            # first_step_mask = (episode_steps == 0).to(device)
-            # action_ids = ~first_step_mask.nonzero(as_tuple=False).reshape(-1).to(device)
-            # actions = torch.zeros((args_cli.num_envs, env.action_space.shape[0]), device=device)
-            # actions[:, -1] = -1.0  # default noop for last action dimension
-
-            # if len(action_ids) > 0:
-            # actions[action_ids] = wrapped_policy.predict_action(obs_dict, action_ids.tolist()).to(device)
             actions = wrapped_policy.predict_action(obs_dict).to(device)
 
+            # first step after reset: hold the arm still with the gripper closed
             first_step_mask = (episode_steps == 0)
             if torch.any(first_step_mask):
                 actions[first_step_mask, :-1] = 0.0
@@ -263,7 +252,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
                     is_success = float(ep_success_flags[k])
                     video_log["eval/episode_return"] = ep_ret
                     video_log["eval/success"] = is_success
-                    # video_log["eval/success_rate_running"] = (successful_episodes / episodes) if episodes > 0 else 0.0
                     if args_cli.save_video and len(env_frames[env_id]) > 0:
                         v = np.asarray(env_frames[env_id])  # T,H,W,C uint8
                         v = v.transpose(0, 3, 1, 2)  # T,C,H,W
@@ -273,8 +261,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
                         else:
                             video_log[f"eval/fail_video_{fail_video_count}"] = wandb.Video(v, fps=10, format="mp4")
                             fail_video_count += 1
-                        # video_log[f"eval/video_{video_count}"] = wandb.Video(v, fps=10, format="mp4")
-                        # video_count += 1
                     wandb.log(video_log)
 
                 ep_returns[reset_ids] = 0.0
@@ -294,9 +280,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
 
                 if args_cli.save_video:
                     for i in reset_ids:
-                        frames_to_save.extend(env_frames[i])
                         env_frames[i] = []
-                    # imageio.mimsave("logs/policy_cameras.mp4", frames_to_save, fps=10, codec='libx264')
 
                 # Update progress bar with success rate
                 if pbar is not None:

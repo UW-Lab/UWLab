@@ -1,7 +1,7 @@
-# Copyright (c) 2024-2025, The Octi Lab Project Developers.
-# Proprietary and Confidential - All Rights Reserved.
+# Copyright (c) 2024-2026, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
 #
-# Unauthorized copying of this file, via any medium is strictly prohibited
+# SPDX-License-Identifier: BSD-3-Clause
 
 """Script to collect demonstrations using exploration policy + expert policy."""
 
@@ -10,7 +10,10 @@
 import argparse
 import contextlib
 import os
+import random
+import time
 import gymnasium as gym
+import numpy as np
 import torch
 from tqdm import tqdm
 from typing import Sequence
@@ -41,6 +44,27 @@ parser.add_argument(
     "--episode_length_s", type=float, default=5.0, help="Episode length in seconds."
 )
 parser.add_argument("--expert_noise", type=float, default=0.0, help="Noise level for the expert policy.")
+parser.add_argument(
+    "--max_exploration_horizon_for_save",
+    type=float,
+    default=0.9,
+    help=(
+        "With an exploration policy, only save successful episodes whose explorer steps make up less than"
+        " this fraction of the episode."
+    ),
+)
+parser.add_argument(
+    "--stall_reset_after_s",
+    type=float,
+    default=90.0,
+    help="Force env.reset() when no new demo has been recorded for this many seconds. 0 disables.",
+)
+parser.add_argument(
+    "--debug",
+    action="store_true",
+    default=False,
+    help="Print collection telemetry and write per-interval action stats to action_stats.csv.",
+)
 
 parser.add_argument("--render", action="store_true", help="Whether to render the environment.")
 parser.add_argument("--seed", type=int, default=0, help="Random seed for environment.")
@@ -128,8 +152,7 @@ def record_pre_reset(self, env_ids: Sequence[int] | None, force_export_or_skip=N
     episode_lengths = self._env.episode_length_buf[env_ids]
     exploration_lengths = self.exploration_lengths[env_ids]
     exploration_ratios = exploration_lengths / episode_lengths
-    max_exploration_horizon_for_save = 0.9
-    success_results = success_results & (exploration_ratios < max_exploration_horizon_for_save)
+    success_results = success_results & (exploration_ratios < self.max_exploration_horizon_for_save)
     self.set_success_to_episodes(env_ids, success_results)
 
     if force_export_or_skip or (force_export_or_skip is None and self.cfg.export_in_record_pre_reset):
@@ -200,9 +223,156 @@ def sample_exploration_horizons(num_envs: int, min_horizon: int, max_horizon: in
     return torch.randint(min_horizon, max_horizon + 1, (num_envs,), device=device)
 
 
+class CollectionMonitor:
+    """Watches demo-collection progress; optionally prints telemetry and recovers from stalls.
+
+    Every ``check_every`` env steps it (a) with ``debug``, prints a progress line, appends
+    per-dimension action statistics to ``csv_path`` and diagnoses stalls, and (b) when no new demo
+    has been recorded for ``stall_reset_after_s`` seconds, asks the caller to force an ``env.reset()``.
+    It gives up once ``stall_giveup_after`` consecutive forced resets bring no new demos.
+    """
+
+    def __init__(
+        self,
+        debug: bool,
+        csv_path: str,
+        stall_reset_after_s: float,
+        check_every: int = 50,
+        no_progress_warn_s: float = 30.0,
+        stall_giveup_after: int = 3,
+    ):
+        self.debug = debug
+        self.csv_path = csv_path
+        self.stall_reset_after_s = stall_reset_after_s
+        self.check_every = check_every
+        self.no_progress_warn_s = no_progress_warn_s
+        self.stall_giveup_after = stall_giveup_after
+        self.step = 0
+        self.demo_count = 0
+        self.last_demo_wall = time.time()
+        self.step_times: list[float] = []
+        self.window_dones = 0
+        self.window_successes = 0
+        self.window_wall = time.time()
+        self.csv_header_written = False
+        self.stall_reset_count = 0
+        self.last_stall_reset_demo_count = 0
+
+    def record_step(self, step_dt: float, dones: torch.Tensor, demo_count: int) -> None:
+        self.step += 1
+        self.step_times = (self.step_times + [step_dt])[-100:]
+        self.window_dones += int(dones.sum().item())
+        if demo_count > self.demo_count:
+            self.window_successes += demo_count - self.demo_count
+            self.demo_count = demo_count
+            self.last_demo_wall = time.time()
+
+    def check(self, env, actions: torch.Tensor) -> str | None:
+        """Returns ``"reset"`` to force an env reset, ``"giveup"`` to stop collecting, else ``None``."""
+        if self.step % self.check_every != 0:
+            return None
+        now = time.time()
+        no_progress_s = now - self.last_demo_wall
+        if self.debug:
+            self._report(env, actions, now, no_progress_s)
+        self.window_dones = 0
+        self.window_successes = 0
+        self.window_wall = now
+
+        if self.stall_reset_after_s <= 0 or no_progress_s <= self.stall_reset_after_s:
+            return None
+        if self.demo_count > self.last_stall_reset_demo_count:
+            # the previous forced reset helped
+            self.stall_reset_count = 0
+        self.stall_reset_count += 1
+        if self.stall_reset_count > self.stall_giveup_after:
+            print(
+                f"[collect] {self.stall_reset_count - 1} consecutive forced resets did not unstick collection."
+                f" Saving {self.demo_count} demos and exiting.",
+                flush=True,
+            )
+            return "giveup"
+        print(
+            f"[collect] No new demo for {no_progress_s:.0f}s: forcing env.reset() (attempt"
+            f" {self.stall_reset_count}/{self.stall_giveup_after}) at {self.demo_count} demos.",
+            flush=True,
+        )
+        self.last_stall_reset_demo_count = self.demo_count
+        self.last_demo_wall = time.time()
+        return "reset"
+
+    def _report(self, env, actions: torch.Tensor, now: float, no_progress_s: float) -> None:
+        wall_dt = max(now - self.window_wall, 1e-9)
+        ep_lens = env.unwrapped.episode_length_buf
+        tm = env.unwrapped.termination_manager
+        time_outs = int(tm.time_outs.sum().item()) if hasattr(tm, "time_outs") else -1
+        term_dones = int(tm.dones.sum().item()) if hasattr(tm, "dones") else -1
+        step_med = sorted(self.step_times)[len(self.step_times) // 2] if self.step_times else 0.0
+        step_max = max(self.step_times) if self.step_times else 0.0
+        act_mean = actions.mean(dim=0).detach().cpu().tolist()
+        act_std = actions.std(dim=0).detach().cpu().tolist()
+        act_norm = actions.norm(dim=-1).detach().cpu()
+        act_norm_med = float(act_norm.median().item())
+        act_norm_max = float(act_norm.max().item())
+        # fraction of envs with any action dim at the +-1 clip bound
+        act_sat = float(((actions.abs() >= 0.999).any(dim=-1)).float().mean().item())
+        print(
+            f"[debug] step={self.step} demos={self.demo_count} "
+            f"window: dones={self.window_dones} successes={self.window_successes} "
+            f"({self.window_dones / wall_dt:.1f} dones/s, {self.window_successes / wall_dt:.2f} success/s) | "
+            f"ep_len min/mean/max={int(ep_lens.min())}/{float(ep_lens.float().mean()):.1f}/{int(ep_lens.max())} | "
+            f"step_dt med/max={step_med * 1000:.0f}/{step_max * 1000:.0f}ms | "
+            f"this-step time_outs={time_outs} dones_in_buf={term_dones} | "
+            f"act |a| med/max={act_norm_med:.3f}/{act_norm_max:.3f} sat={act_sat:.2f} | "
+            f"no_progress={no_progress_s:.0f}s",
+            flush=True,
+        )
+        try:
+            if not self.csv_header_written:
+                os.makedirs(os.path.dirname(self.csv_path) or ".", exist_ok=True)
+                cols = (
+                    ["step", "demos", "no_progress_s"]
+                    + [f"act_mean_{i}" for i in range(len(act_mean))]
+                    + [f"act_std_{i}" for i in range(len(act_std))]
+                    + ["act_norm_med", "act_norm_max", "act_sat_frac"]
+                )
+                with open(self.csv_path, "w") as f:
+                    f.write(",".join(cols) + "\n")
+                self.csv_header_written = True
+            row = (
+                [str(self.step), str(self.demo_count), f"{no_progress_s:.1f}"]
+                + [f"{x:.5f}" for x in act_mean]
+                + [f"{x:.5f}" for x in act_std]
+                + [f"{act_norm_med:.5f}", f"{act_norm_max:.5f}", f"{act_sat:.4f}"]
+            )
+            with open(self.csv_path, "a") as f:
+                f.write(",".join(row) + "\n")
+        except OSError as e:
+            print(f"[debug] CSV write failed: {e}", flush=True)
+        if no_progress_s > self.no_progress_warn_s:
+            if step_max > 5.0:
+                cause = f"step latency exploded ({step_max * 1000:.0f} ms); the PhysX solver likely hung on an env."
+            elif self.window_dones == 0:
+                cause = (
+                    f"env steps are fast ({step_med * 1000:.0f} ms median) but nothing terminated in this window;"
+                    " termination buffers may be stuck."
+                )
+            elif self.window_successes == 0:
+                cause = (
+                    f"{self.window_dones} episodes ended but none succeeded; EXPORT_SUCCEEDED_ONLY drops failures,"
+                    " so the demo count cannot advance."
+                )
+            else:
+                cause = "indeterminate."
+            print(f"[debug] STALL CAUSE: {cause}", flush=True)
+
+
 @hydra_task_compose(args_cli.task, "rsl_rl_cfg_entry_point", hydra_args=remaining_args)
 def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolicyRunnerCfg):
     """Collect demonstrations from the environment using exploration + expert policy."""
+    random.seed(args_cli.seed)
+    np.random.seed(args_cli.seed)
+    torch.manual_seed(args_cli.seed)
     # device = torch.device(args_cli.device if args_cli.device else 'cuda' if torch.cuda.is_available() else 'cpu')
     device = torch.device('cuda:0')
     policy_device = torch.device('cuda:1') if torch.cuda.device_count() > 1 else device
@@ -231,7 +401,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     # override configurations with non-hydra CLI arguments
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
-    env_cfg.seed = None
+    env_cfg.seed = args_cli.seed
     # we want to have the terms in the observations returned as a dictionary
     env_cfg.observations.policy.concatenate_terms = False
 
@@ -308,7 +478,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
 
     exploration_lengths = torch.zeros((num_envs,), device=device, dtype=torch.int32)
     recorder_manager.exploration_lengths = exploration_lengths
-    
+    recorder_manager.max_exploration_horizon_for_save = args_cli.max_exploration_horizon_for_save
+
     # reset environment and get initial observations
     obs_dict, _ = env.reset()
 
@@ -320,34 +491,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     rendered_frames = []
     # simulate environment -- run everything in inference mode
     current_recorded_demo_count = 0
-    # ---- debug instrumentation ----
-    import time as _time_dbg
-    _dbg_step = 0
-    _dbg_last_demo_count = 0
-    _dbg_last_demo_step = 0
-    _dbg_last_demo_wall = _time_dbg.time()
-    _dbg_step_times: list[float] = []  # rolling step latencies
-    _dbg_total_dones = 0
-    _dbg_total_successes = 0
-    _dbg_window_steps = 0
-    _dbg_window_dones = 0
-    _dbg_window_successes = 0
-    _dbg_window_wall = _time_dbg.time()
-    DBG_PRINT_EVERY = 50  # env steps
-    DBG_NO_PROGRESS_S = 30.0  # alert when no new demo for this many seconds
-    # ---- stall recovery (auto-retry inside this process) ----
-    STALL_RESET_AFTER_S = 90.0   # full env.reset() if no demo progress for this long
-    STALL_GIVEUP_AFTER = 3       # break after this many resets in a row that don't help
-    _stall_reset_count = 0
-    _last_stall_reset_demo_count = 0
-    _last_stall_reset_step = 0
-    # CSV trace of action stats per dbg interval — offline-plottable.
-    _dbg_action_csv = os.path.join(
-        os.path.dirname(args_cli.dataset_file), "action_stats.csv"
+    monitor = CollectionMonitor(
+        debug=args_cli.debug,
+        csv_path=os.path.join(output_dir, "action_stats.csv"),
+        stall_reset_after_s=args_cli.stall_reset_after_s,
     )
-    _dbg_csv_header_written = False
-    # --------------------------------
-    with contextlib.suppress(KeyboardInterrupt) and torch.inference_mode():
+    with contextlib.suppress(KeyboardInterrupt), torch.inference_mode():
         pbar = tqdm(total=args_cli.num_demos, desc="Recording Demonstrations", unit="demo")
 
         while True:
@@ -394,12 +543,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
             expert_mask_recorder.set_mask(expert_mask)
 
             # env stepping
-            _dbg_t0 = _time_dbg.time()
+            step_start = time.time()
             obs_dict, _, dones, _ = env.step(actions)
-            _dbg_step_dt = _time_dbg.time() - _dbg_t0
-            _dbg_step_times.append(_dbg_step_dt)
-            if len(_dbg_step_times) > 100:
-                _dbg_step_times = _dbg_step_times[-100:]
+            step_dt = time.time() - step_start
 
             # handle resets
             if dones.any():
@@ -412,141 +558,26 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
                     exploration_policy.reset(reset_ids)
 
                 exploration_lengths[reset_ids] = 0
-                # expert_mask_recorder.set_exploration_horizon(exploration_horizons)
 
             # update demo count
             new_count = env.unwrapped.recorder_manager.exported_successful_episode_count
             if new_count > current_recorded_demo_count:
-                increment = new_count - current_recorded_demo_count
+                pbar.update(new_count - current_recorded_demo_count)
                 current_recorded_demo_count = new_count
-                _dbg_window_successes += increment
-                _dbg_last_demo_step = _dbg_step
-                _dbg_last_demo_wall = _time_dbg.time()
-                pbar.update(increment)
 
-            # ---- debug telemetry ----
-            _dbg_step += 1
-            _dbg_window_steps += 1
-            _dbg_n_dones = int(dones.sum().item())
-            _dbg_window_dones += _dbg_n_dones
-            _dbg_total_dones += _dbg_n_dones
-
-            if _dbg_step % DBG_PRINT_EVERY == 0:
-                _now = _time_dbg.time()
-                wall_dt = max(_now - _dbg_window_wall, 1e-9)
-                ep_lens = env.unwrapped.episode_length_buf
-                ep_min, ep_max, ep_mean = (
-                    int(ep_lens.min().item()),
-                    int(ep_lens.max().item()),
-                    float(ep_lens.float().mean().item()),
+            monitor.record_step(step_dt, dones, current_recorded_demo_count)
+            stall_action = monitor.check(env, actions)
+            if stall_action == "giveup":
+                break
+            if stall_action == "reset":
+                # clear PhysX state and re-sample reset states
+                obs_dict, _ = env.reset()
+                if exploration_policy is not None:
+                    exploration_policy.reset(torch.arange(num_envs, device=device))
+                exploration_lengths.zero_()
+                exploration_horizons[:] = sample_exploration_horizons(
+                    num_envs, min_exploration_horizon, max_exploration_horizon, device
                 )
-                # time_out_buf / terminated_buf if available
-                tm = env.unwrapped.termination_manager
-                _to = int(tm.time_outs.sum().item()) if hasattr(tm, "time_outs") else -1
-                _term = int(tm.dones.sum().item()) if hasattr(tm, "dones") else -1
-                step_med = sorted(_dbg_step_times)[len(_dbg_step_times) // 2] if _dbg_step_times else 0.0
-                step_max = max(_dbg_step_times) if _dbg_step_times else 0.0
-                no_progress_s = _now - _dbg_last_demo_wall
-                rate = _dbg_window_successes / wall_dt
-                done_rate = _dbg_window_dones / wall_dt
-                # action stats — track per-dim mean / std / saturation.
-                _act_dim = actions.shape[-1]
-                _act_mean = actions.mean(dim=0).detach().cpu().tolist()
-                _act_std = actions.std(dim=0).detach().cpu().tolist()
-                _act_norm = actions.norm(dim=-1).detach().cpu()
-                _act_norm_med = float(_act_norm.median().item())
-                _act_norm_max = float(_act_norm.max().item())
-                # how often does any action dim hit ±1 (the typical clip bound)?
-                _act_saturated_frac = float(((actions.abs() >= 0.999).any(dim=-1)).float().mean().item())
-                print(
-                    f"[dbg] step={_dbg_step} demos={current_recorded_demo_count} "
-                    f"window: dones={_dbg_window_dones} successes={_dbg_window_successes} "
-                    f"({done_rate:.1f} dones/s, {rate:.2f} success/s) | "
-                    f"ep_len min/mean/max={ep_min}/{ep_mean:.1f}/{ep_max} | "
-                    f"step_dt med/max={step_med*1000:.0f}/{step_max*1000:.0f}ms | "
-                    f"this-step time_outs={_to} dones_in_buf={_term} | "
-                    f"act |a| med/max={_act_norm_med:.3f}/{_act_norm_max:.3f} sat={_act_saturated_frac:.2f} | "
-                    f"no_progress={no_progress_s:.0f}s",
-                    flush=True,
-                )
-                # CSV row: step,demos,no_progress_s,act_mean[0..D],act_std[0..D],act_norm_median,act_saturated_frac
-                try:
-                    if not _dbg_csv_header_written:
-                        os.makedirs(os.path.dirname(_dbg_action_csv), exist_ok=True)
-                        with open(_dbg_action_csv, "w") as _f:
-                            cols = (
-                                ["step", "demos", "no_progress_s"]
-                                + [f"act_mean_{i}" for i in range(_act_dim)]
-                                + [f"act_std_{i}" for i in range(_act_dim)]
-                                + ["act_norm_med", "act_norm_max", "act_sat_frac"]
-                            )
-                            _f.write(",".join(cols) + "\n")
-                        _dbg_csv_header_written = True
-                    with open(_dbg_action_csv, "a") as _f:
-                        row = (
-                            [str(_dbg_step), str(current_recorded_demo_count), f"{no_progress_s:.1f}"]
-                            + [f"{x:.5f}" for x in _act_mean]
-                            + [f"{x:.5f}" for x in _act_std]
-                            + [f"{_act_norm_med:.5f}", f"{_act_norm_max:.5f}", f"{_act_saturated_frac:.4f}"]
-                        )
-                        _f.write(",".join(row) + "\n")
-                except Exception as _e:
-                    print(f"[dbg] CSV write failed: {_e}", flush=True)
-                if no_progress_s > DBG_NO_PROGRESS_S:
-                    # diagnose stall: split between physics-step-stuck vs success-rate=0
-                    if step_max > 5.0:
-                        print(f"[dbg] STALL CAUSE: step latency exploded ({step_max*1000:.0f} ms). "
-                              "physx solver likely hung on at least one env.", flush=True)
-                    elif _dbg_window_dones == 0 and ep_max > 0:
-                        print(f"[dbg] STALL CAUSE: env steps fast ({step_med*1000:.0f} ms median) "
-                              "but ZERO terminations in window. time_out / abnormal / success "
-                              "all stopped firing — termination buffers may be stuck.", flush=True)
-                    elif _dbg_window_dones > 0 and _dbg_window_successes == 0:
-                        print(f"[dbg] STALL CAUSE: episodes terminating ({_dbg_window_dones} in window) "
-                              "but zero successes — all attempts failing. EXPORT_SUCCEEDED_ONLY "
-                              "drops failures so demo count can't advance.", flush=True)
-                    else:
-                        print(f"[dbg] STALL CAUSE: indeterminate. step_med={step_med*1000:.0f}ms "
-                              f"dones_window={_dbg_window_dones} successes_window={_dbg_window_successes}",
-                              flush=True)
-                _dbg_window_steps = 0
-                _dbg_window_dones = 0
-                _dbg_window_successes = 0
-                _dbg_window_wall = _now
-
-                # ---- stall recovery: full env.reset() to clear physx state and
-                #      re-sample reset states; break only if multiple consecutive
-                #      resets fail to unstick collection.
-                if no_progress_s > STALL_RESET_AFTER_S:
-                    if current_recorded_demo_count > _last_stall_reset_demo_count:
-                        # last reset DID help (we got new demos since); reset counter
-                        _stall_reset_count = 0
-                    _stall_reset_count += 1
-                    if _stall_reset_count > STALL_GIVEUP_AFTER:
-                        print(
-                            f"[dbg] STALL GIVEUP: {_stall_reset_count} consecutive "
-                            f"force-resets did not unstick collection. Saving "
-                            f"{current_recorded_demo_count} demos and exiting cleanly.",
-                            flush=True,
-                        )
-                        break
-                    print(
-                        f"[dbg] STALL RECOVERY: forcing env.reset() (attempt "
-                        f"{_stall_reset_count}/{STALL_GIVEUP_AFTER}) at "
-                        f"{current_recorded_demo_count} demos to clear physx state.",
-                        flush=True,
-                    )
-                    obs_dict, _ = env.reset()
-                    if exploration_policy is not None:
-                        exploration_policy.reset(torch.arange(num_envs, device=device))
-                    exploration_lengths.zero_()
-                    exploration_horizons[:] = sample_exploration_horizons(
-                        num_envs, min_exploration_horizon, max_exploration_horizon, device
-                    )
-                    _last_stall_reset_demo_count = current_recorded_demo_count
-                    _last_stall_reset_step = _dbg_step
-                    _dbg_last_demo_wall = _time_dbg.time()  # don't immediately re-trigger
-            # -------------------------
 
             if args_cli.num_demos > 0 and new_count >= args_cli.num_demos:
                 print(f"All {args_cli.num_demos} demonstrations recorded. Exiting the app.")

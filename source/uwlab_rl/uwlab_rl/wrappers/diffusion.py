@@ -60,7 +60,7 @@ class LowDimObservationHistory(ObservationHistoryManager):
                     self.history[env_idx, step] = first_obs[0]
                 self.needs_init.remove(env_idx)
         # Update history by shifting and adding new observations
-        self.history[:, :-1] = self.history[:, 1:]
+        self.history[:, :-1] = self.history[:, 1:].clone()
         # Add new observation at the end
         self.history[:, -1] = processed_obs["obs"]
 
@@ -82,13 +82,19 @@ class LowDimObservationHistory(ObservationHistoryManager):
 class ImageObservationHistory(ObservationHistoryManager):
     """Manages observation history for image-based policies."""
 
-    def __init__(self, num_envs: int, obs_keys: list[str], n_obs_steps: int, device: torch.device):
+    def __init__(
+        self, num_envs: int, n_obs_steps: int, device: torch.device, obs_keys: list[str] | None = None
+    ):
+        """Args:
+        obs_keys: Observation keys the policy consumes. ``None`` uses every key of the first observation.
+        """
         super().__init__(num_envs, n_obs_steps, device)
         self.obs_keys = obs_keys
 
     def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize history as a dictionary of tensors."""
-        # self.obs_keys = list(processed_obs.keys())
+        if self.obs_keys is None:
+            self.obs_keys = list(processed_obs.keys())
         self.history = {}
         for key in self.obs_keys:
             # Shape: (num_envs, n_obs_steps, ...)
@@ -141,9 +147,9 @@ class ImageObservationSequence(ImageObservationHistory):
 
     def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize internal per-key, per-env lists for histories."""
-        # Keep the same obs_keys behaviour
-        # self.obs_keys = list(processed_obs.keys())
-        # history will be a dict: key -> list(len=num_envs) of python lists containing tensors
+        if self.obs_keys is None:
+            self.obs_keys = list(processed_obs.keys())
+        # key -> one list of observation tensors per env
         self.history = {}
         for key in self.obs_keys:
             self.history[key] = [[] for _ in range(self.num_envs)]
@@ -222,19 +228,15 @@ class DiffusionPolicyWrapper:
         self.device = device
         self.n_obs_steps = n_obs_steps
         self.num_envs = num_envs
-        
 
         # Initialize observation history manager based on policy type
         self.is_image_policy = self._is_image_policy()
         self.is_transformer = self._is_transformer()
-        if hasattr(policy.obs_encoder, 'keys'):
-            obs_keys = policy.obs_encoder.keys
-        else:
-            obs_keys = policy.obs_encoder.rgb_keys + policy.obs_encoder.low_dim_keys
+        obs_keys = self._encoder_obs_keys()
         if self.is_transformer:
-            self.obs_history_manager = ImageObservationSequence(num_envs, obs_keys, n_obs_steps, device)
+            self.obs_history_manager = ImageObservationSequence(num_envs, n_obs_steps, device, obs_keys)
         elif self.is_image_policy:
-            self.obs_history_manager = ImageObservationHistory(num_envs, obs_keys, n_obs_steps, device)
+            self.obs_history_manager = ImageObservationHistory(num_envs, n_obs_steps, device, obs_keys)
         else:
             self.obs_history_manager = LowDimObservationHistory(num_envs, n_obs_steps, device)
 
@@ -243,6 +245,17 @@ class DiffusionPolicyWrapper:
 
         # Reset the policy to initialize its internal queues
         self.policy.reset()
+
+    def _encoder_obs_keys(self) -> list[str] | None:
+        """Observation keys read by the policy's encoder, or ``None`` if it does not declare them."""
+        encoder = getattr(self.policy, "obs_encoder", None)
+        if encoder is None:
+            return None
+        if hasattr(encoder, "keys"):
+            return list(encoder.keys)
+        if hasattr(encoder, "rgb_keys") and hasattr(encoder, "low_dim_keys"):
+            return list(encoder.rgb_keys) + list(encoder.low_dim_keys)
+        return None
 
     def _is_transformer(self) -> bool:
         """Detect if the policy is a transformer-based model."""
@@ -268,14 +281,17 @@ class DiffusionPolicyWrapper:
         self.obs_history_manager.reset_envs(reset_indices)
         self.policy.reset()
 
-    def predict_action(self, obs_dict: dict[str, Any], env_indices: list[int] = None) -> torch.Tensor:
+    def predict_action(self, obs_dict: dict[str, Any], env_indices: list[int] | None = None) -> torch.Tensor:
         """Predict action given Isaac Lab environment observations.
 
         Args:
             obs_dict: Raw observations from Isaac Lab environment
+            env_indices: Transformer policies only: the envs ``obs_dict`` rows belong to
+                (default: all envs). Other policies always act for every env.
 
         Returns:
-            Action tensor for environment execution with shape (num_envs, action_dim)
+            Action tensor for environment execution with shape (num_envs, action_dim), or
+            (len(env_indices), action_dim) for transformer policies.
         """
         # Process observations to format expected by diffusion policy
         processed_obs = self._process_obs(obs_dict)

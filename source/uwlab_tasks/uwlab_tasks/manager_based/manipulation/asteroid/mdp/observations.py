@@ -11,12 +11,11 @@ import math
 import torch
 from typing import TYPE_CHECKING
 
-import isaaclab.utils.math as math_utils
 from isaaclab.assets import Articulation
 from isaaclab.managers import SceneEntityCfg
 
 if TYPE_CHECKING:
-    from isaaclab.envs import ManagerBasedEnv, ManagerBasedRLEnv
+    from isaaclab.envs import ManagerBasedEnv
 
 
 def gripper_pos_normalized(
@@ -77,32 +76,3 @@ def gripper_pos_normalized(
     if jitter_std > 0.0:
         pos = pos + torch.randn_like(pos) * jitter_std
     return pos.to(torch.float32)
-
-
-def fingertip_contact_force_b(
-    env: ManagerBasedRLEnv,
-    contact_sensor_name: str,
-    root_asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    root_body_name: str = "robotiq_base_link",
-) -> torch.Tensor:
-    """Contact force from a single fingertip contact sensor, expressed in a body frame.
-
-    Args:
-        env: The environment to extract contact forces from.
-        contact_sensor_name: Name of the contact sensor to read from.
-        root_asset_cfg: Asset whose body frame the force is expressed in.
-        root_body_name: Body of ``root_asset_cfg`` to use as reference frame.
-
-    Returns:
-        Contact force in body frame. Shape: ``(num_envs, 3)``.
-    """
-    root_asset: Articulation = env.scene[root_asset_cfg.name]
-    root_body_idx = root_asset.body_names.index(root_body_name)
-    root_quat_w = root_asset.data.body_link_quat_w[:, root_body_idx].view(-1, 4)
-
-    contact_sensor = env.scene.sensors[contact_sensor_name]
-    # force_matrix_w is flattened, so we reshape to (num_envs, 3)
-    force_w = contact_sensor.data.force_matrix_w.view(env.num_envs, 3)
-
-    # Rotation only: forces are free vectors.
-    return math_utils.quat_apply_inverse(root_quat_w, force_w)

@@ -158,8 +158,6 @@ it; only the pick-specific deltas live here:
   ``randomize_env_cfg_unified`` (coupled sysid / OSC-gain / action-scale DR),
   ``randomize_gripper_pos_affine`` (gripper-reading calibration drift),
   ``reset_root_states_discrete_grid``.
-- ``mdp/observations.py`` -- ``gripper_pos_normalized`` (real-robot POS register analogue),
-  ``fingertip_contact_force_b``.
+- ``mdp/observations.py`` -- ``gripper_pos_normalized`` (real-robot POS register analogue).
 - ``mdp/recorders/`` -- per-step expert mask recorder for DAgger-style datasets.
-- ``mdp/actions/`` -- position-only (3-DOF + gripper) Cartesian OSC action.
 - ``config/ur5e_robotiq_2f85/`` -- reset-state, RL-state and tactile data-collection configs.

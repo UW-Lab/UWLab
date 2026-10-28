@@ -35,8 +35,6 @@ from .rl_state_cfg import PickFinetuneEvalEventCfg, PickObservationsCfg, PickSce
 class TactileSceneCfg(PickSceneCfg):
     """Pick scene for data collection (no cameras; the student is proprioceptive)."""
 
-    # TODO: add fingertip force/torque sensors once the real-robot counterpart is available.
-
 
 @configclass
 class TactileEvalSceneCfg(TactileSceneCfg):

@@ -1,3 +1,8 @@
+# Copyright (c) 2024-2026, The UW Lab Project Developers. (https://github.com/uw-lab/UWLab/blob/main/CONTRIBUTORS.md).
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 """ASTEROID orchestrator: iterative in-context exploration + distillation.
 
 Each iteration runs three stages, all as subprocesses:
@@ -57,6 +62,8 @@ class CollectCfg:
     episode_length_s: float = 8.0
     min_exploration_horizon: float = 0.0
     max_exploration_horizon: float = 0.0
+    #: Successful episodes whose explorer share is at or above this fraction are not saved.
+    max_exploration_horizon_for_save: float = 0.9
     expert_noise: float = 0.0
 
 
@@ -322,7 +329,9 @@ class AsteroidRun:
             "--min_exploration_horizon", str(c.min_exploration_horizon),
             "--max_exploration_horizon", str(c.max_exploration_horizon),
             "--expert_noise", str(c.expert_noise),
-            "--seed", str(cfg.seed),
+            "--max_exploration_horizon_for_save", str(c.max_exploration_horizon_for_save),
+            # a different seed per iteration so each dataset sees new initial states
+            "--seed", str(cfg.seed + iteration),
             "--headless",
             f'agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path=["{cfg.expert_policy_checkpoint}"]',
             *self._scene_overrides(),
