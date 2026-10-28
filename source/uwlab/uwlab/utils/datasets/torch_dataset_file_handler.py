@@ -113,9 +113,8 @@ class TorchDatasetFileHandler(DatasetFileHandlerBase):
             torch.save({**self._episode_data, "quat_convention": "xyzw"}, self._file_path)
 
     def close(self):
-        """Close the dataset file handler — actually writes the file here."""
-        if self._file_path and self._episode_data:
-            torch.save(self._episode_data, self._file_path)
+        """Close the dataset file handler."""
+        self.flush()
         self._episode_data = {}
         self._file_path = None
 
