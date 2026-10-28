@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 python scripts_v2/tools/record_reset_states.py \
     --task Asteroid-UR5eRobotiq2f85-ObjectAnywhereEEAnywhere-v0 \
