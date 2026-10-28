@@ -427,16 +427,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # tasks / policies
     p.add_argument("--data_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0")
     p.add_argument("--eval_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0")
-    p.add_argument("--expert_policy_checkpoint", default="logs/policy_cube_final_v4.pt")
+    p.add_argument("--expert_policy_checkpoint", required=True)
     p.add_argument("--insertive_object", default="cube")
     p.add_argument("--receptive_object", default=None)
     # student training config
     p.add_argument("--config_dir", default="diffusion_policy/diffusion_policy/config")
     p.add_argument("--config_name", default="incontext_exploration_debug.yaml")
     # logging
-    p.add_argument("--output_dir", default="logs/incontext_exploration_debug")
+    p.add_argument("--output_dir", default="logs/asteroid")
     p.add_argument("--exp_name", default="incontext_exploration_debug")
-    p.add_argument("--wandb_project", default="incontext_exploration")
+    p.add_argument("--wandb_project", default="asteroid")
     p.add_argument("--no_video", action="store_true", help="Disable video recording in collect and eval.")
     p.add_argument("--seed", type=int, default=0)
     # curriculum

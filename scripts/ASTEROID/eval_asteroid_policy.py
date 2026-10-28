@@ -25,8 +25,8 @@ parser.add_argument("--use_amp", action="store_true", default=False, help="Use a
 parser.add_argument("--save_video", action="store_true", default=False, help="Save video of the policy.")
 parser.add_argument("--episode_length_s", type=float, default=24.0, help="Episode length in seconds.")
 parser.add_argument("--exp_name", type=str, default="diffusion_policy_eval", help="Experiment name for logging.")
-parser.add_argument("--wandb_project", type=str, default="diffusion_policy_eval_new", help="WandB project name for logging.")
-parser.add_argument("--wandb_group", type=str, default="default_group", help="WandB group name for logging.")
+parser.add_argument("--wandb_project", type=str, default="asteroid", help="WandB project name for logging.")
+parser.add_argument("--wandb_group", type=str, default=None, help="WandB group name for logging.")
 parser.add_argument("--iteration", type=int, default=0, help="Iteration number for logging.")
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
@@ -47,7 +47,7 @@ from contextlib import nullcontext
 from tqdm import tqdm
 import random
 import numpy as np
-import wandb 
+import wandb
 
 import isaaclab_tasks  # noqa: F401
 import uwlab_tasks  # noqa: F401
