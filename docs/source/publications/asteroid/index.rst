@@ -68,13 +68,13 @@ tasks (no receptive object; success = object lifted with the gripper pointing do
    * - ``Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0``
      - Evaluate a Stage 2 expert
    * - ``Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0``
-     - Collect student demos with a Stage 1 expert
+     - Collect student demos with Stage 1 dynamics and gains
    * - ``Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-DataCollection-v0``
-     - Collect student demos with a Stage 2 expert
+     - Collect student demos with Stage 2 dynamics and gains (used for the released results)
    * - ``Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0``
-     - Evaluate a student (Stage 1 gains, front camera video)
+     - Evaluate a student with Stage 1 dynamics and gains (front camera video)
    * - ``Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-Play-v0``
-     - Evaluate a student (Stage 2 gains, front camera video)
+     - Evaluate a student with Stage 2 dynamics and gains (front camera video)
 
 Reset-state and grasp datasets are read from a local directory (default ``Datasets/CubePick``,
 override with the ``ASTEROID_DATASETS_DIR`` environment variable) keyed by the insertive
@@ -103,35 +103,51 @@ Repeat for ``ObjectRestingEEGrasped`` and ``ObjectAnywhereEEGrasped`` (these two
 2. Train the state expert
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The expert follows the OmniReset two-stage recipe (see :doc:`../omnireset/sim2real`).
+**Stage 1** trains with the implicit actuator and soft pre-training gains. **Stage 2**
+(*Finetune*) resumes from the Stage 1 policy with the explicit actuator, and a curriculum
+ramps system-identification randomization, OSC gains and action scales to the
+transferable values the student is later collected and evaluated with.
+
 .. code:: bash
 
+   # Stage 1
    python scripts/reinforcement_learning/rsl_rl/train.py \
        --task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-State-v0 \
        --num_envs 4096 --headless \
        env.scene.insertive_object=cube
 
-   # evaluate
-   python scripts/reinforcement_learning/rsl_rl/play.py \
-       --task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-State-Play-v0 \
-       --num_envs 1 --checkpoint logs/rsl_rl/ur5e_robotiq_2f85_asteroid_agent/<run>/model_<n>.pt \
+   # Stage 2: finetune from the Stage 1 checkpoint
+   python scripts/reinforcement_learning/rsl_rl/train.py \
+       --task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-v0 \
+       --num_envs 4096 --headless \
+       --resume_path logs/rsl_rl/ur5e_robotiq_2f85_asteroid_agent/<stage1_run>/model_<n>.pt \
        env.scene.insertive_object=cube
 
-Export the expert to TorchScript (``logs/rsl_rl/.../exported/policy.pt``) as in the OmniReset
-:doc:`../omnireset/distillation` page; the data-collection stage loads it with ``torch.jit.load``.
+   # evaluate the Stage 2 expert; also exports it to <run>/exported/policy.pt
+   python scripts/reinforcement_learning/rsl_rl/play.py \
+       --task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-State-Finetune-Play-v0 \
+       --num_envs 1 --checkpoint logs/rsl_rl/ur5e_robotiq_2f85_asteroid_agent/<stage2_run>/model_<n>.pt \
+       env.scene.insertive_object=cube
+
+The data-collection stage loads the exported TorchScript expert with ``torch.jit.load``.
 
 3. Run ASTEROID
 ^^^^^^^^^^^^^^^
 
+Collect and evaluate in the *Finetune* tactile environments, which use the Stage 2
+dynamics and gains:
+
 .. code:: bash
 
    python scripts/ASTEROID/run_asteroid.py \
-       --data_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0 \
-       --eval_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0 \
-       --expert_policy_checkpoint logs/rsl_rl/ur5e_robotiq_2f85_asteroid_agent/<run>/exported/policy.pt \
+       --data_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-DataCollection-v0 \
+       --eval_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-Play-v0 \
+       --expert_policy_checkpoint logs/rsl_rl/ur5e_robotiq_2f85_asteroid_agent/<stage2_run>/exported/policy.pt \
        --config_name in_context_exploration_tactile_base.yaml \
        --num_demos 32768 --num_data_envs 512 \
-       --num_eval_envs 32 --num_eval_episodes 100 \
-       --max_iterations 4 --exp_name cube_asteroid --no_video
+       --num_eval_envs 1 --num_eval_episodes 20 \
+       --max_iterations 6 --exp_name cube_asteroid --no_video
 
 Useful flags:
 

@@ -24,8 +24,8 @@ a new one to :data:`CURRICULA` and select it with ``--schedule``.
 Run from the repository root, e.g.::
 
     python scripts/ASTEROID/run_asteroid.py \
-        --data_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0 \
-        --eval_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0 \
+        --data_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-DataCollection-v0 \
+        --eval_task Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-Play-v0 \
         --expert_policy_checkpoint logs/exported/policy.pt \
         --max_iterations 4 --exp_name my_run
 """
@@ -459,8 +459,8 @@ class AsteroidRun:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     # tasks / policies
-    p.add_argument("--data_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-DataCollection-v0")
-    p.add_argument("--eval_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Play-v0")
+    p.add_argument("--data_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-DataCollection-v0")
+    p.add_argument("--eval_task", default="Asteroid-Ur5eRobotiq2f85-RelCartesianOSC-Tactile-Finetune-Play-v0")
     p.add_argument("--expert_policy_checkpoint", required=True)
     p.add_argument("--insertive_object", default="cube")
     p.add_argument("--receptive_object", default=None)
