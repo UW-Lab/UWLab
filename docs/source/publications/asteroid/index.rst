@@ -35,7 +35,11 @@ Quick Start
 
    Make sure you have completed the `installation <https://uw-lab.github.io/UWLab/main/source/setup/installation/pip_installation.html>`_
    before running these commands. The distillation stages additionally need the
-   ``diffusion_policy`` submodule.
+   ``diffusion_policy`` submodule:
+
+   .. code-block:: bash
+
+      git submodule update --init diffusion_policy
 
 Environments
 ^^^^^^^^^^^^
