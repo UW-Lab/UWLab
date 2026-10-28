@@ -123,9 +123,12 @@ class reset_root_states_discrete_grid(ManagerTermBase):
                 self.bottom_offset_positions[asset_cfg.name] = (
                     torch.tensor(bottom_offset.get("pos"), device=env.device).unsqueeze(0).repeat(env.num_envs, 1)
                 )
-                assert tuple(bottom_offset.get("quat")) == (1.0, 0.0, 0.0, 0.0), (
-                    "Bottom offset rotation must be (1.0, 0.0, 0.0, 0.0)"
-                )
+                assert tuple(bottom_offset.get("quat")) == (
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                ), "Bottom offset rotation must be (1.0, 0.0, 0.0, 0.0)"
 
     def __call__(
         self,

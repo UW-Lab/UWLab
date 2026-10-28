@@ -40,7 +40,9 @@ parser.add_argument(
 )
 parser.add_argument("--video", action="store_true", default=False, help="Record video of the env.")
 parser.add_argument("--video_length", type=int, default=200, help="Length of recorded video (env steps).")
-parser.add_argument("--video_dir", type=str, default=None, help="Output dir for the video (defaults under --dataset_dir).")
+parser.add_argument(
+    "--video_dir", type=str, default=None, help="Output dir for the video (defaults under --dataset_dir)."
+)
 
 AppLauncher.add_app_launcher_args(parser)
 args_cli, remaining_args = parser.parse_known_args()

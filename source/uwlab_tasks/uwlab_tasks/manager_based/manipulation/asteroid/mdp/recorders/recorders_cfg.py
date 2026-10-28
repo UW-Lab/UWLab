@@ -6,9 +6,7 @@
 from isaaclab.managers.recorder_manager import RecorderTerm, RecorderTermCfg
 from isaaclab.utils import configclass
 
-from uwlab_tasks.manager_based.manipulation.omnireset.mdp.recorders.recorders_cfg import (
-    ActionStateRecorderManagerCfg,
-)
+from uwlab_tasks.manager_based.manipulation.omnireset.mdp.recorders.recorders_cfg import ActionStateRecorderManagerCfg
 
 from . import recorders
 

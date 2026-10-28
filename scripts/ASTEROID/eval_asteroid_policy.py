@@ -19,7 +19,12 @@ parser.add_argument(
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--checkpoint", type=str, default=None, help="Path to diffusion policy checkpoint.")
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to run in parallel.")
-parser.add_argument("--num_trajectories", type=int, default=100, help="Number of trajectories to evaluate. If None, run until simulation is stopped.")
+parser.add_argument(
+    "--num_trajectories",
+    type=int,
+    default=100,
+    help="Number of trajectories to evaluate. If None, run until simulation is stopped.",
+)
 parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
 parser.add_argument("--use_amp", action="store_true", default=False, help="Use automatic mixed precision.")
 parser.add_argument("--save_video", action="store_true", default=False, help="Save video of the policy.")
@@ -40,26 +45,28 @@ simulation_app = app_launcher.app
 """Rest everything follows."""
 
 import gymnasium as gym
+import numpy as np
+import random
 import torch
-import dill
-import hydra
 from contextlib import nullcontext
 from tqdm import tqdm
-import random
-import numpy as np
-import wandb
 
+import dill
+import hydra
 import isaaclab_tasks  # noqa: F401
-import uwlab_tasks  # noqa: F401
+import wandb
 from isaaclab.envs import DirectRLEnvCfg, ManagerBasedRLEnvCfg
-from uwlab_tasks.utils.hydra import hydra_task_compose
+
+from diffusion_policy.policy.base_image_policy import BaseImagePolicy
 
 # Diffusion policy imports
 from diffusion_policy.workspace.base_workspace import BaseWorkspace
-from diffusion_policy.policy.base_image_policy import BaseImagePolicy
 
 # Import the Diffusion policy wrapper
 from uwlab_rl.wrappers.diffusion import DiffusionPolicyWrapper
+
+import uwlab_tasks  # noqa: F401
+from uwlab_tasks.utils.hydra import hydra_task_compose
 
 
 @hydra_task_compose(args_cli.task, "env_cfg_entry_point", hydra_args=remaining_args)
@@ -111,8 +118,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
 
     # Load diffusion policy checkpoint
     ckpt_path = args_cli.checkpoint
-    payload = torch.load(open(ckpt_path, 'rb'), pickle_module=dill)
-    cfg = payload['cfg']
+    payload = torch.load(open(ckpt_path, "rb"), pickle_module=dill)
+    cfg = payload["cfg"]
     cls = hydra.utils.get_class(cfg._target_)
     workspace = cls(cfg)
     workspace: BaseWorkspace
@@ -130,7 +137,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
     policy.eval().to(policy_device)
 
     # Wrap policy to handle Isaac Lab observations
-    wrapped_policy = DiffusionPolicyWrapper(policy, policy_device, n_obs_steps=policy.n_obs_steps, num_envs=args_cli.num_envs)
+    wrapped_policy = DiffusionPolicyWrapper(
+        policy, policy_device, n_obs_steps=policy.n_obs_steps, num_envs=args_cli.num_envs
+    )
 
     # reset environment
     obs_dict, _ = env.reset()
@@ -162,7 +171,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
     # simulate environment
     if args_cli.save_video:
         env_frames = [[] for _ in range(args_cli.num_envs)]
-        cam_keys = sorted([key for key in obs_dict['policy'].keys() if 'rgb' in key])
+        cam_keys = sorted([key for key in obs_dict["policy"].keys() if "rgb" in key])
 
     while simulation_app.is_running():
         # Check if we've reached the desired number of trajectories
@@ -179,7 +188,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
             actions = wrapped_policy.predict_action(obs_dict).to(device)
 
             # first step after reset: hold the arm still with the gripper closed
-            first_step_mask = (episode_steps == 0)
+            first_step_mask = episode_steps == 0
             if torch.any(first_step_mask):
                 actions[first_step_mask, :-1] = 0.0
                 actions[first_step_mask, -1] = -1.0  # close gripper
@@ -193,8 +202,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
                         imgs = []
 
                         for cam in cam_keys:
-                            img = obs_dict['policy'][cam][i].detach().cpu().permute(1, 2, 0).numpy()
-                            img = (img * 255).clip(0, 255).astype('uint8')
+                            img = obs_dict["policy"][cam][i].detach().cpu().permute(1, 2, 0).numpy()
+                            img = (img * 255).clip(0, 255).astype("uint8")
                             imgs.append(img)
                         frame = np.concatenate(imgs, axis=1)
                         env_frames[i].append(frame)
@@ -256,7 +265,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg):
                         v = np.asarray(env_frames[env_id])  # T,H,W,C uint8
                         v = v.transpose(0, 3, 1, 2)  # T,C,H,W
                         if is_success > 0:
-                            video_log[f"eval/success_video_{success_video_count}"] = wandb.Video(v, fps=10, format="mp4")
+                            video_log[f"eval/success_video_{success_video_count}"] = wandb.Video(
+                                v, fps=10, format="mp4"
+                            )
                             success_video_count += 1
                         else:
                             video_log[f"eval/fail_video_{fail_video_count}"] = wandb.Video(v, fps=10, format="mp4")

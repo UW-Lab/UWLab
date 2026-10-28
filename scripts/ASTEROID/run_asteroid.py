@@ -130,15 +130,15 @@ class RunCfg:
                 f"got ({c.min_exploration_horizon}, {c.max_exploration_horizon})"
             )
             if i == 0:
-                assert c.max_exploration_horizon == 0.0, (
-                    "iteration 0 has no explorer yet; its exploration horizons must be 0.0"
-                )
-            assert len(t.sampling_ratios) == i + 1, (
-                f"iteration {i}: sampling_ratios must have {i + 1} entries, got {len(t.sampling_ratios)}"
-            )
-            assert abs(sum(t.sampling_ratios) - 1.0) < 1e-6, (
-                f"iteration {i}: sampling_ratios must sum to 1.0, got {sum(t.sampling_ratios)}"
-            )
+                assert (
+                    c.max_exploration_horizon == 0.0
+                ), "iteration 0 has no explorer yet; its exploration horizons must be 0.0"
+            assert (
+                len(t.sampling_ratios) == i + 1
+            ), f"iteration {i}: sampling_ratios must have {i + 1} entries, got {len(t.sampling_ratios)}"
+            assert (
+                abs(sum(t.sampling_ratios) - 1.0) < 1e-6
+            ), f"iteration {i}: sampling_ratios must sum to 1.0, got {sum(t.sampling_ratios)}"
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
@@ -190,9 +190,9 @@ def default_curriculum(
         (0.05, 0.1, 0.15, 0.15, 0.2, 0.35),
     ]
     max_supported = min(len(HORIZONS), len(LRS), len(SAMPLING_RATIOS))
-    assert 1 <= num_iterations <= max_supported, (
-        f"default curriculum supports 1..{max_supported} iterations, got {num_iterations}"
-    )
+    assert (
+        1 <= num_iterations <= max_supported
+    ), f"default curriculum supports 1..{max_supported} iterations, got {num_iterations}"
 
     iterations = []
     for i in range(num_iterations):
@@ -320,18 +320,29 @@ class AsteroidRun:
         cfg, c = self.cfg, self.cfg.iterations[iteration].collect
         dataset_dir = self.dataset_dir(iteration)
         command = [
-            "python", "scripts/ASTEROID/collect_demos_asteroid.py",
-            "--task", cfg.data_task,
-            "--dataset_file", os.path.join(dataset_dir, "data.zarr"),
-            "--num_envs", str(c.num_envs),
-            "--num_demos", str(c.num_demos),
-            "--episode_length_s", str(c.episode_length_s),
-            "--min_exploration_horizon", str(c.min_exploration_horizon),
-            "--max_exploration_horizon", str(c.max_exploration_horizon),
-            "--expert_noise", str(c.expert_noise),
-            "--max_exploration_horizon_for_save", str(c.max_exploration_horizon_for_save),
+            "python",
+            "scripts/ASTEROID/collect_demos_asteroid.py",
+            "--task",
+            cfg.data_task,
+            "--dataset_file",
+            os.path.join(dataset_dir, "data.zarr"),
+            "--num_envs",
+            str(c.num_envs),
+            "--num_demos",
+            str(c.num_demos),
+            "--episode_length_s",
+            str(c.episode_length_s),
+            "--min_exploration_horizon",
+            str(c.min_exploration_horizon),
+            "--max_exploration_horizon",
+            str(c.max_exploration_horizon),
+            "--expert_noise",
+            str(c.expert_noise),
+            "--max_exploration_horizon_for_save",
+            str(c.max_exploration_horizon_for_save),
             # a different seed per iteration so each dataset sees new initial states
-            "--seed", str(cfg.seed + iteration),
+            "--seed",
+            str(cfg.seed + iteration),
             "--headless",
             f'agent.algorithm.offline_algorithm_cfg.behavior_cloning_cfg.experts_path=["{cfg.expert_policy_checkpoint}"]',
             *self._scene_overrides(),
@@ -346,9 +357,9 @@ class AsteroidRun:
     def train(self, iteration: int, dataset_dirs: list[str], pretrained_checkpoint: str | None) -> str:
         """Train iteration ``iteration``'s student; returns its checkpoint path."""
         cfg, t = self.cfg, self.cfg.iterations[iteration].train
-        assert len(dataset_dirs) == len(t.sampling_ratios), (
-            f"iteration {iteration}: have {len(dataset_dirs)} datasets but {len(t.sampling_ratios)} sampling ratios"
-        )
+        assert len(dataset_dirs) == len(
+            t.sampling_ratios
+        ), f"iteration {iteration}: have {len(dataset_dirs)} datasets but {len(t.sampling_ratios)} sampling ratios"
         dataset_config = ",".join(
             f"{{dataset_dir: {d}, sampling_ratio: {r}}}" for d, r in zip(dataset_dirs, t.sampling_ratios)
         )
@@ -356,9 +367,12 @@ class AsteroidRun:
         if not self.dry_run:
             os.makedirs(output_dir, exist_ok=True)
         command = [
-            "python", "diffusion_policy/train.py",
-            "--config-name", cfg.config_name,
-            "--config-dir", cfg.config_dir,
+            "python",
+            "diffusion_policy/train.py",
+            "--config-name",
+            cfg.config_name,
+            "--config-dir",
+            cfg.config_dir,
             f"output_dir={output_dir}",
             f"task.dataset.dataset_config=[{dataset_config}]",
             f"name={cfg.exp_name}",
@@ -377,17 +391,28 @@ class AsteroidRun:
     def eval(self, iteration: int, checkpoint: str) -> None:
         cfg, e = self.cfg, self.cfg.iterations[iteration].eval
         command = [
-            "python", "scripts/ASTEROID/eval_asteroid_policy.py",
-            "--task", cfg.eval_task,
-            "--checkpoint", checkpoint,
-            "--num_trajectories", str(e.num_trajectories),
-            "--num_envs", str(e.num_envs),
-            "--episode_length_s", str(e.episode_length_s),
-            "--seed", str(cfg.seed),
-            "--exp_name", cfg.exp_name,
-            "--wandb_project", cfg.wandb_project,
-            "--wandb_group", "eval",
-            "--iteration", str(iteration),
+            "python",
+            "scripts/ASTEROID/eval_asteroid_policy.py",
+            "--task",
+            cfg.eval_task,
+            "--checkpoint",
+            checkpoint,
+            "--num_trajectories",
+            str(e.num_trajectories),
+            "--num_envs",
+            str(e.num_envs),
+            "--episode_length_s",
+            str(e.episode_length_s),
+            "--seed",
+            str(cfg.seed),
+            "--exp_name",
+            cfg.exp_name,
+            "--wandb_project",
+            cfg.wandb_project,
+            "--wandb_group",
+            "eval",
+            "--iteration",
+            str(iteration),
             "--headless",
             *self._scene_overrides(),
         ]
@@ -456,11 +481,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--num_eval_envs", type=int, default=2)
     p.add_argument("--num_eval_episodes", type=int, default=10)
     p.add_argument("--expert_noise", type=float, default=0.0)
-    p.add_argument("--not_use_pretrained_checkpoint", action="store_true",
-                   help="Train every iteration's student from scratch instead of warm-starting.")
+    p.add_argument(
+        "--not_use_pretrained_checkpoint",
+        action="store_true",
+        help="Train every iteration's student from scratch instead of warm-starting.",
+    )
     # resume
-    p.add_argument("--initial_dataset_path", default=None, help="Use this dataset for iteration 0 instead of collecting.")
-    p.add_argument("--start_iteration", type=int, default=None, help="Resume from this iteration (requires --checkpoint_dir).")
+    p.add_argument(
+        "--initial_dataset_path", default=None, help="Use this dataset for iteration 0 instead of collecting."
+    )
+    p.add_argument(
+        "--start_iteration", type=int, default=None, help="Resume from this iteration (requires --checkpoint_dir)."
+    )
     p.add_argument("--checkpoint_dir", default=None, help="Existing run directory to resume from.")
     p.add_argument("--dry_run", action="store_true", help="Print the stage commands without running them.")
     return p.parse_args(argv)

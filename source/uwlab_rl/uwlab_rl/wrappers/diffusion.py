@@ -41,6 +41,7 @@ class ObservationHistoryManager(ABC):
 
 class LowDimObservationHistory(ObservationHistoryManager):
     """Manages observation history for low-dimensional policies."""
+
     def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize history as a single tensor."""
         obs_shape = processed_obs["obs"].shape
@@ -55,7 +56,7 @@ class LowDimObservationHistory(ObservationHistoryManager):
         if self.needs_init:
             for env_idx in list(self.needs_init):
                 # Fill entire history with the first observation
-                first_obs = processed_obs["obs"][env_idx:env_idx + 1]  # Keep batch dimension
+                first_obs = processed_obs["obs"][env_idx : env_idx + 1]  # Keep batch dimension
                 for step in range(self.n_obs_steps):
                     self.history[env_idx, step] = first_obs[0]
                 self.needs_init.remove(env_idx)
@@ -82,9 +83,7 @@ class LowDimObservationHistory(ObservationHistoryManager):
 class ImageObservationHistory(ObservationHistoryManager):
     """Manages observation history for image-based policies."""
 
-    def __init__(
-        self, num_envs: int, n_obs_steps: int, device: torch.device, obs_keys: list[str] | None = None
-    ):
+    def __init__(self, num_envs: int, n_obs_steps: int, device: torch.device, obs_keys: list[str] | None = None):
         """Args:
         obs_keys: Observation keys the policy consumes. ``None`` uses every key of the first observation.
         """
@@ -112,7 +111,7 @@ class ImageObservationHistory(ObservationHistoryManager):
                 if env_idx < self.num_envs:
                     # Fill entire history with the first observation for each key
                     for key in self.obs_keys:
-                        first_obs = processed_obs[key][env_idx:env_idx + 1]  # Keep batch dimension
+                        first_obs = processed_obs[key][env_idx : env_idx + 1]  # Keep batch dimension
                         for step in range(self.n_obs_steps):
                             self.history[key][env_idx, step] = first_obs[0]
                     self.needs_init.remove(env_idx)
@@ -142,8 +141,7 @@ class ImageObservationHistory(ObservationHistoryManager):
 
 
 class ImageObservationSequence(ImageObservationHistory):
-    """Stores full trajectory per-environment as lists and returns padded batches with attention masks.
-    """
+    """Stores full trajectory per-environment as lists and returns padded batches with attention masks."""
 
     def initialize(self, processed_obs: dict[str, torch.Tensor]):
         """Initialize internal per-key, per-env lists for histories."""
@@ -178,7 +176,7 @@ class ImageObservationSequence(ImageObservationHistory):
                 # Expect tensor shape (num_envs, ...)
                 for idx, env_idx in enumerate(env_indices):
                     obs = tensor[idx]
-                    
+
                     # store a detached clone to avoid accidental graph retention
                     self.history[key][env_idx].append(obs.detach().clone().to(self.device))
 
@@ -203,12 +201,10 @@ class ImageObservationSequence(ImageObservationHistory):
 
         for key in self.obs_keys:
             obs_batch[key] = torch.nn.utils.rnn.pad_sequence(
-                [torch.stack(self.history[key][env], dim=0) for env in env_indices],
-                batch_first=True,
-                padding_value=0.0
+                [torch.stack(self.history[key][env], dim=0) for env in env_indices], batch_first=True, padding_value=0.0
             )
 
-        obs_batch['attention_mask'] = attention_mask
+        obs_batch["attention_mask"] = attention_mask
         return obs_batch
 
 
@@ -260,18 +256,18 @@ class DiffusionPolicyWrapper:
     def _is_transformer(self) -> bool:
         """Detect if the policy is a transformer-based model."""
         policy_class_name = self.policy.__class__.__name__.lower()
-        transformer_indicators = ['transformer', 'gpt', 'bert', 'dpt']
+        transformer_indicators = ["transformer", "gpt", "bert", "dpt"]
         return any(indicator in policy_class_name for indicator in transformer_indicators)
-    
+
     def _is_image_policy(self) -> bool:
         """Detect if this is an image policy based on class name."""
         policy_class_name = self.policy.__class__.__name__.lower()
-        image_policy_indicators = ['image', 'hybrid', 'video']
+        image_policy_indicators = ["image", "hybrid", "video"]
         return any(indicator in policy_class_name for indicator in image_policy_indicators)
 
     def reset(self, reset_ids: torch.Tensor):
         """Reset the policy wrapper and clear observation history and action queue."""
-        reset_indices = reset_ids.tolist() if hasattr(reset_ids, 'tolist') else reset_ids
+        reset_indices = reset_ids.tolist() if hasattr(reset_ids, "tolist") else reset_ids
         for i in reset_indices:
             self.action_queue[i].clear()
 
@@ -316,13 +312,20 @@ class DiffusionPolicyWrapper:
                 self.action_queue[env_idx].extend(new_actions[idx])
 
         if self.is_transformer:
-            actions = torch.zeros(len(env_indices), self.action_queue[env_indices[0]][0].shape[-1], device=self.device, dtype=torch.float32)
+            actions = torch.zeros(
+                len(env_indices),
+                self.action_queue[env_indices[0]][0].shape[-1],
+                device=self.device,
+                dtype=torch.float32,
+            )
             for idx, env_idx in enumerate(env_indices):
                 actions[idx] = self.action_queue[env_idx].pop(0)
             return actions
         else:
             # Extract next action for each environment
-            actions = torch.zeros(self.num_envs, self.action_queue[0][0].shape[-1], device=self.device, dtype=torch.float32)
+            actions = torch.zeros(
+                self.num_envs, self.action_queue[0][0].shape[-1], device=self.device, dtype=torch.float32
+            )
             for i in range(self.num_envs):
                 actions[i] = self.action_queue[i].pop(0)
 
@@ -412,7 +415,7 @@ class DiffusionPolicyWrapper:
         with torch.no_grad():
             result = self.policy.predict_action(obs_batch)
         if isinstance(result, dict):
-            action_chunk = result['action']
+            action_chunk = result["action"]
         else:
             action_chunk = result
 

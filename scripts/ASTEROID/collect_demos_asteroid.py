@@ -9,17 +9,16 @@
 
 import argparse
 import contextlib
+import gymnasium as gym
+import numpy as np
 import os
 import random
 import time
-import gymnasium as gym
-import numpy as np
 import torch
 from tqdm import tqdm
 from typing import Sequence
 
 from isaaclab.app import AppLauncher
-
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Collect demonstrations with exploration + expert policy.")
@@ -28,21 +27,15 @@ parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument(
     "--dataset_file", type=str, default="./datasets/dataset.zarr", help="File path to export recorded demos."
 )
-parser.add_argument(
-    "--num_demos", type=int, default=10, help="Number of demonstrations to record."
-)
-parser.add_argument(
-    "--exploration_checkpoint", type=str, default=None, help="Path to exploration policy checkpoint."
-)
+parser.add_argument("--num_demos", type=int, default=10, help="Number of demonstrations to record.")
+parser.add_argument("--exploration_checkpoint", type=str, default=None, help="Path to exploration policy checkpoint.")
 parser.add_argument(
     "--min_exploration_horizon", type=float, default=0.02, help="Minimum exploration horizon for exploration policy."
 )
 parser.add_argument(
     "--max_exploration_horizon", type=float, default=0.3, help="Maximum exploration horizon for exploration policy."
 )
-parser.add_argument(
-    "--episode_length_s", type=float, default=5.0, help="Episode length in seconds."
-)
+parser.add_argument("--episode_length_s", type=float, default=5.0, help="Episode length in seconds.")
 parser.add_argument("--expert_noise", type=float, default=0.0, help="Noise level for the expert policy.")
 parser.add_argument(
     "--max_exploration_horizon_for_save",
@@ -70,10 +63,15 @@ parser.add_argument("--render", action="store_true", help="Whether to render the
 parser.add_argument("--seed", type=int, default=0, help="Random seed for environment.")
 parser.add_argument("--video", action="store_true", default=False, help="Record video of env 0 during collection.")
 parser.add_argument("--video_length", type=int, default=400, help="Video length in env steps (only used when --video).")
-parser.add_argument("--video_interval", type=int, default=0,
-                    help="Restart video recording every N env steps. 0 (default) = single video at step 0.")
-parser.add_argument("--video_dir", type=str, default=None,
-                    help="Directory to write videos. Defaults to <dataset_file>_dir/videos.")
+parser.add_argument(
+    "--video_interval",
+    type=int,
+    default=0,
+    help="Restart video recording every N env steps. 0 (default) = single video at step 0.",
+)
+parser.add_argument(
+    "--video_dir", type=str, default=None, help="Directory to write videos. Defaults to <dataset_file>_dir/videos."
+)
 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
@@ -91,36 +89,33 @@ simulation_app = app_launcher.app
 
 import dill
 import hydra
-
-from isaaclab.envs import (
-    DirectRLEnvCfg,
-    ManagerBasedRLEnvCfg
-)
-
-from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
-
 import isaaclab_tasks  # noqa: F401
-import uwlab_tasks  # noqa: F401
+from isaaclab.envs import DirectRLEnvCfg, ManagerBasedRLEnvCfg
+from isaaclab.managers.recorder_manager import DatasetExportMode
 
 # Import dataset handlers
 from isaaclab.utils.datasets import HDF5DatasetFileHandler
-from isaaclab.managers.recorder_manager import DatasetExportMode
+from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper
 
-from uwlab.utils.datasets import ZarrDatasetFileHandler
-from uwlab_tasks.utils.hydra import hydra_task_compose
-from uwlab_tasks.manager_based.manipulation.asteroid.mdp.recorders.recorders_cfg import (
-    AsteroidActionStateRecorderManagerCfg as ActionStateRecorderManagerCfg,
-)
+from diffusion_policy.policy.base_image_policy import BaseImagePolicy
 
 # Diffusion policy imports
 from diffusion_policy.workspace.base_workspace import BaseWorkspace
-from diffusion_policy.policy.base_image_policy import BaseImagePolicy
+from uwlab.utils.datasets import ZarrDatasetFileHandler
+
 from uwlab_rl.wrappers.diffusion import DiffusionPolicyWrapper
+
+import uwlab_tasks  # noqa: F401
+from uwlab_tasks.manager_based.manipulation.asteroid.mdp.recorders.recorders_cfg import (
+    AsteroidActionStateRecorderManagerCfg as ActionStateRecorderManagerCfg,
+)
+from uwlab_tasks.utils.hydra import hydra_task_compose
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cudnn.deterministic = False
 torch.backends.cudnn.benchmark = False
+
 
 def record_pre_reset(self, env_ids: Sequence[int] | None, force_export_or_skip=None) -> None:
     """Trigger recorder terms for pre-reset functions.
@@ -157,6 +152,7 @@ def record_pre_reset(self, env_ids: Sequence[int] | None, force_export_or_skip=N
 
     if force_export_or_skip or (force_export_or_skip is None and self.cfg.export_in_record_pre_reset):
         self.export_episodes(env_ids)
+
 
 def process_agent_cfg(env_cfg, agent_cfg):
     if hasattr(agent_cfg.algorithm, "behavior_cloning_cfg"):
@@ -200,8 +196,8 @@ def process_agent_cfg(env_cfg, agent_cfg):
 
 def load_exploration_policy(checkpoint_path: str, device: torch.device, num_envs: int):
     """Load exploration diffusion policy from checkpoint."""
-    payload = torch.load(open(checkpoint_path, 'rb'), pickle_module=dill)
-    cfg = payload['cfg']
+    payload = torch.load(open(checkpoint_path, "rb"), pickle_module=dill)
+    cfg = payload["cfg"]
     cls = hydra.utils.get_class(cfg._target_)
     workspace = cls(cfg)
     workspace: BaseWorkspace
@@ -218,7 +214,9 @@ def load_exploration_policy(checkpoint_path: str, device: torch.device, num_envs
     return wrapped_policy
 
 
-def sample_exploration_horizons(num_envs: int, min_horizon: int, max_horizon: int, device: torch.device) -> torch.Tensor:
+def sample_exploration_horizons(
+    num_envs: int, min_horizon: int, max_horizon: int, device: torch.device
+) -> torch.Tensor:
     """Sample exploration horizons for each environment."""
     return torch.randint(min_horizon, max_horizon + 1, (num_envs,), device=device)
 
@@ -374,8 +372,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     np.random.seed(args_cli.seed)
     torch.manual_seed(args_cli.seed)
     # device = torch.device(args_cli.device if args_cli.device else 'cuda' if torch.cuda.is_available() else 'cpu')
-    device = torch.device('cuda:0')
-    policy_device = torch.device('cuda:1') if torch.cuda.device_count() > 1 else device
+    device = torch.device("cuda:0")
+    policy_device = torch.device("cuda:1") if torch.cuda.device_count() > 1 else device
 
     # get directory path and file name (without extension) from cli arguments
     output_dir = os.path.dirname(args_cli.dataset_file)
@@ -386,7 +384,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
         os.makedirs(output_dir, exist_ok=True)
 
     # add recordermanager to save data
-    use_zarr_format = args_cli.dataset_file.endswith('.zarr')
+    use_zarr_format = args_cli.dataset_file.endswith(".zarr")
     if use_zarr_format:
         dataset_handler = ZarrDatasetFileHandler
     else:
@@ -422,9 +420,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     # at the right level. RecordVideo only renders env 0 of the vec env.
     if args_cli.video:
         if args_cli.video_dir is None:
-            args_cli.video_dir = os.path.join(
-                os.path.dirname(args_cli.dataset_file), "videos"
-            )
+            args_cli.video_dir = os.path.join(os.path.dirname(args_cli.dataset_file), "videos")
         os.makedirs(args_cli.video_dir, exist_ok=True)
         if args_cli.video_interval and args_cli.video_interval > 0:
             video_kwargs = {
@@ -474,6 +470,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
 
     if exploration_policy is not None:
         from types import MethodType
+
         recorder_manager.record_pre_reset = MethodType(record_pre_reset, recorder_manager)
 
     exploration_lengths = torch.zeros((num_envs,), device=device, dtype=torch.int32)
@@ -515,7 +512,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
             # exploration policy actions
             if use_exploration.any() and exploration_policy is not None:
                 exploration_env_ids = use_exploration.nonzero(as_tuple=False).reshape(-1)
-                exploration_obs = {k: v[use_exploration] for k, v in obs_dict['policy'].items()}
+                exploration_obs = {k: v[use_exploration] for k, v in obs_dict["policy"].items()}
                 exploration_actions = exploration_policy.predict_action(exploration_obs, exploration_env_ids)
                 exploration_actions = exploration_actions.to(device)
                 actions[use_exploration] = exploration_actions
@@ -534,7 +531,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
                 expert_mask[use_expert] = True
 
             # mask actions for first step after reset (first image not valid)
-            first_step_mask = (episode_steps == 0)
+            first_step_mask = episode_steps == 0
             if torch.any(first_step_mask):
                 actions[first_step_mask, :-1] = 0.0
                 actions[first_step_mask, -1] = -1.0  # close gripper
@@ -595,9 +592,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg, agent_cfg: RslRlOnPolic
     if args_cli.render:
         # save rendered frames as a video
         import cv2
+
         video_path = os.path.join(output_dir, "recorded_demos_video.mp4")
         height, width, _ = rendered_frames[0].shape
-        video_writer = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'mp4v'), 30, (width, height))
+        video_writer = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*"mp4v"), 30, (width, height))
         for frame in rendered_frames:
             frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             video_writer.write(frame_bgr)
