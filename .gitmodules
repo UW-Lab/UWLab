@@ -1,0 +1,4 @@
+[submodule "diffusion_policy"]
+	path = diffusion_policy
+	url = https://github.com/yandaboa/diffusion_policy_asteroid.git
+	branch = main
